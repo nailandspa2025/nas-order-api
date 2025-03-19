@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>BuildingBlocks.Persistence.Abstractions</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Auditing\" />
+    <None Remove="Entities\" />
+    <None Remove="DomainEvent\" />
+    <None Remove="Event\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Auditing\" />
+    <Folder Include="Entities\" />
+    <Folder Include="DomainEvent\" />
+    <Folder Include="Event\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>BuildingBlocks.Common</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="API\" />
+    <None Remove="API\Controllers\" />
+    <None Remove="API\ExceptionHandlers\" />
+    <None Remove="Exceptions\" />
+    <None Remove="Extensions\" />
+    <None Remove="Helpers\" />
+    <None Remove="API\Versioning\" />
+    <None Remove="Swagger\" />
+    <None Remove="Logging\" />
+    <None Remove="FileStorage\" />
+    <None Remove="Mediator\" />
+    <None Remove="Mediator\Behaviours\" />
+    <None Remove="Configurations\" />
+    <None Remove="Mappings\" />
+    <None Remove="API\Error\" />
+    <None Remove="Firebase\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="API\" />
+    <Folder Include="API\Controllers\" />
+    <Folder Include="API\ExceptionHandlers\" />
+    <Folder Include="Exceptions\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="API\Versioning\" />
+    <Folder Include="Swagger\" />
+    <Folder Include="Logging\" />
+    <Folder Include="FileStorage\" />
+    <Folder Include="Mediator\" />
+    <Folder Include="Mediator\Behaviours\" />
+    <Folder Include="Configurations\" />
+    <Folder Include="Mappings\" />
+    <Folder Include="API\Error\" />
+    <Folder Include="Firebase\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Duende.IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="14.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NSwag.MSBuild" Version="14.2.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.2.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.409.34" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.AwsCloudWatch" Version="4.3.37" />
+    <PackageReference Include="Serilog.Sinks.GoogleCloudLogging" Version="5.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.415.3" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.27.4" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="ZymLabs.NSwag.FluentValidation.AspNetCore" Version="0.7.1" />
+    <PackageReference Include="FirebaseAdmin" Version="3.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Authentication\Authentication.csproj" />
+  </ItemGroup>
+</Project>

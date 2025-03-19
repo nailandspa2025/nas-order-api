@@ -1,0 +1,36 @@
+{
+  "CloudinarySettings": {
+    "ApiKey": "629974243297768",
+    "ApiSecret": "FHAycHdPJK1MR7XsnWaXuCE1kic",
+    "Cloud": "dhub"
+  },
+  "TenantOptions": {
+    "DefaultConnection": "",
+    "Tenants": [
+      {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "Name": "DHub",
+        "IsDefault": true
+      },
+      {
+        "Id": "B068DCC4-AD4D-4A25-A1C2-0A19D3C335ED",
+        "Name": "Vinamilk",
+        "ApiKey": "VLhQ5jXJ2EOwWKYQpdzGCA=="
+      },
+      {
+        "Id": "E9C2BC89-4C98-4B73-A61A-2AD00AB25FB1",
+        "Name": "Nutifood",
+        "ApiKey": "aAOPkjM2QUqJnIPYYZ/vCw=="
+      }
+    ]
+  },
+  "AwsBusOptions": {
+    "Queue": {
+      "CommunicationSentSms": "communication-sent-sms-queue",
+      "CommunicationSentEmail": "communication-sent-email-queue"
+    },
+    "Topic": {
+      "IdentityUserLoggedOut": "identity-user-logged-out-topic"
+    }
+  }
+}

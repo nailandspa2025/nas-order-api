@@ -1,0 +1,18 @@
+{
+  "MicroserviceUri": {
+    "IdentityAddress": "",
+    "CommunicationAddress": "",
+    "CatalogAddress": "",
+    "OrderingAddress": "",
+    "PlatformAddress": "",
+    "InventoryAddress": "",
+    "SalesforceAddress": ""
+  },
+  "AwsBusOptions": {
+    "UseAwsBus": false,
+    "Region": "",
+    "AccessKey": "",
+    "SecretKey": "",
+    "TargetEnvironment": ""
+  }
+}

@@ -1,0 +1,7 @@
+bin/
+obj/
+buil/
+**/logs/
+.vs**
+**Debug
+log**

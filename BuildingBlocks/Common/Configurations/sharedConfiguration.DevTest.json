@@ -1,0 +1,18 @@
+{
+  "MicroserviceUri": {
+    "IdentityAddress": "http://identity-api-svc.dhub",
+    "CommunicationAddress": "http://communication-api-svc.dhub",
+    "CatalogAddress": "http://catalog-api-svc.dhub",
+    "OrderingAddress": "",
+    "PlatformAddress": "http://platform-api-svc.dhub",
+    "InventoryAddress": "",
+    "SalesforceAddress": "http://sales-force-api-svc.dhub"
+  },
+  "AwsBusOptions": {
+    "UseAwsBus": true,
+    "Region": "ap-southeast-1",
+    "AccessKey": "AKIA5Y4QJ7WGCNGSSX7N",
+    "SecretKey": "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",
+    "TargetEnvironment": "dev"
+  }
+}

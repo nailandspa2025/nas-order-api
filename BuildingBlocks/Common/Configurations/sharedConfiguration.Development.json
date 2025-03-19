@@ -1,0 +1,17 @@
+{
+  "MicroserviceUri": {
+    "IdentityAddress": "https://api-dev.dhub.vn/identity",
+    "CommunicationAddress": "https://api-dev.dhub.vn/communication",
+    "CatalogAddress": "https://api-dev.dhub.vn/catalog",
+    "OrderingAddress": "https://api-dev.dhub.vn/ordering",
+    "PlatformAddress": "https://api-dev.dhub.vn/platform",
+    "InventoryAddress": "https://api-dev.dhub.vn/invetory"
+  },
+  "AwsBusOptions": {
+    "UseAwsBus": true,
+    "Region": "ap-southeast-1",
+    "AccessKey": "AKIA5Y4QJ7WGCNGSSX7N",
+    "SecretKey": "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",
+    "TargetEnvironment": "dev"
+  }
+}

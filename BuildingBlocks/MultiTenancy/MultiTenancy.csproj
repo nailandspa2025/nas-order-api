@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>BuildingBlocks.MultiTenancy</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiTenancy.Abstractions\MultiTenancy.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="ConfigurationStore\" />
+    <None Remove="TenantResolveContributors\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ConfigurationStore\" />
+    <Folder Include="TenantResolveContributors\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
+  </ItemGroup>
+</Project>

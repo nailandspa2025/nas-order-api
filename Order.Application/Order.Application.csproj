@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks\Common\Common.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\Authentication\Authentication.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus.csproj" />
+    <ProjectReference Include="..\Order.Domain\Order.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Common\" />
+    <None Remove="Common\Interfaces\" />
+    <None Remove="Features\" />
+    <None Remove="Features\Bookings\" />
+    <None Remove="Features\Bookings\Commands\" />
+    <None Remove="Features\Bookings\Models\" />
+    <None Remove="Features\Bookings\Queries\" />
+    <None Remove="Features\Bookings\Commands\CreateBooking\" />
+    <None Remove="Features\Bookings\Commands\UpdateBooking\" />
+    <None Remove="Features\Bookings\Commands\DeleteBooking\" />
+    <None Remove="Features\Bookings\Queries\GetBookingsWithPagination\" />
+    <None Remove="Features\Bookings\Queries\GetBooking\" />
+    <None Remove="Features\Notifications\" />
+    <None Remove="Features\Notifications\Commands\" />
+    <None Remove="Features\Notifications\Models\" />
+    <None Remove="Features\Notifications\Queries\" />
+    <None Remove="Features\Notifications\Commands\CreateNotification\" />
+    <None Remove="Features\Notifications\Commands\UpdateNotification\" />
+    <None Remove="Features\Notifications\Queries\GetNotificationsWithPagination\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\" />
+    <Folder Include="Common\Interfaces\" />
+    <Folder Include="Features\" />
+    <Folder Include="Features\Bookings\" />
+    <Folder Include="Features\Bookings\Commands\" />
+    <Folder Include="Features\Bookings\Models\" />
+    <Folder Include="Features\Bookings\Queries\" />
+    <Folder Include="Features\Bookings\Commands\CreateBooking\" />
+    <Folder Include="Features\Bookings\Commands\UpdateBooking\" />
+    <Folder Include="Features\Bookings\Commands\DeleteBooking\" />
+    <Folder Include="Features\Bookings\Queries\GetBookingsWithPagination\" />
+    <Folder Include="Features\Bookings\Queries\GetBooking\" />
+    <Folder Include="Features\Notifications\" />
+    <Folder Include="Features\Notifications\Commands\" />
+    <Folder Include="Features\Notifications\Models\" />
+    <Folder Include="Features\Notifications\Queries\" />
+    <Folder Include="Features\Notifications\Commands\CreateNotification\" />
+    <Folder Include="Features\Notifications\Commands\UpdateNotification\" />
+    <Folder Include="Features\Notifications\Commands\DeleteNotification\" />
+    <Folder Include="Features\Notifications\Queries\GetNotificationsWithPagination\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+</Project>
