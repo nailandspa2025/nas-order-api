@@ -43,7 +43,6 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
-    
     private readonly IStorageService _storageService;
 
     public UpdateBookingCommandHandler(
@@ -71,6 +70,13 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.ProductId = request.ProductId;
         entity.TechnicianId = request.TechnicianId;
         entity.BookingTime = request.BookingTime;
+        entity.Note = request.Note;
+        entity.FullName = request.FullName;
+        entity.Address = request.Address;
+        entity.Gender = request.Gender;
+        entity.Email = request.Email;
+        entity.Phone = request.Phone;
+        entity.Number = request.Number;
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -3,6 +3,7 @@ using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Core.Response;
 using MediatR;
 using Order.Domain.Entities;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Commands.DeleteBooking;
 
@@ -25,6 +26,10 @@ public class DeleteBookingCommandHandler : IRequestHandler<DeleteBookingCommand,
         if (entity == null)
         {
             throw new NotFoundException(nameof(Booking), request.Id);
+        }
+        if (entity.Status != BookingStatus.Cancelled) 
+        {
+            return ApiResponse.Error("Only canceled bookings can be deleted.");
         }
         _context.Booking.Remove(entity);
 

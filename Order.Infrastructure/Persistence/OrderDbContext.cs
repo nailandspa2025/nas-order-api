@@ -14,10 +14,11 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
     {
     }
 
-    public DbSet<Order.Domain.Entities.Booking> Booking => Set<Order.Domain.Entities.Booking>();
+    public DbSet<Booking> Booking => Set<Booking>();
 
     public DbSet<Notification> Notification => Set<Notification>();
 
+    public DbSet<Payment> Payment => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,18 +1,46 @@
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
-using Order.Application.Features.Bookings.Commands.CreateBooking;
-using Order.Application.Features.Bookings.Models;
+using Order.Application.Features.Payments.Commands.CretePayment;
+using Order.Application.Features.Payments.Commands.UpdatePayment;
+using Order.Application.Features.Payments.Models;
+using Order.Application.Features.Payments.Queries.GetPayment;
+using Order.Application.Features.Payments.Queries.GetPaymentsWithPagination;
 
-namespace Order.Api.Controllers.V1
+namespace Order.Api.Controllers.V1;
+
+[ApiVersion("1.0")]
+public class PaymentsController : ApiControllerBase
 {
-    [ApiVersion("1.0")]
-    public class PaymentsController : ApiControllerBase
+    [HttpGet("pagingation")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedList<PaymentDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaginatedList<PaymentDto>>>> GetWithPaginationAsync([FromQuery] GetPaymentsWithPaginationQuery query)
     {
-        [HttpPost]
-        [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<ApiResponse<BookingDto>>> CreateAsync( [FromForm] CreateBookingCommand command)
+        return await Mediator.Send(query);
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> GetByIdAsync(int id)
+    {
+        return await Mediator.Send(new GetPaymentByIdQuery { Id = id });
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> CreateAsync([FromForm] CreatePaymentCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> UpdateAsync(int id, [FromForm] UpdatePaymentCommand command)
+    {
+        if (id != command.Id)
         {
-            return await Mediator.Send(command);
+            return BadRequest();
         }
+        return await Mediator.Send(command);
     }
 }

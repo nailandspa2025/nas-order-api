@@ -11,6 +11,7 @@
     <ProjectReference Include="..\BuildingBlocks\Authentication\Authentication.csproj" />
     <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus.csproj" />
     <ProjectReference Include="..\Order.Domain\Order.Domain.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\ApiClients\ApiClients.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Common\" />
@@ -32,6 +33,16 @@
     <None Remove="Features\Notifications\Commands\CreateNotification\" />
     <None Remove="Features\Notifications\Commands\UpdateNotification\" />
     <None Remove="Features\Notifications\Queries\GetNotificationsWithPagination\" />
+    <None Remove="Features\Payments\" />
+    <None Remove="Features\Payments\Commands\" />
+    <None Remove="Features\Payments\Models\" />
+    <None Remove="Features\Payments\Queries\" />
+    <None Remove="Features\Payments\Commands\CretePayment\" />
+    <None Remove="Features\Payments\Commands\UpdatePayment\" />
+    <None Remove="Features\Payments\Commands\DeletePayment\" />
+    <None Remove="Features\Payments\Queries\GetPayment\" />
+    <None Remove="Features\Payments\Queries\GetPaymentsWithPagination\" />
+    <None Remove="Features\Notifications\Queries\GetNotifications\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -54,6 +65,16 @@
     <Folder Include="Features\Notifications\Commands\UpdateNotification\" />
     <Folder Include="Features\Notifications\Commands\DeleteNotification\" />
     <Folder Include="Features\Notifications\Queries\GetNotificationsWithPagination\" />
+    <Folder Include="Features\Payments\" />
+    <Folder Include="Features\Payments\Commands\" />
+    <Folder Include="Features\Payments\Models\" />
+    <Folder Include="Features\Payments\Queries\" />
+    <Folder Include="Features\Payments\Commands\CretePayment\" />
+    <Folder Include="Features\Payments\Commands\UpdatePayment\" />
+    <Folder Include="Features\Payments\Commands\DeletePayment\" />
+    <Folder Include="Features\Payments\Queries\GetPayment\" />
+    <Folder Include="Features\Payments\Queries\GetPaymentsWithPagination\" />
+    <Folder Include="Features\Notifications\Queries\GetNotifications\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />

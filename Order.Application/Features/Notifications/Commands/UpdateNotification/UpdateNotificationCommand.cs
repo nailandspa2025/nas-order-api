@@ -13,7 +13,7 @@ public record UpdateNotificationCommand: IRequest<ApiResponse<NotificationDto>>
 {
     public int Id { get; set; }
 
-    public string UserId { get; init; } = null!;
+    public string ? UserId { get; init; } 
 
     public string? Content { get; init; }
 
@@ -41,7 +41,7 @@ public class UpdateNotificationCommandHandler : IRequestHandler<UpdateNotificati
             throw new NotFoundException(nameof(Notification), request.Id);
         }
 
-        entity.UserId = request.UserId;
+        entity.AccountId = request.UserId;
         entity.Content = request.Content;
         entity.SentTime = request.SentTime;
         entity.Status = request.Status;

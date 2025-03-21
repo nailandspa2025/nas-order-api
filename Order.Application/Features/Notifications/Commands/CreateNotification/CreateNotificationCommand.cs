@@ -10,7 +10,7 @@ namespace Order.Application.Features.Notifications.Commands.CreateNotification;
 
 public record CreateNotificationCommand: IRequest<ApiResponse<NotificationDto>>
 {
-    public string UserId { get; init; } = null!;
+    public string ? UserId { get; init; } 
 
     public string? Content { get; init; }
 
@@ -34,7 +34,7 @@ public class CreateNotificationCommandHandler : IRequestHandler<CreateNotificati
     {
         var entity = new Notification
         {
-            UserId = request.UserId,
+            AccountId = request.UserId,
             Content = request.Content,
             Status = request.Status,
             SentTime = request.SentTime,

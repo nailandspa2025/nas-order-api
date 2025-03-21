@@ -14,8 +14,11 @@ namespace Order.Application.Features.Notifications.Queries.GetNotificationsWithP
 public record GetNotificationsWithPaginationQuery: IRequest<ApiResponse<PaginatedList<NotificationDto>>>
 {
     public int PageNumber { get; init; } = 1;
+
     public int PageSize { get; init; } = 10;
+
     public string? SearchText { get; init; }
+
     public NotificationStatus ? Status { get; init; }
 }
 

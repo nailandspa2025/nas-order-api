@@ -6,7 +6,9 @@ namespace Order.Domain.Entities;
 
 public class Notification : BaseAuditableEntity<int>, ISoftDelete
 {
-    public string UserId { get; set; } = null!;
+    public string ? AccountId { get; set; }
+
+    public string Title { get; set; } = null!;
 
     public string ? Content { get; set; }
 

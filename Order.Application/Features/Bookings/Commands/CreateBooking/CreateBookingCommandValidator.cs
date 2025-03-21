@@ -7,5 +7,6 @@ public class CreateBookingCommandValidator: AbstractValidator<CreateBookingComma
    
     public CreateBookingCommandValidator()
     {
+        
     }
 }

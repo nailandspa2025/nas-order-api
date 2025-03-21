@@ -4,7 +4,7 @@ namespace BuildingBlocks.Common.Firebase;
 
 public interface IFirebaseService
 {
-    Task SendNotification(string token, string title, string body);
+    Task SendNotificationAsync(string token, string title, string body);
 
     Task SendMulticastAsync(MulticastMessage message);
 

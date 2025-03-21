@@ -10,14 +10,16 @@
   <ItemGroup>
     <None Remove="Clients\" />
     <None Remove="Extensions\" />
-    <None Remove="Clients\Users\" />
-    <None Remove="Clients\Users\Models\" />
+    <None Remove="Clients\Identity\" />
+    <None Remove="Clients\Identity\Users\" />
+    <None Remove="Clients\Identity\AccountDevice\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Clients\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Clients\Users\" />
-    <Folder Include="Clients\Users\Models\" />
+    <Folder Include="Clients\Identity\" />
+    <Folder Include="Clients\Identity\Users\" />
+    <Folder Include="Clients\Identity\AccountDevice\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />

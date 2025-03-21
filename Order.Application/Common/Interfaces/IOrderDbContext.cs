@@ -9,7 +9,7 @@ namespace Order.Application.Common.Interfaces;
 public interface IOrderDbContext : IEfCoreDbContext
 {
     DbSet<Booking> Booking { get; }
-
-    DbSet<Notification> Notification { get; }
+    DbSet<Payment> Payment { get; }
+     DbSet<Notification> Notification { get; }
 }
 

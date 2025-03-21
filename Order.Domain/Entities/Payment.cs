@@ -11,6 +11,8 @@ public class Payment : BaseAuditableEntity<int>, ISoftDelete
 
     public DateTime PaidAt { get; set; }
 
+    public virtual Booking Booking { get; set; } = null!;
+
     public string? DeletedBy { get; set; }
 
     public DateTime? Deleted { get; set; }

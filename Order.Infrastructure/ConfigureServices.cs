@@ -6,6 +6,10 @@ using BuildingBlocks.Persistence;
 using BuildingBlocks.Persistence.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using BuildingBlocks.ApiClients.Extensions;
+using BuildingBlocks.ApiClients.Clients.Identity;
+using Refit;
+using BuildingBlocks.ApiClients;
 
 namespace Order.Infrastructure;
 
@@ -26,6 +30,12 @@ public static class ConfigureServices
         services.AddScoped<OrderDbContextInitialiser>();
 
         services.AddTransient<IDateTime, DateTimeService>();
+        services.AddScoped<AuthorizationMessageHandler>();
+        services.AddRefitClient<IIdentityClient>()
+               .ConfigureHttpClient((sp, client) => client.BaseAddress = configuration
+                                                                       .GetSection("MicroserviceUri")
+                                                                       .GetValue<Uri>("IdentityAddress"))
+               .AddHttpMessageHandler<AuthorizationMessageHandler>();
 
         return services;
     }

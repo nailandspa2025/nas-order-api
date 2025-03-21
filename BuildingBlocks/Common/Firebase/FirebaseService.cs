@@ -10,17 +10,24 @@ public class FirebaseService : IFirebaseService
 {
     private readonly FirebaseMessaging _messaging;
 
-   public FirebaseService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+    public FirebaseService(IConfiguration configuration)
     {
         var credentialPath = configuration["FirebaseSettings:CredentialApplication"];
 
-        var app = FirebaseApp.Create(new AppOptions()
+        if (string.IsNullOrEmpty(credentialPath))
+            throw new InvalidOperationException("Firebase credential file path is missing in configuration.");
+
+        if (FirebaseApp.DefaultInstance == null)
         {
-            Credential = GoogleCredential.FromFile(credentialPath)
-                .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
-        });
-        _messaging = FirebaseMessaging.GetMessaging(app);
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(credentialPath)
+            });
+        }
+
+        _messaging = FirebaseMessaging.DefaultInstance;
     }
+
     public async Task<string> SendAsync(Message message)
     {
         try
@@ -37,22 +44,22 @@ public class FirebaseService : IFirebaseService
 
     public async Task SendMulticastAsync(MulticastMessage message)
     {
-        var tokens = new List<string>(message.Tokens);
-        if (tokens != null && tokens.Any())
+        if (message.Tokens == null || !message.Tokens.Any()) return;
+        if (message.Tokens.Count == 1)
         {
-            int skip = 0;
-            int take = 500;
-            do
+            await _messaging.SendAsync(new Message
             {
-                message.Tokens = tokens.Skip(skip).Take(take).ToList();
-                await _messaging.SendMulticastAsync(message);
-                skip += take;
-            }
-            while (skip < tokens.Count());
+                Token = message.Tokens[0],
+                Notification = message.Notification,
+                Data = message.Data
+            });
+            return;
         }
+        await _messaging.SendMulticastAsync(message);
     }
 
-    public async Task SendNotification(string token, string title, string body)
+
+    public async Task SendNotificationAsync(string token, string title, string body)
     {
         await _messaging.SendAsync(
             new Message()
