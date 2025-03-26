@@ -90,7 +90,7 @@ public class BookingDbContextFactory : IDesignTimeDbContextFactory<OrderDbContex
             throw new Exception($"ConnectionString not found in appsettings.{environment}.json");
         }
         var optionsBuilder = new DbContextOptionsBuilder<OrderDbContext>();
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new OrderDbContext(optionsBuilder.Options);
     }

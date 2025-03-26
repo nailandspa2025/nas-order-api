@@ -48,6 +48,7 @@ public class GetNotificationsWithPaginationQueryHandler : IRequestHandler<GetNot
             query = query.Where(x => x.Status == request.Status);
         }
         var paginationResult = await query
+            .Where(x => !x.IsDeleted)
             .OrderBy(x => x.Created)
             .ProjectTo<NotificationDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);

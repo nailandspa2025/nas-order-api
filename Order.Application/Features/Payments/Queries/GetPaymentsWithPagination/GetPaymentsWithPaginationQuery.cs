@@ -38,6 +38,7 @@ public class GetPaymentsWithPaginationQueryHandler : IRequestHandler<GetPayments
         }
 
         var paginationResult = await query
+            .Where(x => !x.IsDeleted)
             .OrderBy(x => x.Created)
             .ProjectTo<PaymentDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
