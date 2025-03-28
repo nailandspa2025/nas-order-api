@@ -50,4 +50,6 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+ENV ASPNETCORE_HTTP_PORTS=6004
+ENV ASPNETCORE_URLS=http://+:6004
 ENTRYPOINT ["dotnet", "Order.Api.dll"]
