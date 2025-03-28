@@ -1,0 +1,22 @@
+name: Deploy
+on:
+  workflow_run:
+    workflows: ["Build & Push"]
+    types:
+      - completed
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into Server & Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
+            docker pull docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
+            docker stop nas-order-api || true
+            docker rm nas-order-api  || true
+            docker run -d --restart=always --name nas-order-api  -p 6004:6004 docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
