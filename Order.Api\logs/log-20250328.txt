@@ -21,3 +21,9 @@ Npgsql.NpgsqlException (0x80004005): Exception while reading from stream
    at Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal.NpgsqlHistoryRepository.GetAppliedMigrationsAsync(CancellationToken cancellationToken)
    at Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal.NpgsqlMigrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
    at Order.Infrastructure.Persistence.OrderDbContextInitialiser.InitialiseAsync() in /Users/canhlv/NAS/BackEndAPI/nas-order-api/Order.Infrastructure/Persistence/OrderDbContextInitialiser.cs:line 42
+2025-03-28 22:48:09 [Information] Bus started: amazonsqs://ap-southeast-1/dev LogProperties={ SourceContext: "MassTransit" }
+2025-03-28 22:48:09 [Information] Now listening on: "https://localhost:6002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-03-28 22:48:09 [Information] Now listening on: "http://localhost:7002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-03-28 22:48:09 [Information] Application started. Press Ctrl+C to shut down. LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-03-28 22:48:09 [Information] Hosting environment: "Development" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-03-28 22:48:09 [Information] Content root path: "/Users/canhlv/NAS/BackEndAPI/nas-order-api/Order.Api" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }

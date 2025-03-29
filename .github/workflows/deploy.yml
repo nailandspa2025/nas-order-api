@@ -19,4 +19,4 @@ jobs:
             docker pull docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
             docker stop nas-order-api || true
             docker rm nas-order-api  || true
-            docker run -d --restart=always --name nas-order-api  -p 6004:6004 docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
+            docker run -d --restart=always --name nas-order-api  -p 6002:6002 docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}

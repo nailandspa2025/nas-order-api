@@ -1,7 +1,7 @@
 # Base Image (Runtime)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 6004
+EXPOSE 6002
 
 # Build Image (SDK)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -50,6 +50,6 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENV ASPNETCORE_HTTP_PORTS=6004
-ENV ASPNETCORE_URLS=http://+:6004
+ENV ASPNETCORE_HTTP_PORTS=6002
+ENV ASPNETCORE_URLS=http://+:6002
 ENTRYPOINT ["dotnet", "Order.Api.dll"]
