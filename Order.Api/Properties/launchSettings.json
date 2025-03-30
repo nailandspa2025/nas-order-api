@@ -9,6 +9,15 @@
     }
   },
   "profiles": {
+    "Order.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "api",
+      "applicationUrl": "https://localhost:8002;http://localhost:7002",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
@@ -28,15 +37,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true
-    },
-    "Order.Api": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "api",
-      "applicationUrl": "https://localhost:6002;http://localhost:7002",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
     }
   }
 }
