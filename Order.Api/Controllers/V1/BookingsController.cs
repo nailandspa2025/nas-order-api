@@ -6,6 +6,7 @@ using Order.Application.Features.Bookings.Queries.GetBooking;
 using Order.Application.Features.Bookings.Queries.GetBookingsWithPagination;
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
+using Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 
 namespace Order.Api.Controllers.V1;
 
@@ -52,4 +53,10 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(new DeleteBookingCommand(id));
     }
 
+    [HttpPost("create")]
+    [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromForm] CreateBookingMobileCommand command)
+    {
+        return await Mediator.Send(command);
+    }
 }
