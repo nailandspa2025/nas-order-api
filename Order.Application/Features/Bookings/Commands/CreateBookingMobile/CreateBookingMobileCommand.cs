@@ -6,20 +6,20 @@ using BuildingBlocks.Core.Response;
 using FirebaseAdmin.Messaging;
 using MediatR;
 using Order.Application.Common.Interfaces;
+using Order.Application.Features.Bookings.Commands.CreateBooking;
 using Order.Application.Features.Bookings.Models;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 
-namespace Order.Application.Features.Bookings.Commands.CreateBooking;
+namespace Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 
-public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
+public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 {
-   
-    public long ? StoreId { get; init; }
+    public long? StoreId { get; init; }
 
-    public long ? ProductId { get; init; }
+    public long? ProductId { get; init; }
 
-    public long ? TechnicianId { get; init; }
+    public long? TechnicianId { get; init; }
 
     public DateTime BookingDate { get; init; }
 
@@ -38,12 +38,9 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
     public string? Email { get; init; }
 
     public int? Number { get; init; }
-
-    public string ? UserId { get; init; }
-
 }
 
-public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, ApiResponse<BookingDto>>
+public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMobileCommand, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
@@ -51,7 +48,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
     private readonly IIdentityClient _identityClient;
     private readonly IFirebaseService _firebaseService;
 
-    public CreateBookingCommandHandler(
+    public CreateBookingMobileCommandHandler(
         IOrderDbContext context,
         IMapper mapper,
         ICurrentUser currentUser,
@@ -65,7 +62,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
         _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
 
-    public async Task<ApiResponse<BookingDto>> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<BookingDto>> Handle(CreateBookingMobileCommand request, CancellationToken cancellationToken)
     {
         var entity = new Booking
         {
@@ -75,7 +72,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             BookingTime = request.BookingTime,
             BookingDate = request.BookingDate,
             Status = BookingStatus.Pending,
-            UserId = request.UserId,
+            UserId = _curentUser.UserId,
             Note = request.Note,
             FullName = request.FullName,
             Gender = request.Gender,
@@ -89,7 +86,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)
         {
-            var devices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
+            var devices = (await _identityClient.GetAccountDeviceAsync(_curentUser.UserId, cancellationToken))?.Data;
             if (devices != null && devices.Any())
             {
                 var deviceTokens = devices.Select(d => d.Token).ToList();
@@ -114,7 +111,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
 
                     notifications.Add(new Domain.Entities.Notification
                     {
-                        AccountId = request.UserId,
+                        AccountId = _curentUser.UserId,
                         Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
                         Content = request.Note,
                         SentTime = DateTime.UtcNow,
