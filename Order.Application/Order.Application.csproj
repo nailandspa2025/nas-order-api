@@ -44,6 +44,7 @@
     <None Remove="Features\Payments\Queries\GetPaymentsWithPagination\" />
     <None Remove="Features\Notifications\Queries\GetNotifications\" />
     <None Remove="Features\Bookings\Commands\CreateBookingMobile\" />
+    <None Remove="Features\Bookings\Queries\GetBookings\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -77,6 +78,7 @@
     <Folder Include="Features\Payments\Queries\GetPaymentsWithPagination\" />
     <Folder Include="Features\Notifications\Queries\GetNotifications\" />
     <Folder Include="Features\Bookings\Commands\CreateBookingMobile\" />
+    <Folder Include="Features\Bookings\Queries\GetBookings\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
