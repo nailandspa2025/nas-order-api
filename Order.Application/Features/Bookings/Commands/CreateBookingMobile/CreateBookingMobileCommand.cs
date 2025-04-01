@@ -6,7 +6,6 @@ using BuildingBlocks.Core.Response;
 using FirebaseAdmin.Messaging;
 using MediatR;
 using Order.Application.Common.Interfaces;
-using Order.Application.Features.Bookings.Commands.CreateBooking;
 using Order.Application.Features.Bookings.Models;
 using Order.Domain.Entities;
 using Order.Domain.Enums;

@@ -27,8 +27,7 @@ public class BookingConfiguration: IEntityTypeConfiguration<Booking>
             .IsRequired();
 
         builder.Property(p => p.Note)
-            .HasMaxLength(250)
-            .IsRequired();
+            .HasMaxLength(250);
 
     }
 }
