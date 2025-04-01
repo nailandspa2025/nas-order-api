@@ -7,6 +7,7 @@ using Order.Application.Features.Bookings.Queries.GetBookingsWithPagination;
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Bookings.Commands.CreateBookingMobile;
+using Order.Application.Features.Bookings.Queries.GetBookings;
 
 namespace Order.Api.Controllers.V1;
 
@@ -15,7 +16,7 @@ public class BookingsController : ApiControllerBase
 {
     [HttpGet("pagingation")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedList<BookingDto>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<PaginatedList<BookingDto>>>> GetWithPaginationAsync([FromQuery] GetBookingsWithPaginationQuery query)
+    public async Task<ActionResult<ApiResponse<PaginatedList<BookingDto>>>> GetBookingsWithPaginationAsync([FromQuery] GetBookingsWithPaginationQuery query)
     {
         return await Mediator.Send(query);
     }
@@ -58,5 +59,12 @@ public class BookingsController : ApiControllerBase
     public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromForm] CreateBookingMobileCommand command)
     {
         return await Mediator.Send(command);
+    }
+
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedList<BookingDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaginatedList<BookingDto>>>> GetBookingsMeWithPaginationAsync([FromQuery] GetBookingsMeQuery query)
+    {
+        return await Mediator.Send(query);
     }
 }
