@@ -26,15 +26,15 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public string? Note { get; set; }
 
-    public string? FullName { get; init; }
+    public string FullName { get; init; } = null!;
 
-    public string? Address { get; init; }
+    public string Address { get; init; } = null!;
 
     public Gender? Gender { get; init; }
 
-    public string? Phone { get; init; }
+    public string Phone { get; init; } = null!;
 
-    public string? Email { get; init; }
+    public string Email { get; init; } = null!;
 
     public int? Number { get; init; }
 }
