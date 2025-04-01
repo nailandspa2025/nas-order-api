@@ -14,12 +14,12 @@ namespace Order.Application.Features.Bookings.Commands.CreateBooking;
 
 public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
 {
-   
-    public long ? StoreId { get; init; }
 
-    public long ? ProductId { get; init; }
+    public long? StoreId { get; init; }
 
-    public long ? TechnicianId { get; init; }
+    public long? ProductId { get; init; }
+
+    public long? TechnicianId { get; init; }
 
     public DateTime BookingDate { get; init; }
 
@@ -27,15 +27,15 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
 
     public string? Note { get; set; }
 
-    public string? FullName { get; init; }
+    public string FullName { get; init; } = null!;
 
-    public string? Address { get; init; }
+    public string Address { get; init; } = null!;
 
     public Gender? Gender { get; init; }
 
-    public string? Phone { get; init; }
+    public string Phone { get; init; } = null!;
 
-    public string? Email { get; init; }
+    public string Email { get; init; } = null!;
 
     public int? Number { get; init; }
 
