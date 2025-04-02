@@ -2,6 +2,8 @@
 using Order.Domain.Enums;
 using BuildingBlocks.Persistence.Models;
 using Order.Domain.Entities;
+using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
+using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
 
 namespace Order.Application.Features.Bookings.Models;
 
@@ -44,6 +46,10 @@ public class BookingDto: BaseAuditableDto
     public int TransactionId { get; set; }
 
     public virtual Payment? Payment { get; set; }
+
+    public StoreDto? Store { get; set; }
+
+    public TechnicianDto ? Technician { get; set; }
 
     private class Mapping: Profile
     {

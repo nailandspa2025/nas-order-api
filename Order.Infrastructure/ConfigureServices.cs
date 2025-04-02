@@ -10,6 +10,7 @@ using BuildingBlocks.ApiClients.Extensions;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using Refit;
 using BuildingBlocks.ApiClients;
+using BuildingBlocks.ApiClients.Clients.Catalog;
 
 namespace Order.Infrastructure;
 
@@ -35,6 +36,12 @@ public static class ConfigureServices
                .ConfigureHttpClient((sp, client) => client.BaseAddress = configuration
                                                                        .GetSection("MicroserviceUri")
                                                                        .GetValue<Uri>("IdentityAddress"))
+               .AddHttpMessageHandler<AuthorizationMessageHandler>();
+
+        services.AddRefitClient<ICatalogClient>()
+               .ConfigureHttpClient((sp, client) => client.BaseAddress = configuration
+                                                                       .GetSection("MicroserviceUri")
+                                                                       .GetValue<Uri>("CatalogAddress"))
                .AddHttpMessageHandler<AuthorizationMessageHandler>();
 
         return services;
