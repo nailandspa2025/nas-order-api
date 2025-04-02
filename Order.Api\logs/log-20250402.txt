@@ -1,0 +1,12 @@
+2025-04-02 12:19:19 [Information] Bus started: amazonsqs://ap-southeast-1/dev LogProperties={ SourceContext: "MassTransit" }
+2025-04-02 12:19:19 [Information] Now listening on: "https://localhost:8002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:19:19 [Information] Now listening on: "http://localhost:7002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:19:19 [Information] Application started. Press Ctrl+C to shut down. LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:19:19 [Information] Hosting environment: "Development" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:19:19 [Information] Content root path: "/Users/canhlv/NAS/BackEndAPI/nas-order-api/Order.Api" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:20:16 [Information] Bus started: amazonsqs://ap-southeast-1/dev LogProperties={ SourceContext: "MassTransit" }
+2025-04-02 12:20:17 [Information] Now listening on: "https://localhost:8002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:20:17 [Information] Now listening on: "http://localhost:7002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:20:17 [Information] Application started. Press Ctrl+C to shut down. LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:20:17 [Information] Hosting environment: "Development" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-04-02 12:20:17 [Information] Content root path: "/Users/canhlv/NAS/BackEndAPI/nas-order-api/Order.Api" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }

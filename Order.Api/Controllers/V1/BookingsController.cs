@@ -8,6 +8,7 @@ using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 using Order.Application.Features.Bookings.Queries.GetBookings;
+using Order.Application.Features.Bookings.Commands.CancelBooking;
 
 namespace Order.Api.Controllers.V1;
 
@@ -66,5 +67,18 @@ public class BookingsController : ApiControllerBase
     public async Task<ActionResult<ApiResponse<PaginatedList<BookingDto>>>> GetBookingsMeWithPaginationAsync([FromQuery] GetBookingsMeQuery query)
     {
         return await Mediator.Send(query);
+    }
+
+    [HttpPut("cancel-mobile/{id}")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse>> CancelBookingMobileAsync(int id,[FromForm] CancelBookingCommand command)
+    {
+        {
+            if (id != command.Id)
+            {
+                return BadRequest();
+            }
+            return await Mediator.Send(command);
+        }
     }
 }

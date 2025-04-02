@@ -65,7 +65,10 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         {
             throw new NotFoundException(nameof(Booking), request.Id);
         }
-
+        if (entity.Status != BookingStatus.Pending)
+        {
+            return ApiResponse<BookingDto>.Error("Only update bookings with status pending.");
+        }
         entity.StoreId = entity.StoreId;
         entity.ProductId = request.ProductId;
         entity.TechnicianId = request.TechnicianId;
