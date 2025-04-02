@@ -94,7 +94,6 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             }
         }
         catch (Exception) { }
-
         return ApiResponse<PaginatedList<BookingDto>>.Success(paginationResult);
     }
 }
