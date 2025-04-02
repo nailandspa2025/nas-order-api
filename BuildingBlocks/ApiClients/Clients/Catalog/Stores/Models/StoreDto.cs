@@ -2,7 +2,7 @@
 
 public class StoreDto
 {
-	public int Id { get; set; }
+	public long Id { get; set; }
 
 	public string ? StoreName { get; set; }
 
