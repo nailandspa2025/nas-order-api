@@ -13,6 +13,11 @@
     <None Remove="Clients\Identity\" />
     <None Remove="Clients\Identity\Users\" />
     <None Remove="Clients\Identity\AccountDevice\" />
+    <None Remove="Clients\Catalog\" />
+    <None Remove="Clients\Catalog\Stores\" />
+    <None Remove="Clients\Catalog\Stores\Models\" />
+    <None Remove="Clients\Identity\Technicians\" />
+    <None Remove="Clients\Identity\Technicians\Models\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Clients\" />
@@ -20,6 +25,11 @@
     <Folder Include="Clients\Identity\" />
     <Folder Include="Clients\Identity\Users\" />
     <Folder Include="Clients\Identity\AccountDevice\" />
+    <Folder Include="Clients\Catalog\" />
+    <Folder Include="Clients\Catalog\Stores\" />
+    <Folder Include="Clients\Catalog\Stores\Models\" />
+    <Folder Include="Clients\Identity\Technicians\" />
+    <Folder Include="Clients\Identity\Technicians\Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
