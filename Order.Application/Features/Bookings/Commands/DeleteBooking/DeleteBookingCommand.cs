@@ -29,7 +29,7 @@ public class DeleteBookingCommandHandler : IRequestHandler<DeleteBookingCommand,
         }
         if (entity.Status != BookingStatus.Cancelled) 
         {
-            return ApiResponse.Error("Only canceled bookings can be deleted.");
+            return ApiResponse.Error("Only deleted bookings with status canceled.");
         }
         _context.Booking.Remove(entity);
 

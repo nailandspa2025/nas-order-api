@@ -45,6 +45,7 @@
     <None Remove="Features\Notifications\Queries\GetNotifications\" />
     <None Remove="Features\Bookings\Commands\CreateBookingMobile\" />
     <None Remove="Features\Bookings\Queries\GetBookings\" />
+    <None Remove="Features\Bookings\Commands\CancelBooking\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -79,6 +80,7 @@
     <Folder Include="Features\Notifications\Queries\GetNotifications\" />
     <Folder Include="Features\Bookings\Commands\CreateBookingMobile\" />
     <Folder Include="Features\Bookings\Queries\GetBookings\" />
+    <Folder Include="Features\Bookings\Commands\CancelBooking\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
