@@ -20,7 +20,6 @@ public record GetBookingsMeQuery : IRequest<ApiResponse<PaginatedList<BookingDto
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 10;
     public string? SearchText { get; init; }
-
 }
 
 public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, ApiResponse<PaginatedList<BookingDto>>>
