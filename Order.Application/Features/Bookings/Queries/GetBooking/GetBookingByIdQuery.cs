@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Core.Response;
 using MediatR;
@@ -18,10 +20,15 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
 {
     private readonly IOrderDbContext _context;
     private IMapper _mapper;
-    public GetBookingByIdQueryHandler(IOrderDbContext context, IMapper mapper)
+    private readonly IIdentityClient _identityClient;
+    private readonly ICatalogClient _catalogClient;
+
+    public GetBookingByIdQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient)
     {
         _context = context;
         _mapper = mapper;
+        _identityClient = identityClient;
+        _catalogClient = catalogClient;
     }
     public async Task<ApiResponse<BookingDto>> Handle(GetBookingByIdQuery request, CancellationToken cancellationToken)
     {
@@ -33,7 +40,31 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
         {
             throw new NotFoundException(nameof(Booking), request.Id);
         }
+        var bookingDto = _mapper.Map<BookingDto>(entity);
+        try
+        {   if(entity.StoreId.HasValue)
+            {
+                var storeResponse = await _catalogClient.GetStoreByIdAsync(entity.StoreId.Value, cancellationToken);
+                if (storeResponse?.Data != null)
+                {
+                    bookingDto.Store = storeResponse.Data;
+                }
+            }
+        }
+        catch (Exception ex){}
+        try
+        {
+            if (entity.TechnicianId.HasValue)
+            {
+                var technicianRespnse = await _identityClient.GetTechnicianByIdAsync(entity.TechnicianId.Value, cancellationToken);
+                if (technicianRespnse?.Data != null)
+                {
+                    bookingDto.Technician = technicianRespnse.Data;
+                }
+            }
+        }
+        catch (Exception ){}
 
-        return ApiResponse<BookingDto>.Success(_mapper.Map<BookingDto>(entity));
+        return ApiResponse<BookingDto>.Success(bookingDto);
     }
 }

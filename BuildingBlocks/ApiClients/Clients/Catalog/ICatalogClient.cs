@@ -7,5 +7,8 @@ public interface ICatalogClient
 {
     [Refit.Get("/api/v1/stores/ids")]
     Task<ApiResponse<IEnumerable<StoreDto>>> GetStoreByIdsAsync(string ids, CancellationToken cancellationToken = default);
+
+    [Refit.Get("/api/v1/stores/{id}")]
+    Task<ApiResponse<StoreDto>> GetStoreByIdAsync(long id, CancellationToken cancellationToken = default);
 }
 
