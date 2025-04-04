@@ -35,6 +35,8 @@ COPY . .
 # Xóa thư mục bin & obj để tránh lỗi build cache cũ
 RUN find . -type d -name "bin" -exec rm -rf {} + && find . -type d -name "obj" -exec rm -rf {} +
 
+RUN apt update && apt install -y curl
+
 # Chạy lại restore để đảm bảo dependencies tồn tại
 RUN dotnet restore
 
