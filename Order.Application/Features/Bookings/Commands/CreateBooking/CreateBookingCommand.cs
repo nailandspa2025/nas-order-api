@@ -29,13 +29,13 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
 
     public string FullName { get; init; } = null!;
 
-    public string Address { get; init; } = null!;
+    public string? Address { get; init; } = null!;
 
     public Gender? Gender { get; init; }
 
     public string Phone { get; init; } = null!;
 
-    public string Email { get; init; } = null!;
+    public string? Email { get; init; } = null!;
 
     public int? Number { get; init; }
 

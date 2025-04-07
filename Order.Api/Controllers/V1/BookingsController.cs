@@ -48,6 +48,12 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [HttpPut("cancel/{id}")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse>> CancelBookingAsync(int id)
+    {
+        return await Mediator.Send(new CancelBookingCommand { Id = id });
+    }
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse>> DeleteAsync(int id)
@@ -71,14 +77,8 @@ public class BookingsController : ApiControllerBase
 
     [HttpPut("cancel-mobile/{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse>> CancelBookingMobileAsync(int id,[FromForm] CancelBookingCommand command)
+    public async Task<ActionResult<ApiResponse>> CancelBookingMobileAsync(int id)
     {
-        {
-            if (id != command.Id)
-            {
-                return BadRequest();
-            }
-            return await Mediator.Send(command);
-        }
+        return await Mediator.Send(new CancelBookingCommand { Id = id });
     }
 }
