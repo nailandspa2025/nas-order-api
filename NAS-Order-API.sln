@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Order.Domain", "Order.Domai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Order.Infrastructure", "Order.Infrastructure\Order.Infrastructure.csproj", "{19EA1788-C61B-4488-842C-042C86542B05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAuthorization", "BuildingBlocks\CommonAuthorization\CommonAuthorization.csproj", "{97C5EAD0-EAE4-43D9-8A2E-29D57B3C886D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{19EA1788-C61B-4488-842C-042C86542B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19EA1788-C61B-4488-842C-042C86542B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19EA1788-C61B-4488-842C-042C86542B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97C5EAD0-EAE4-43D9-8A2E-29D57B3C886D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97C5EAD0-EAE4-43D9-8A2E-29D57B3C886D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97C5EAD0-EAE4-43D9-8A2E-29D57B3C886D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97C5EAD0-EAE4-43D9-8A2E-29D57B3C886D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,5 +105,6 @@ Global
 		{D80D9FC9-DAEA-44A2-AF50-CA0D20CABC9F} = {D532BB7E-FD86-4F68-ABF6-99D4F4CE88A4}
 		{D66F97B7-F1E6-4AA6-8A94-36660D689B9A} = {D532BB7E-FD86-4F68-ABF6-99D4F4CE88A4}
 		{939430CA-F63D-4B8A-A0F8-F65AAACDD0B4} = {D532BB7E-FD86-4F68-ABF6-99D4F4CE88A4}
+		{97C5EAD0-EAE4-43D9-8A2E-29D57B3C886D} = {D532BB7E-FD86-4F68-ABF6-99D4F4CE88A4}
 	EndGlobalSection
 EndGlobal

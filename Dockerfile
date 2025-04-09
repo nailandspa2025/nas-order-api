@@ -22,7 +22,7 @@ COPY BuildingBlocks/Core/*.csproj BuildingBlocks/Core/
 COPY BuildingBlocks/EventBus/*.csproj BuildingBlocks/EventBus/
 COPY BuildingBlocks/Persistence/*.csproj BuildingBlocks/Persistence/
 COPY BuildingBlocks/Persistence.Abstractions/*.csproj BuildingBlocks/Persistence.Abstractions/
-
+COPY BuildingBlocks/CommonAuthorization/*.csproj BuildingBlocks/CommonAuthorization/
 # Restore Dependencies
 RUN dotnet restore --force --no-cache
 

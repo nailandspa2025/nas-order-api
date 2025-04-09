@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 using Order.Application.Features.Bookings.Queries.GetBookings;
 using Order.Application.Features.Bookings.Commands.CancelBooking;
+using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 
 namespace Order.Api.Controllers.V1;
 
 [ApiVersion("1.0")]
 public class BookingsController : ApiControllerBase
 {
+    [AccessGroup("booking.view")]
     [HttpGet("pagingation")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedList<BookingDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<PaginatedList<BookingDto>>>> GetBookingsWithPaginationAsync([FromQuery] GetBookingsWithPaginationQuery query)
@@ -22,6 +24,7 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
+    [AccessGroup("booking.view")]
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<BookingDto>>> GetByIdAsync(int id)
@@ -29,6 +32,7 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(new GetBookingByIdQuery { Id = id });
     }
 
+    [AccessGroup("booking.create")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<BookingDto>>> CreateAsync([FromForm] CreateBookingCommand command)
@@ -36,6 +40,7 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [AccessGroup("booking.update")]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -48,12 +53,15 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [AccessGroup("booking.update")]
     [HttpPut("cancel/{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse>> CancelBookingAsync(int id)
     {
         return await Mediator.Send(new CancelBookingCommand { Id = id });
     }
+
+    [AccessGroup("booking.delete")]
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse>> DeleteAsync(int id)
