@@ -4,7 +4,7 @@ using BuildingBlocks.Common.FileStorage;
 using BuildingBlocks.Common.Firebase;
 using BuildingBlocks.Common.Swagger;
 using BuildingBlocks.EventBus;
-
+using BuildingBlocks.CommonAuthorization.CommonAuthorizationExtensions;
 namespace Order.Api;
 
 public static class ConfigureServices
@@ -26,7 +26,7 @@ public static class ConfigureServices
         services.AddCloudinaryProvider(configuration);
         services.AddFirebaseProvider(configuration);
         services.AddEventServices(typeof(Program).Assembly, configuration);
-
+        services.AddCommonAuthorization();
         return services;
     }
 }

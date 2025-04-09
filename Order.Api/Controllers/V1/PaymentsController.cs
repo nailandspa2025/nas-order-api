@@ -1,3 +1,4 @@
+using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Payments.Commands.CretePayment;
@@ -11,6 +12,7 @@ namespace Order.Api.Controllers.V1;
 [ApiVersion("1.0")]
 public class PaymentsController : ApiControllerBase
 {
+    [AccessGroup("payment.view")]
     [HttpGet("pagingation")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedList<PaymentDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<PaginatedList<PaymentDto>>>> GetWithPaginationAsync([FromQuery] GetPaymentsWithPaginationQuery query)
@@ -18,6 +20,7 @@ public class PaymentsController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
+    [AccessGroup("payment.view")]
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<PaymentDto>>> GetByIdAsync(int id)
@@ -25,6 +28,7 @@ public class PaymentsController : ApiControllerBase
         return await Mediator.Send(new GetPaymentByIdQuery { Id = id });
     }
 
+    [AccessGroup("payment.create")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<PaymentDto>>> CreateAsync([FromForm] CreatePaymentCommand command)
@@ -32,6 +36,7 @@ public class PaymentsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [AccessGroup("payment.update")]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

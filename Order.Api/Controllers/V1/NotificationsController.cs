@@ -1,3 +1,4 @@
+using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Notifications.Commands.DeleteNotification;
@@ -11,6 +12,7 @@ namespace Order.Api.Controllers.V1;
 [ApiVersion("1.0")]
 public class NotificationsController : ApiControllerBase
 {
+    [AccessGroup("notification.view")]
     [HttpGet("pagingation")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedList<NotificationDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<PaginatedList<NotificationDto>>>> GetWithPaginationAsync([FromQuery] GetNotificationsWithPaginationQuery query)
@@ -25,6 +27,7 @@ public class NotificationsController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
+    [AccessGroup("notification.delete")]
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse>> DeleteAsync(int id)
