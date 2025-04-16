@@ -5,6 +5,7 @@ using BuildingBlocks.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+
 namespace BuildingBlocks.Persistence.EntityFrameworkCore;
 
 public abstract class EfCoreDbContext<TDbContext> : DbContext, IEfCoreDbContext where TDbContext : DbContext
