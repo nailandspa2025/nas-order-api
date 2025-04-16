@@ -8,5 +8,5 @@ public interface ICurrentUser
     string? UserId { get; }
     string? UserName { get; }
     IEnumerable<string> Roles { get; }
-    Guid TenantId { get; }
+    string? FullName { get; }
 }
