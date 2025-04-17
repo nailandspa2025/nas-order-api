@@ -46,9 +46,7 @@
     <None Remove="Features\Bookings\Commands\CreateBookingMobile\" />
     <None Remove="Features\Bookings\Queries\GetBookings\" />
     <None Remove="Features\Bookings\Commands\CancelBooking\" />
-    <None Remove="Features\BookingMerchants\" />
-    <None Remove="Features\BookingMerchants\Queries\" />
-    <None Remove="Features\BookingMerchants\Queries\GetBookingMerchantsWithPagination\" />
+    <None Remove="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -84,9 +82,7 @@
     <Folder Include="Features\Bookings\Commands\CreateBookingMobile\" />
     <Folder Include="Features\Bookings\Queries\GetBookings\" />
     <Folder Include="Features\Bookings\Commands\CancelBooking\" />
-    <Folder Include="Features\BookingMerchants\" />
-    <Folder Include="Features\BookingMerchants\Queries\" />
-    <Folder Include="Features\BookingMerchants\Queries\GetBookingMerchantsWithPagination\" />
+    <Folder Include="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />

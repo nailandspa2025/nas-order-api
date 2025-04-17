@@ -17,7 +17,7 @@ public class BookingDto: BaseAuditableDto
 
     public long? TechnicianId { get; set; }
 
-    public string? UserId { get; set; } = null!;
+    public string UserId { get; set; } = null!;
 
     public DateTime BookingDate { get; set; }
 

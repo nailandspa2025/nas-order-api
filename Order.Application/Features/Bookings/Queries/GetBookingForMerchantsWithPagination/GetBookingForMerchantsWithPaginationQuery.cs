@@ -14,20 +14,18 @@ using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
 using Order.Domain.Enums;
 
-namespace Order.Application.Features.BookingMerchants.Queries.GetBookingMerchantsWithPagination;
+namespace Order.Application.Features.Bookings.Queries.GetBookingForMerchantsWithPagination;
 
-public record GetBookingMerchantsWithPaginationQuery: IRequest<ApiResponse<PaginatedList<BookingDto>>>
+public record GetBookingForMerchantsWithPaginationQuery: IRequest<ApiResponse<PaginatedList<BookingDto>>>
 {
     public int PageNumber { get; init; } = 1;
-
     public int PageSize { get; init; } = 10;
-
     public string? SearchText { get; init; }
-
     public BookingStatus? Status { get; init; }
 }
 
-public class GetBookingMerchantsWithPaginationQueryHandler : IRequestHandler<GetBookingMerchantsWithPaginationQuery, ApiResponse<PaginatedList<BookingDto>>>
+
+public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<GetBookingForMerchantsWithPaginationQuery, ApiResponse<PaginatedList<BookingDto>>>
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
@@ -35,7 +33,7 @@ public class GetBookingMerchantsWithPaginationQueryHandler : IRequestHandler<Get
     private readonly ICatalogClient _catalogClient;
     private readonly ICurrentUser _currentUser;
 
-    public GetBookingMerchantsWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient, ICurrentUser currentUser)
+    public GetBookingForMerchantsWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient, ICurrentUser currentUser)
     {
         _context = context;
         _mapper = mapper;
@@ -44,7 +42,7 @@ public class GetBookingMerchantsWithPaginationQueryHandler : IRequestHandler<Get
         _currentUser = currentUser;
     }
 
-    public async Task<ApiResponse<PaginatedList<BookingDto>>> Handle(GetBookingMerchantsWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedList<BookingDto>>> Handle(GetBookingForMerchantsWithPaginationQuery request, CancellationToken cancellationToken)
     {
         var paramSearchText = request.SearchText ?? string.Empty;
         var query = _context.Booking.Where(x => !x.IsDeleted).AsNoTracking();
