@@ -1,6 +1,4 @@
-﻿using BuildingBlocksCommonAuthorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks.CommonAuthorization.CommonAuthorizationExtensions;
 

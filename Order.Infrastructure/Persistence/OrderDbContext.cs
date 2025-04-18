@@ -20,6 +20,8 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
 
     public DbSet<Payment> Payment => Set<Payment>();
 
+    public DbSet<Transaction> Transaction => Set<Transaction>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

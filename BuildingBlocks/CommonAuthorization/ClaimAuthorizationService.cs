@@ -1,7 +1,6 @@
-﻿using BuildingBlocks.CommonAuthorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace BuildingBlocksCommonAuthorization;
+namespace BuildingBlocks.CommonAuthorization;
 
 public class ClaimAuthorizationService: IAuthorizationService
 {

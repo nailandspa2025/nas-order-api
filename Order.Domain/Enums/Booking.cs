@@ -17,10 +17,13 @@ public enum PaymentStatus
 
 public enum PaymentMethod
 {
-    Cash = 1, 
+    Cash = 1,
     CreditCard = 2,
     Momo = 3,
-    Zalopay= 4
+    Zalopay = 4,
+    BankTransfer = 5,
+    MoMo = 6,
+    VNPay = 7
 }
 
 public enum Gender

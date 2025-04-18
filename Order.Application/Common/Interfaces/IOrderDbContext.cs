@@ -10,6 +10,7 @@ public interface IOrderDbContext : IEfCoreDbContext
 {
     DbSet<Booking> Booking { get; }
     DbSet<Payment> Payment { get; }
-     DbSet<Notification> Notification { get; }
+    DbSet<Notification> Notification { get; }
+    DbSet<Transaction> Transaction { get; }
 }
 

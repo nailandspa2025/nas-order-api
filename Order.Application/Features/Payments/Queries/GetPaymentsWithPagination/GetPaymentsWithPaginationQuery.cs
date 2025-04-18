@@ -34,7 +34,12 @@ public class GetPaymentsWithPaginationQueryHandler : IRequestHandler<GetPayments
         var query = _context.Payment.AsNoTracking();
         if (!paramSearchText.IsNullOrEmpty())
         {
-            query = query.Where(s => paramSearchText.ToLower().Contains(s.Amount.ToString().ToLower()));
+            query = query.Where(s => paramSearchText.ToLower().Contains(s.Amount.ToString().ToLower())
+                            || paramSearchText.ToLower().Contains(s.FullName.ToString().ToLower())
+                            ||paramSearchText.ToLower().Contains(s.Phone.ToString().ToLower())
+                            || paramSearchText.ToLower().Contains(s.Email.ToString().ToLower())
+                            || paramSearchText.ToLower().Contains(s.BookingId.ToString().ToLower())
+                            );
         }
 
         var paginationResult = await query
