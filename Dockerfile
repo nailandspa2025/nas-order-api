@@ -23,9 +23,9 @@ COPY BuildingBlocks/EventBus/*.csproj BuildingBlocks/EventBus/
 COPY BuildingBlocks/Persistence/*.csproj BuildingBlocks/Persistence/
 COPY BuildingBlocks/Persistence.Abstractions/*.csproj BuildingBlocks/Persistence.Abstractions/
 COPY BuildingBlocks/CommonAuthorization/*.csproj BuildingBlocks/CommonAuthorization/
+COPY BuildingBlocks/PaymentGateway/*.csproj BuildingBlocks/PaymentGateway/
 # Restore Dependencies
-#RUN dotnet restore --force --no-cache
-RUN dotnet restore
+RUN dotnet restore --force --no-cache
 
 # Kiểm tra xem project.assets.json có tồn tại không
 RUN ls -l /src/Order.Api/obj/ || echo "project.assets.json NOT FOUND"
