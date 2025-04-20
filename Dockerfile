@@ -24,7 +24,8 @@ COPY BuildingBlocks/Persistence/*.csproj BuildingBlocks/Persistence/
 COPY BuildingBlocks/Persistence.Abstractions/*.csproj BuildingBlocks/Persistence.Abstractions/
 COPY BuildingBlocks/CommonAuthorization/*.csproj BuildingBlocks/CommonAuthorization/
 # Restore Dependencies
-RUN dotnet restore --force --no-cache
+#RUN dotnet restore --force --no-cache
+RUN dotnet restore
 
 # Kiểm tra xem project.assets.json có tồn tại không
 RUN ls -l /src/Order.Api/obj/ || echo "project.assets.json NOT FOUND"
