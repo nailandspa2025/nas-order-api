@@ -5,6 +5,7 @@ using Order.Application.Features.Payments.Commands.CretePayment;
 using Order.Application.Features.Payments.Commands.UpdatePayment;
 using Order.Application.Features.Payments.Models;
 using Order.Application.Features.Payments.Queries.GetPayment;
+using Order.Application.Features.Payments.Queries.GetPaymentForMerchantsWithPagination;
 using Order.Application.Features.Payments.Queries.GetPaymentsWithPagination;
 
 namespace Order.Api.Controllers.V1;
@@ -16,6 +17,14 @@ public class PaymentsController : ApiControllerBase
     [HttpGet("pagingation")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedList<PaymentDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<PaginatedList<PaymentDto>>>> GetWithPaginationAsync([FromQuery] GetPaymentsWithPaginationQuery query)
+    {
+        return await Mediator.Send(query);
+    }
+
+    [AccessGroup("payment.view")]
+    [HttpGet("merchant-pagingation")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedList<PaymentDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaginatedList<PaymentDto>>>> GetPaymentFormMaerchntWithPaginationAsync([FromQuery] GetPaymentForMerchantsWithPaginationQuery query)
     {
         return await Mediator.Send(query);
     }

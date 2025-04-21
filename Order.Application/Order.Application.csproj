@@ -47,6 +47,7 @@
     <None Remove="Features\Bookings\Queries\GetBookings\" />
     <None Remove="Features\Bookings\Commands\CancelBooking\" />
     <None Remove="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
+    <None Remove="Features\Payments\Queries\GetPaymentForMerchantsWithPagination\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -83,6 +84,7 @@
     <Folder Include="Features\Bookings\Queries\GetBookings\" />
     <Folder Include="Features\Bookings\Commands\CancelBooking\" />
     <Folder Include="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
+    <Folder Include="Features\Payments\Queries\GetPaymentForMerchantsWithPagination\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
