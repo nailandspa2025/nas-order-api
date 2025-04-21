@@ -11,6 +11,8 @@ using Order.Application.Features.Bookings.Queries.GetBooking;
 using Order.Application.Features.Bookings.Queries.GetBookingForMerchantsWithPagination;
 using Order.Application.Features.Bookings.Queries.GetBookings;
 using Order.Application.Features.Bookings.Queries.GetBookingsWithPagination;
+using Order.Application.Features.Payments.Commands.CretePayment;
+using Order.Application.Features.Payments.Models;
 
 namespace Order.Api.Controllers.V1;
 
@@ -104,5 +106,20 @@ public class BookingsController : ApiControllerBase
     public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetByStoreIdsAsync(string storeIds)
     {
         return await Mediator.Send(new GetBookingByStoreIdsQuery { StoreIds = storeIds });
+    }
+
+    [AccessGroup("booking.payment")]
+    [HttpPost("payment")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> CreatePaymentAsync([FromForm] CreatePaymentCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    [HttpPost("mobile-payment")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> CreatePaymentForMobileAsync([FromForm] CreatePaymentCommand command)
+    {
+        return await Mediator.Send(command);
     }
 }
