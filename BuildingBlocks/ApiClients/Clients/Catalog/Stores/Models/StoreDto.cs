@@ -9,5 +9,7 @@ public class StoreDto
 	public string ? Hotline { get; set; }
 
 	public string ? AddressStore { get; set; }
+
+    public string? Avatar { get; set; }
 }
 
