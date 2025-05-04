@@ -18,8 +18,12 @@ namespace Order.Application.Features.Bookings.Queries.GetBookings;
 public record GetBookingsMeQuery : IRequest<ApiResponse<PaginatedList<BookingDto>>>
 {
     public int PageNumber { get; init; } = 1;
+
     public int PageSize { get; init; } = 10;
+
     public string? SearchText { get; init; }
+
+    public List<string> Status { get; init; } = new List<string>();
 }
 
 public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, ApiResponse<PaginatedList<BookingDto>>>
@@ -51,7 +55,10 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             || s.Phone.Contains(lowerSearch)
             || s.Email.ToLower().Contains(lowerSearch));
         }
-        
+        if (request.Status != null && request.Status.Count > 0)
+        {
+            query = query.Where(x => request.Status.Contains(x.Status.ToString()));
+        }
         var paginationResult = await query
             .Where(x => !x.IsDeleted && x.UserId == _currentUser.UserId )
             .OrderBy(x => x.Created)
