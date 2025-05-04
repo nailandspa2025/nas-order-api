@@ -41,10 +41,13 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public int TransactionId { get; set; }
 
     public virtual Payment? Payment { get; set; }
+    
+    public string? Reason { get; set; }
 
     public string? DeletedBy { get; set; }
 
     public DateTime? Deleted { get; set; }
 
     public bool IsDeleted { get; set; }
+
 }

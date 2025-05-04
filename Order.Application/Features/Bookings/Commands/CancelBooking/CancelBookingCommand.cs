@@ -9,7 +9,9 @@ namespace Order.Application.Features.Bookings.Commands.CancelBooking;
 
 public record CancelBookingCommand: IRequest<ApiResponse>
 {
-	public int Id { get; init; } 
+	public int Id { get; init; }
+
+    public string? Reason { get; init; }
 }
 
 public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, ApiResponse>
@@ -34,6 +36,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
             return ApiResponse.Error("Only cancel bookings with status pending.");
         }
         entity.Status = BookingStatus.Cancelled;
+        entity.Reason = request.Reason;
 
         await _context.SaveChangesAsync(cancellationToken);
 
