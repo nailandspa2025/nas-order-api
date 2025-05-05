@@ -48,6 +48,16 @@
     <None Remove="Features\Bookings\Commands\CancelBooking\" />
     <None Remove="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
     <None Remove="Features\Payments\Queries\GetPaymentForMerchantsWithPagination\" />
+    <None Remove="Features\BookingCancelReasons\" />
+    <None Remove="Features\BookingCancelReasons\Commands\" />
+    <None Remove="Features\BookingCancelReasons\Models\" />
+    <None Remove="Features\BookingCancelReasons\Queries\" />
+    <None Remove="Features\BookingCancelReasons\Commands\CreateBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Commands\UpdateBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Commands\DeleteBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Queries\GetBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Queries\GetBookingCancelReasons\" />
+    <None Remove="Features\BookingCancelReasons\Queries\GetBookingCancelReasonsWithPagination\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common\" />
@@ -85,6 +95,16 @@
     <Folder Include="Features\Bookings\Commands\CancelBooking\" />
     <Folder Include="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
     <Folder Include="Features\Payments\Queries\GetPaymentForMerchantsWithPagination\" />
+    <Folder Include="Features\BookingCancelReasons\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\" />
+    <Folder Include="Features\BookingCancelReasons\Models\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\CreateBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\UpdateBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\DeleteBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReasons\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReasonsWithPagination\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />

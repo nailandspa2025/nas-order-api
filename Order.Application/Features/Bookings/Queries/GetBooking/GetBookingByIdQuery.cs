@@ -19,7 +19,7 @@ public record GetBookingByIdQuery: IRequest<ApiResponse<BookingDto>>
 public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
-    private IMapper _mapper;
+    private readonly IMapper _mapper;
     private readonly IIdentityClient _identityClient;
     private readonly ICatalogClient _catalogClient;
 

@@ -11,6 +11,8 @@ public record CancelBookingCommand: IRequest<ApiResponse>
 {
 	public int Id { get; init; }
 
+    public int? ReasonId { get; init; }
+
     public string? Reason { get; init; }
 }
 
@@ -37,6 +39,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         }
         entity.Status = BookingStatus.Cancelled;
         entity.Reason = request.Reason;
+        entity.BookingCancelReasonId = request.ReasonId;
 
         await _context.SaveChangesAsync(cancellationToken);
 

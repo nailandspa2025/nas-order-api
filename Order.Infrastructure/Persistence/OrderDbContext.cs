@@ -22,6 +22,8 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
 
     public DbSet<Transaction> Transaction => Set<Transaction>();
 
+    public DbSet<BookingCancelReason> BookingCancelReason =>Set<BookingCancelReason>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
