@@ -43,6 +43,7 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(new GetBookingByIdQuery { Id = id });
     }
 
+
     [AccessGroup("booking.create")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
@@ -89,6 +90,13 @@ public class BookingsController : ApiControllerBase
     public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromForm] CreateBookingMobileCommand command)
     {
         return await Mediator.Send(command);
+    }
+    
+    [HttpGet("mobile/{id}")]
+    [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<BookingDto>>> GetForMobileByIdAsync(int id)
+    {
+        return await Mediator.Send(new GetBookingByIdQuery { Id = id });
     }
 
     [HttpGet("me")]
