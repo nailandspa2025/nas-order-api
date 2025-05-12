@@ -23,7 +23,7 @@ public record GetBookingsMeQuery : IRequest<ApiResponse<PaginatedList<BookingDto
 
     public string? SearchText { get; init; }
 
-    public List<string> Status { get; init; } = new List<string>();
+    public List<int> Status { get; init; } = new List<int>();
 }
 
 public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, ApiResponse<PaginatedList<BookingDto>>>
@@ -52,12 +52,12 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             var lowerSearch = request.SearchText.ToLower();
 
             query = query.Where(s => s.FullName.ToLower().Contains(lowerSearch)
-            || s.Phone.Contains(lowerSearch)
+            || s.Phone.ToLower().Contains(lowerSearch)
             || s.Email.ToLower().Contains(lowerSearch));
         }
         if (request.Status != null && request.Status.Count > 0)
         {
-            query = query.Where(x => request.Status.Contains(x.Status.ToString()));
+            query = query.Where(x => request.Status.Contains((int)x.Status));
         }
         var paginationResult = await query
             .Where(x => !x.IsDeleted && x.UserId == _currentUser.UserId )
