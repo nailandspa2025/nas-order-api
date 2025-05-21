@@ -138,4 +138,11 @@ public class BookingsController : ApiControllerBase
     {
         return await Mediator.Send(command);
     }
+
+    [HttpGet("technician")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetTechnicianBookingsAsync([FromQuery] GetBookingTechnicianByStoreIdQuery command)
+    {
+        return await Mediator.Send(command);
+    }
 }
