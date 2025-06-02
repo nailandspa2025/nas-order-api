@@ -11,5 +11,13 @@ public class StoreDto
 	public string ? AddressStore { get; set; }
 
     public string? Avatar { get; set; }
+
+	public string Email { get; set; }
+
+    public int RatingStar { get; set; }
+
+    public TimeSpan OpenTime { get; set; }
+
+    public TimeSpan CloseTime { get; set; }
 }
 
