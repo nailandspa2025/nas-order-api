@@ -12,7 +12,7 @@ public interface IIdentityClient
     [Refit.Get("/api/v1/technicians/ids")]
     Task<ApiResponse<IEnumerable<TechnicianDto>>> GetTechnicianByIdsAsync(string ids, CancellationToken cancellationToken = default);
 
-    [Refit.Get("/api/v1/technicians/{id}")]
+    [Refit.Get("/api/v1/technicians/mobile/{id}")]
     Task<ApiResponse<TechnicianDto>> GetTechnicianByIdAsync(long id, CancellationToken cancellationToken = default);
 }
 
