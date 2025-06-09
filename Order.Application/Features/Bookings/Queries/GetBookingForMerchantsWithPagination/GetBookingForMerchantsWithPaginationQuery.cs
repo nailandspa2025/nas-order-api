@@ -78,7 +78,7 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
                 new PaginatedList<BookingDto>(new List<BookingDto>(), 0, request.PageNumber, request.PageSize));
         }
         var paginationResult = await query
-            .OrderBy(x => x.Created)
+            .OrderByDescending(x => x.Created)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
 
