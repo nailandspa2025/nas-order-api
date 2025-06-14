@@ -16,6 +16,8 @@ public class Notification : BaseAuditableEntity<int>, ISoftDelete
 
     public NotificationStatus Status { get; set; }
 
+    public NotificationType Type { get; set; }
+
     public string? DeletedBy { get ; set ; }
 
     public DateTime? Deleted { get ; set ; }

@@ -20,13 +20,6 @@ public class NotificationsController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
-    //[HttpGet("user-notifications")]
-    //[ProducesResponseType(typeof(ApiResponse<PaginatedList<NotificationDto>>), StatusCodes.Status200OK)]
-    //public async Task<ActionResult<ApiResponse<PaginatedList<NotificationDto>>>> GetUserNotificationsPaginationAsync([FromQuery] GetUserNotificationsQuery query)
-    //{
-    //    return await Mediator.Send(query);
-    //}
-
     [AccessGroup("notification.delete")]
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
@@ -37,7 +30,7 @@ public class NotificationsController : ApiControllerBase
 
     [HttpGet("me")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedList<NotificationDto>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<PaginatedList<NotificationDto>>>> GetNotificationsForMeWithPaginationAsync([FromQuery] GetNotificationsWithPaginationQuery query)
+    public async Task<ActionResult<ApiResponse<PaginatedList<NotificationDto>>>> GetNotificationsForMeWithPaginationAsync([FromQuery] GetNotificationsForMeWithPaginationQuery query)
     {
         return await Mediator.Send(query);
     }

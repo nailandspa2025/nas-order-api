@@ -21,6 +21,8 @@ public record GetNotificationsForMeWithPaginationQuery: IRequest<ApiResponse<Pag
     public string? SearchText { get; init; }
 
     public NotificationStatus? Status { get; init; }
+
+    public NotificationType? Type { get; init; }
 }
 
 public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<GetNotificationsForMeWithPaginationQuery, ApiResponse<PaginatedList<NotificationDto>>>
@@ -49,6 +51,10 @@ public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<G
         if (request.Status.HasValue)
         {
             query = query.Where(x => x.Status == request.Status);
+        }
+        if (request.Type.HasValue)
+        {
+            query = query.Where(x => x.Type == request.Type);
         }
         var paginationResult = await query
             .Where(x => !x.IsDeleted)
