@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
+using BuildingBlocks.Core.Response;
+using MediatR;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Notifications.Models;
 using Order.Domain.Entities;
-using Order.Domain.Enums;
-using BuildingBlocks.Core.Response;
-using MediatR;
 
 namespace Order.Application.Features.Notifications.Commands.CreateNotification;
 
@@ -14,9 +13,6 @@ public record CreateNotificationCommand: IRequest<ApiResponse<NotificationDto>>
 
     public string? Content { get; init; }
 
-    public DateTime SentTime { get; init; }
-
-    public NotificationStatus Status { get; init; }
 }
 
 public class CreateNotificationCommandHandler : IRequestHandler<CreateNotificationCommand, ApiResponse<NotificationDto>>
@@ -36,8 +32,7 @@ public class CreateNotificationCommandHandler : IRequestHandler<CreateNotificati
         {
             AccountId = request.UserId,
             Content = request.Content,
-            Status = request.Status,
-            SentTime = request.SentTime,
+            IsDeleted = false
         };
 
         _context.Notification.Add(entity);

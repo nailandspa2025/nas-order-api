@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Common.Extensions;
 using BuildingBlocks.Common.Mappings;
@@ -20,8 +22,6 @@ public record GetNotificationsForMeWithPaginationQuery: IRequest<ApiResponse<Pag
 
     public string? SearchText { get; init; }
 
-    public NotificationStatus? Status { get; init; }
-
     public NotificationType? Type { get; init; }
 }
 
@@ -30,12 +30,14 @@ public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<G
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICurrentUser _currentUser;
+    private readonly ICatalogClient _catalogClient;
 
-    public GetNotificationsForMeWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, ICurrentUser currentUser)
+    public GetNotificationsForMeWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, ICurrentUser currentUser, ICatalogClient catalogClient  )
     {
         _context = context;
         _mapper = mapper;
         _currentUser = currentUser;
+        _catalogClient = catalogClient;
     }
 
     public async Task<ApiResponse<PaginatedList<NotificationDto>>> Handle(GetNotificationsForMeWithPaginationQuery request, CancellationToken cancellationToken)
@@ -48,19 +50,43 @@ public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<G
 
             query = query.Where(s => s.Content.ToString().ToLower().Contains(lowerSearch));
         }
-        if (request.Status.HasValue)
-        {
-            query = query.Where(x => x.Status == request.Status);
-        }
+        
         if (request.Type.HasValue)
         {
             query = query.Where(x => x.Type == request.Type);
         }
         var paginationResult = await query
+            .Include( x => x.Booking)
             .Where(x => !x.IsDeleted)
             .OrderBy(x => x.Created)
             .ProjectTo<NotificationDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
+        try
+        {
+            {
+                var storeIds = paginationResult.Items
+                    .Where(x => x.Booking != null)
+                    .Select(x => x.Booking!.StoreId)
+                    .Distinct()
+                    .ToList();
+
+                if (storeIds.Any())
+                {
+                    var storeResponse = await _catalogClient.GetStoreByIdsAsync(string.Join(",", storeIds), cancellationToken);
+                    var stores = storeResponse?.Data ?? new List<StoreDto>();
+                    var storeDict = stores.ToDictionary(s => s.Id, s => s);
+
+                    foreach (var item in paginationResult.Items)
+                    {
+                        if (item.Booking != null && storeDict.TryGetValue((long)item.Booking.StoreId, out var store))
+                        {
+                            item.StoreName = store.StoreName;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception) { }
 
         return ApiResponse<PaginatedList<NotificationDto>>.Success(paginationResult);
     }

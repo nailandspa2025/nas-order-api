@@ -54,4 +54,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public virtual BookingCancelReason? BookingCancelReason { get; set; }
 
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+
 }

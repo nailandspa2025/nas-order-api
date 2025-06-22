@@ -22,10 +22,7 @@
     <None Remove="Clients\Catalog\UserStore\Models\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Clients\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Clients\Identity\" />
-    <Folder Include="Clients\Identity\Users\" />
     <Folder Include="Clients\Identity\AccountDevice\" />
     <Folder Include="Clients\Catalog\" />
     <Folder Include="Clients\Catalog\Stores\" />

@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using Order.Application.Common.Interfaces;
-using Order.Application.Features.Notifications.Models;
-using Order.Domain.Entities;
-using Order.Domain.Enums;
 using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Core.Response;
 using MediatR;
+using Order.Application.Common.Interfaces;
+using Order.Application.Features.Notifications.Models;
+using Order.Domain.Entities;
 
 namespace Order.Application.Features.Notifications.Commands.UpdateNotification;
 
@@ -16,10 +15,6 @@ public record UpdateNotificationCommand: IRequest<ApiResponse<NotificationDto>>
     public string ? UserId { get; init; } 
 
     public string? Content { get; init; }
-
-    public DateTime SentTime { get; init; }
-
-    public NotificationStatus Status { get; init; }
 }
 
 public class UpdateNotificationCommandHandler : IRequestHandler<UpdateNotificationCommand, ApiResponse<NotificationDto>>
@@ -43,9 +38,6 @@ public class UpdateNotificationCommandHandler : IRequestHandler<UpdateNotificati
 
         entity.AccountId = request.UserId;
         entity.Content = request.Content;
-        entity.SentTime = request.SentTime;
-        entity.Status = request.Status;
-
         await _context.SaveChangesAsync(cancellationToken);
         return ApiResponse<NotificationDto>.Success(_mapper.Map<NotificationDto>(entity));
     }

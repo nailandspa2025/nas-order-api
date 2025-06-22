@@ -19,8 +19,6 @@ public record GetUserNotificationsQuery: IRequest<ApiResponse<PaginatedList<Noti
     public int PageSize { get; init; } = 10;
 
     public string? SearchText { get; init; }
-
-    public NotificationStatus? Status { get; init; }
 }
 
 public class GetUserNotificationsQueryHandler : IRequestHandler<GetUserNotificationsQuery, ApiResponse<PaginatedList<NotificationDto>>>
@@ -45,10 +43,6 @@ public class GetUserNotificationsQueryHandler : IRequestHandler<GetUserNotificat
             var lowerSearch = request.SearchText.ToLower();
 
             query = query.Where(s => s.Title.ToString().ToLower().Contains(lowerSearch) || s.Content.ToString().ToLower().Contains(lowerSearch));
-        }
-        if (request.Status.HasValue)
-        {
-            query = query.Where(x => x.Status == request.Status);
         }
 
         var paginationResult = await query

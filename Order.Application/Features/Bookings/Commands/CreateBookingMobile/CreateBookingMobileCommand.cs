@@ -115,8 +115,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                             AccountId = _curentUser.UserId,
                             Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
                             Content = request.Note,
-                            SentTime = DateTime.UtcNow,
-                            Status = NotificationStatus.Unread,
+                            IsRead = false,
+                            BookingId = entity.Id,
+                            Type = NotificationType.Booking
                         });
 
                         _context.Notification.AddRange(notifications);
