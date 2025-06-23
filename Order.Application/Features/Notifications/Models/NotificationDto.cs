@@ -21,6 +21,8 @@ public class NotificationDto: BaseAuditableDto
 
     public StoreDto ? Store { get; set; }
     public virtual BookingDto? Booking { get; set; }
+
+    public bool IsRead { get; set; }
     private class Mapping : Profile
     {
         public Mapping()
