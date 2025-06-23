@@ -80,7 +80,7 @@ public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<G
                     {
                         if (item.Booking != null && storeDict.TryGetValue((long)item.Booking.StoreId, out var store))
                         {
-                            item.StoreName = store.StoreName;
+                            item.Store = store;
                         }
                     }
                 }

@@ -62,7 +62,6 @@
   <ItemGroup>
     <Folder Include="Common\" />
     <Folder Include="Common\Interfaces\" />
-    <Folder Include="Features\" />
     <Folder Include="Features\Bookings\" />
     <Folder Include="Features\Bookings\Commands\" />
     <Folder Include="Features\Bookings\Models\" />
@@ -72,12 +71,9 @@
     <Folder Include="Features\Bookings\Commands\DeleteBooking\" />
     <Folder Include="Features\Bookings\Queries\GetBookingsWithPagination\" />
     <Folder Include="Features\Bookings\Queries\GetBooking\" />
-    <Folder Include="Features\Notifications\" />
-    <Folder Include="Features\Notifications\Commands\" />
     <Folder Include="Features\Notifications\Models\" />
     <Folder Include="Features\Notifications\Queries\" />
     <Folder Include="Features\Notifications\Commands\CreateNotification\" />
-    <Folder Include="Features\Notifications\Commands\UpdateNotification\" />
     <Folder Include="Features\Notifications\Commands\DeleteNotification\" />
     <Folder Include="Features\Notifications\Queries\GetNotificationsWithPagination\" />
     <Folder Include="Features\Payments\" />

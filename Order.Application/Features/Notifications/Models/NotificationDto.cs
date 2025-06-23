@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
-using BuildingBlocks.ApiClients.Clients.Identity.Users.Models;
 using BuildingBlocks.Persistence.Models;
+using Order.Application.Features.Bookings.Models;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 
@@ -19,8 +19,8 @@ public class NotificationDto: BaseAuditableDto
 
     public NotificationStatus Status { get; set; }
 
-    public string? StoreName { get; set; }
-    public virtual Booking? Booking { get; set; }
+    public StoreDto ? Store { get; set; }
+    public virtual BookingDto? Booking { get; set; }
     private class Mapping : Profile
     {
         public Mapping()

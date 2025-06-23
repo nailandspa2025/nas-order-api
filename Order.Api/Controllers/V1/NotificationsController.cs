@@ -1,7 +1,10 @@
 using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
+using Order.Application.Features.Bookings.Commands.UpdateBooking;
+using Order.Application.Features.Bookings.Models;
 using Order.Application.Features.Notifications.Commands.DeleteNotification;
+using Order.Application.Features.Notifications.Commands.UpdateNotification;
 using Order.Application.Features.Notifications.Models;
 using Order.Application.Features.Notifications.Queries.GetNotifications;
 using Order.Application.Features.Notifications.Queries.GetNotificationsWithPagination;
@@ -35,4 +38,19 @@ public class NotificationsController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
+    [HttpDelete("mobile/{id}")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse>> DeleteForMobileAsync(int id)
+    {
+        return await Mediator.Send(new DeleteNotificationCommand(id));
+    }
+
+    [HttpPut("mobile/readAll")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse>> UpdateReadAllForMobileAsync()
+    {
+        
+        return await Mediator.Send(new UpdateReadAllNotificationCommand());
+    }
 }
