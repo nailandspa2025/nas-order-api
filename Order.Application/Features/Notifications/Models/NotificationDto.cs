@@ -23,6 +23,8 @@ public class NotificationDto: BaseAuditableDto
     public virtual BookingDto? Booking { get; set; }
 
     public bool IsRead { get; set; }
+
+    public string Title { get; set; } = null!;
     private class Mapping : Profile
     {
         public Mapping()
