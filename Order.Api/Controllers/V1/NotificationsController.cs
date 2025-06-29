@@ -1,8 +1,10 @@
 using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Mvc;
+using Order.Application.Features.Bookings.Commands.CreateBooking;
 using Order.Application.Features.Bookings.Commands.UpdateBooking;
 using Order.Application.Features.Bookings.Models;
+using Order.Application.Features.Notifications.Commands.CreateNotification;
 using Order.Application.Features.Notifications.Commands.DeleteNotification;
 using Order.Application.Features.Notifications.Commands.UpdateNotification;
 using Order.Application.Features.Notifications.Models;
@@ -22,7 +24,13 @@ public class NotificationsController : ApiControllerBase
     {
         return await Mediator.Send(query);
     }
-
+    [AccessGroup("booking.create")]
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<NotificationDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<NotificationDto>>> CreateAsync([FromForm] CreateNotificationCommand command)
+    {
+        return await Mediator.Send(command);
+    }
     [AccessGroup("notification.delete")]
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
