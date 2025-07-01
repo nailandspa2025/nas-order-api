@@ -65,8 +65,6 @@ public class FirebaseService : IFirebaseService
             }
         }
     }
-
-
     public async Task SendNotificationAsync(string token, string title, string body)
     {
         await _messaging.SendAsync(

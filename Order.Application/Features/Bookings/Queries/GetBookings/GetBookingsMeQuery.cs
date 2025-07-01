@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Queries.GetBookings;
 
@@ -46,7 +47,13 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
     public async Task<ApiResponse<PaginatedList<BookingDto>>> Handle(GetBookingsMeQuery request, CancellationToken cancellationToken)
     {
         var paramSearchText = request.SearchText ?? string.Empty;
-        var query = _context.Booking.AsNoTracking();
+        var query = _context.Booking
+            .Where(x => 
+                !x.IsDeleted 
+                && x.UserId == _currentUser.UserId 
+                && (x.BookingDate >= DateTime.UtcNow || x.Status != BookingStatus.Pending) 
+            )
+            .AsNoTracking();
         if (!paramSearchText.IsNullOrEmpty())
         {
             var lowerSearch = request.SearchText.ToLower();
@@ -60,11 +67,9 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             query = query.Where(x => request.Status.Contains((int)x.Status));
         }
         var paginationResult = await query
-            .Where(x => !x.IsDeleted && x.UserId == _currentUser.UserId )
             .OrderBy(x => x.Created)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
-
         try
         {
             var storeIds = paginationResult.Items.Select(x => x.StoreId).Distinct().ToList();
