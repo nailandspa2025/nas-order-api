@@ -15,5 +15,6 @@ public class BookingCancelReason : BaseAuditableEntity<int>, ISoftDelete
 
     public bool IsDeleted { get; set; }
 
-    public virtual Booking? Booking { get; set; }
+    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
 }
