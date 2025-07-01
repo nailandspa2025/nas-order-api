@@ -24,7 +24,7 @@ public class NotificationsController : ApiControllerBase
     {
         return await Mediator.Send(query);
     }
-    [AccessGroup("booking.create")]
+    //[AccessGroup("booking.create")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<NotificationDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<NotificationDto>>> CreateAsync([FromForm] CreateNotificationCommand command)

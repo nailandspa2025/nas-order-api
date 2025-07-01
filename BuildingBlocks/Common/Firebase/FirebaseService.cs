@@ -3,6 +3,7 @@ using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using YamlDotNet.Core.Tokens;
 
 namespace BuildingBlocks.Common.Firebase;
 
@@ -45,17 +46,24 @@ public class FirebaseService : IFirebaseService
     public async Task SendMulticastAsync(MulticastMessage message)
     {
         if (message.Tokens == null || !message.Tokens.Any()) return;
-        if (message.Tokens.Count == 1)
+        foreach (var token in message.Tokens)
         {
-            await _messaging.SendAsync(new Message
+            try
             {
-                Token = message.Tokens[0],
-                Notification = message.Notification,
-                Data = message.Data
-            });
-            return;
+                var singleMessage = new Message
+                {
+                    Token = token,
+                    Notification = message.Notification,
+                    Data = message.Data
+                };
+
+                await _messaging.SendAsync(singleMessage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending to token: {token} - {ex.Message}");
+            }
         }
-        await _messaging.SendMulticastAsync(message);
     }
 
 
