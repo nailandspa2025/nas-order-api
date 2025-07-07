@@ -51,6 +51,10 @@ public class BookingDto: BaseAuditableDto
 
     public TechnicianDto ? Technician { get; set; }
 
+    public int ServicePackageId { get; set; }
+
+    public int SnapId { get; set; }
+
     private class Mapping: Profile
     {
         public Mapping()

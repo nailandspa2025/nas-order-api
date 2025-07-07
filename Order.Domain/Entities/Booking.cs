@@ -56,5 +56,8 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+    public int ServicePackageId { get; set; }
+
+    public int SnapId { get; set; }
 
 }
