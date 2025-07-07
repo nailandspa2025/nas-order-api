@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
@@ -12,6 +13,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
+using Order.Domain.Entities;
 using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Queries.GetBookings;
@@ -106,6 +108,31 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             }
         }
         catch (Exception) { }
+        try
+        {
+            var packageIds = paginationResult.Items.Select(s => s.ServicePackageId)
+                .Where(id => id != null)
+                .Distinct()
+                .Cast<int>()
+                .ToList();
+            if (!packageIds.Any())
+            {
+                var packages = (await _catalogClient.GetServicePackageIdsAsync(string.Join(",", packageIds), cancellationToken))?.Data;
+                var packageDictionary = packages?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServicePackageDto>();
+                foreach (var item in paginationResult.Items)
+                {
+                    if (packageDictionary.TryGetValue((int)item.ServicePackageId, out var servicePackage))
+                    {
+                        item.ServicePackage = servicePackage;
+                    }
+                }
+            }
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
         return ApiResponse<PaginatedList<BookingDto>>.Success(paginationResult);
     }
 }

@@ -24,7 +24,6 @@
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Clients\Identity\AccountDevice\" />
-    <Folder Include="Clients\Catalog\" />
     <Folder Include="Clients\Catalog\Stores\" />
     <Folder Include="Clients\Catalog\Stores\Models\" />
     <Folder Include="Clients\Identity\Technicians\" />
