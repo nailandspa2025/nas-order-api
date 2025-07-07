@@ -38,7 +38,7 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public int? Number { get; init; }
 
-    public int ServicePackageId { get; set; }
+    public int ServiceId { get; set; }
 
     public int SnapId { get; set; }
 
@@ -84,7 +84,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Address = request.Address,
             Number = request.Number,
             Email = request.Email,
-            ServicePackageId = request.ServicePackageId,
+            ServiceId = request.ServiceId,
             SnapId = request.SnapId,
         };
 

@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.ApiClients.Clients.Catalog;
 using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
@@ -110,20 +111,20 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
         catch (Exception) { }
         try
         {
-            var packageIds = paginationResult.Items.Select(s => s.ServicePackageId)
+            var serviceIds = paginationResult.Items.Select(s => s.ServiceId)
                 .Where(id => id != null)
                 .Distinct()
                 .Cast<int>()
                 .ToList();
-            if (!packageIds.Any())
+            if (!serviceIds.Any())
             {
-                var packages = (await _catalogClient.GetServicePackageIdsAsync(string.Join(",", packageIds), cancellationToken))?.Data;
-                var packageDictionary = packages?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServicePackageDto>();
+                var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
+                var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
                 foreach (var item in paginationResult.Items)
                 {
-                    if (packageDictionary.TryGetValue((int)item.ServicePackageId, out var servicePackage))
+                    if (serviceDictionary.TryGetValue((int)item.ServiceId, out var service))
                     {
-                        item.ServicePackage = servicePackage;
+                        item.Service = service;
                     }
                 }
             }

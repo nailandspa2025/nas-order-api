@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.UserStore.Models;
 using BuildingBlocks.Core.Response;
@@ -18,5 +19,8 @@ public interface ICatalogClient
 
     [Refit.Get("/api/v1/servicepackages/ids")]
     Task<ApiResponse<IEnumerable<ServicePackageDto>>> GetServicePackageIdsAsync(string ids, CancellationToken cancellationToken = default);
+
+    [Refit.Get("/api/v1/services/ids")]
+    Task<ApiResponse<IEnumerable<ServiceDto>>> GetServiceIdsAsync(string ids, CancellationToken cancellationToken = default);
 }
 

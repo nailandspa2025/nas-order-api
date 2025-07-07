@@ -5,6 +5,7 @@ using Order.Domain.Entities;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 
 namespace Order.Application.Features.Bookings.Models;
 
@@ -52,11 +53,11 @@ public class BookingDto: BaseAuditableDto
 
     public TechnicianDto ? Technician { get; set; }
 
-    public int ServicePackageId { get; set; }
+    public int ServiceId { get; set; }
 
     public int SnapId { get; set; }
 
-    public ServicePackageDto ?  ServicePackage { get; set; }
+    public ServiceDto ?  Service { get; set; }
 
     private class Mapping: Profile
     {
