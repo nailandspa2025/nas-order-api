@@ -1,17 +1,18 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Order.Application.Common.Interfaces;
-using Order.Application.Features.Bookings.Models;
-using Order.Domain.Enums;
+using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
+using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
+using BuildingBlocks.ApiClients.Clients.Identity;
+using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
 using BuildingBlocks.Common.Extensions;
 using BuildingBlocks.Common.Mappings;
 using BuildingBlocks.Core.Response;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using BuildingBlocks.ApiClients.Clients.Catalog;
-using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
-using BuildingBlocks.ApiClients.Clients.Identity;
-using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
+using Order.Application.Common.Interfaces;
+using Order.Application.Features.Bookings.Models;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Queries.GetBookingsWithPagination;
 
@@ -93,6 +94,23 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
                     if (technicianDictionary.TryGetValue((long)booking.TechnicianId, out var technician))
                     {
                         booking.Technician = technician;
+                    }
+                }
+            }
+        }
+        catch (Exception) { }
+        try
+        {
+            var serviceIds = paginationResult.Items.Select(s => s.ServiceId).Distinct().ToList();
+            if (serviceIds.Any())
+            {
+                var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
+                var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
+                foreach (var item in paginationResult.Items)
+                {
+                    if (serviceDictionary.TryGetValue((int)item.ServiceId, out var service))
+                    {
+                        item.Service = service;
                     }
                 }
             }

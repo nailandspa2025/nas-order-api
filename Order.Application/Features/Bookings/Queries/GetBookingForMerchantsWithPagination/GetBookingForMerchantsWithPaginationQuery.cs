@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
@@ -112,6 +113,23 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
                     if (technicianDictionary.TryGetValue((long)booking.TechnicianId, out var technician))
                     {
                         booking.Technician = technician;
+                    }
+                }
+            }
+        }
+        catch (Exception) { }
+        try
+        {
+            var serviceIds = paginationResult.Items.Select(s => s.ServiceId).Distinct().ToList();
+            if (serviceIds.Any())
+            {
+                var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
+                var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
+                foreach (var item in paginationResult.Items)
+                {
+                    if (serviceDictionary.TryGetValue((int)item.ServiceId, out var service))
+                    {
+                        item.Service = service;
                     }
                 }
             }

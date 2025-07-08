@@ -116,7 +116,7 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
                 .Distinct()
                 .Cast<int>()
                 .ToList();
-            if (!serviceIds.Any())
+            if (serviceIds.Any())
             {
                 var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
                 var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
@@ -130,10 +130,7 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             }
 
         }
-        catch (Exception)
-        {
-            throw;
-        }
+        catch (Exception){}
         return ApiResponse<PaginatedList<BookingDto>>.Success(paginationResult);
     }
 }
