@@ -64,6 +64,18 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
             }
         }
         catch (Exception ){}
+        try
+        {
+           if(entity.ServiceId.HasValue)
+            {
+                var serviceResponse = await _catalogClient.GetServiceIdAsync(entity.ServiceId.Value, cancellationToken);
+                if(serviceResponse?.Data != null)
+                {
+                    bookingDto.Service = serviceResponse.Data;
+                }
+            }
+        }
+        catch (Exception){}
 
         return ApiResponse<BookingDto>.Success(bookingDto);
     }

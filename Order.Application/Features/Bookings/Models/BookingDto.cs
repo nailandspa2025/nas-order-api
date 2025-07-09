@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using Order.Domain.Enums;
-using BuildingBlocks.Persistence.Models;
-using Order.Domain.Entities;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
-using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
-using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
+using BuildingBlocks.Persistence.Models;
+using Order.Domain.Entities;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Models;
 
@@ -55,9 +54,11 @@ public class BookingDto: BaseAuditableDto
 
     public int ServiceId { get; set; }
 
-    public int SnapId { get; set; }
+    public string? SnapId { get; set; }
 
     public ServiceDto ?  Service { get; set; }
+
+    public string GroupdId { get; set; }
 
     private class Mapping: Profile
     {

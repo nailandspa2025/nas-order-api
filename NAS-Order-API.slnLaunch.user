@@ -5,10 +5,6 @@
       {
         "Path": "Order.Api\\Order.Api.csproj",
         "Action": "Start"
-      },
-      {
-        "Path": "Order.Infrastructure\\Order.Infrastructure.csproj",
-        "Action": "Start"
       }
     ]
   }

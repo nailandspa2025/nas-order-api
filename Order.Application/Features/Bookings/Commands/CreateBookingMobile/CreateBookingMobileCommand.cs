@@ -40,7 +40,9 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public int ServiceId { get; set; }
 
-    public int SnapId { get; set; }
+    public string SnapId { get; set; }
+
+    public string GroupdId { get; set; }
 
 }
 
@@ -86,6 +88,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Email = request.Email,
             ServiceId = request.ServiceId,
             SnapId = request.SnapId,
+            GroupdId = request.GroupdId,
         };
 
         _context.Booking.Add(entity);

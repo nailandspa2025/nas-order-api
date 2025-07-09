@@ -22,5 +22,8 @@ public interface ICatalogClient
 
     [Refit.Get("/api/v1/services/ids")]
     Task<ApiResponse<IEnumerable<ServiceDto>>> GetServiceIdsAsync(string ids, CancellationToken cancellationToken = default);
+
+    [Refit.Get("/api/v1/services/{id}")]
+    Task<ApiResponse<ServiceDto>> GetServiceIdAsync(int id, CancellationToken cancellationToken = default);
 }
 
