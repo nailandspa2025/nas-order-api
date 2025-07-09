@@ -60,4 +60,10 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public string? GroupdId { get; set; }
     public ICollection<BookingService> BookingServices { get; set; } = new List<BookingService>();
 
+    public void SetBookingServices(List<BookingService> bookingServices)
+    {
+        this.BookingServices.Clear();
+        this.BookingServices = bookingServices;
+    }
+
 }

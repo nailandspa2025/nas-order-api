@@ -33,6 +33,7 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
     public async Task<ApiResponse<BookingDto>> Handle(GetBookingByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _context.Booking
+            .Include(x => x.BookingServices)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
@@ -66,14 +67,15 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
         catch (Exception ){}
         try
         {
-           //if(entity.ServiceId.HasValue)
-           // {
-           //     var serviceResponse = await _catalogClient.GetServiceIdAsync(entity.ServiceId.Value, cancellationToken);
-           //     if(serviceResponse?.Data != null)
-           //     {
-           //         bookingDto.Service = serviceResponse.Data;
-           //     }
-           // }
+            bookingDto.ServiceIds = entity.BookingServices.Select(bs => bs.ServiceId).ToList();
+            if (bookingDto.ServiceIds.Any())
+            {
+                var serviceResponse = await _catalogClient.GetServiceIdsAsync(string.Join(",", bookingDto.ServiceIds), cancellationToken);
+                if (serviceResponse?.Data != null)
+                {
+                    bookingDto.Services = serviceResponse.Data.ToList();
+                }
+            }
         }
         catch (Exception){}
 

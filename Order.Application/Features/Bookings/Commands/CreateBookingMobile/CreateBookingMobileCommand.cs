@@ -5,6 +5,7 @@ using BuildingBlocks.Common.Firebase;
 using BuildingBlocks.Core.Response;
 using FirebaseAdmin.Messaging;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
 using Order.Domain.Entities;
@@ -38,11 +39,11 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public int? Number { get; init; }
 
-    public List<int> ServiceIds { get; set; }
+    public List<int> ServiceIds { get; init; } = new List<int>();
 
-    public string? SnapId { get; set; }
+    public string? SnapId { get; init; }
 
-    public string? GroupdId { get; set; }
+    public string? GroupdId { get; init; }
 
 }
 
@@ -88,12 +89,16 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Email = request.Email,
             SnapId = request.SnapId,
             GroupdId = request.GroupdId,
-            BookingServices = request.ServiceIds.Select(id => new BookingService
+        };
+        if (request.ServiceIds != null && request.ServiceIds.Any())
+        {
+            var bookingServices = request.ServiceIds.Select(id => new BookingService
             {
                 ServiceId = id
-            }).ToList()
-        };
-
+            }).ToList();
+            
+            entity.SetBookingServices(bookingServices);
+        }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)
