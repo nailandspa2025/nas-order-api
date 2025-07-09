@@ -40,9 +40,9 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public int ServiceId { get; set; }
 
-    public string SnapId { get; set; }
+    public string? SnapId { get; set; }
 
-    public string GroupdId { get; set; }
+    public string? GroupdId { get; set; }
 
 }
 
