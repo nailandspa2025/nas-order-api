@@ -101,17 +101,18 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
         catch (Exception) { }
         try
         {
-            var serviceIds = paginationResult.Items.Select(s => s.ServiceId).Distinct().ToList();
+            var serviceIds = paginationResult.Items.SelectMany(b => b.ServiceIds).Distinct().ToList();
             if (serviceIds.Any())
             {
                 var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
                 var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
-                foreach (var item in paginationResult.Items)
+
+                foreach (var booking in paginationResult.Items)
                 {
-                    if (serviceDictionary.TryGetValue((int)item.ServiceId, out var service))
-                    {
-                        item.Service = service;
-                    }
+                    booking.Services = booking.ServiceIds
+                        .Where(serviceDictionary.ContainsKey)
+                        .Select(id => serviceDictionary[id])
+                        .ToList();
                 }
             }
         }

@@ -15,7 +15,6 @@
     <None Remove="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Entities\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
 </Project>

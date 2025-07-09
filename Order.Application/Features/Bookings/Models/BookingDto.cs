@@ -52,11 +52,11 @@ public class BookingDto: BaseAuditableDto
 
     public TechnicianDto ? Technician { get; set; }
 
-    public int ServiceId { get; set; }
+    public List<int> ServiceIds { get; set; } = new List<int>();
 
     public string? SnapId { get; set; }
 
-    public ServiceDto ?  Service { get; set; }
+    public List<ServiceDto>? Services { get; set; }
 
     public string GroupdId { get; set; }
 
