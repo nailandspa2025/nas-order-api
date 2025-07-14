@@ -54,7 +54,7 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             .Where(x => 
                 !x.IsDeleted 
                 && x.UserId == _currentUser.UserId 
-                && (x.BookingDate >= DateTime.UtcNow || x.Status != BookingStatus.Pending) 
+                && (x.BookingDate.Date >= DateTime.UtcNow.Date || x.Status != BookingStatus.Pending) 
             )
             .AsNoTracking();
         if (!paramSearchText.IsNullOrEmpty())
