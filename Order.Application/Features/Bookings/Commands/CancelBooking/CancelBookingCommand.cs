@@ -1,5 +1,9 @@
-﻿using BuildingBlocks.Common.Exceptions;
+﻿using BuildingBlocks.ApiClients.Clients.Identity;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Common.Exceptions;
+using BuildingBlocks.Common.Firebase;
 using BuildingBlocks.Core.Response;
+using FirebaseAdmin.Messaging;
 using MediatR;
 using Order.Application.Common.Interfaces;
 using Order.Domain.Entities;
@@ -19,10 +23,18 @@ public record CancelBookingCommand: IRequest<ApiResponse>
 public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, ApiResponse>
 {
     private readonly IOrderDbContext _context;
+    private readonly ICurrentUser _curentUser;
+    private readonly IIdentityClient _identityClient;
+    private readonly IFirebaseService _firebaseService;
 
-    public CancelBookingCommandHandler (IOrderDbContext context)
+    public CancelBookingCommandHandler (IOrderDbContext context, ICurrentUser currentUser,
+        IIdentityClient identityClient,
+        IFirebaseService firebaseService)
     {
         _context = context;
+        _curentUser = currentUser;
+        _firebaseService = firebaseService;
+        _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
     public async Task<ApiResponse> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
     {
@@ -42,7 +54,49 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         entity.BookingCancelReasonId = request.ReasonId;
 
         await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            var devices = (await _identityClient.GetAccountDeviceAsync(_curentUser.UserId, cancellationToken))?.Data;
+            if (devices != null && devices.Any())
+            {
+                var deviceTokens = devices.Select(d => d.Token).ToList();
+                if (deviceTokens.Any())
+                {
+                    var notifications = new List<Domain.Entities.Notification>();
+                    await _firebaseService.SendMulticastAsync(
+                        new MulticastMessage()
+                        {
+                            Tokens = deviceTokens,
+                            Notification = new FirebaseAdmin.Messaging.Notification()
+                            {
+                                Title = $"Cancel {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
+                                Body = request.Reason,
+                            },
+                            Data = new Dictionary<string, string>()
+                            {
+                                { "ObjectId", entity.Id.ToString() },
+                                { "Type", "Booking" },
+                            }
+                        });
 
+                    notifications.Add(new Domain.Entities.Notification
+                    {
+                        AccountId = _curentUser.UserId,
+                        Title = $"Cancel {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
+                        Content = request.Reason,
+                        IsRead = false,
+                        BookingId = entity.Id,
+                        Type = NotificationType.Booking
+                    });
+
+                    _context.Notification.AddRange(notifications);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+            }
+        }
+        catch (Exception)
+        {
+        }
         return ApiResponse.Success();
     }
 }
