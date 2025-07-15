@@ -86,7 +86,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
                         Content = request.Reason,
                         IsRead = false,
                         BookingId = entity.Id,
-                        Type = NotificationType.Booking
+                        Type = NotificationType.Important
                     });
 
                     _context.Notification.AddRange(notifications);

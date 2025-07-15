@@ -123,8 +123,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                                 },
                                 Data = new Dictionary<string, string>()
                                 {
-                                { "ObjectId", entity.Id.ToString() },
-                                { "Type", "Booking" },
+                                    { "ObjectId", entity.Id.ToString() },
+
+                                    { "Type", "Booking" },
                                 }
                             });
 
@@ -135,7 +136,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                             Content = request.Note,
                             IsRead = false,
                             BookingId = entity.Id,
-                            Type = NotificationType.Booking
+                            Type = NotificationType.Important
                         });
 
                         _context.Notification.AddRange(notifications);
