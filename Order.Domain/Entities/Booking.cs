@@ -10,7 +10,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public long ? ProductId { get; set; }
 
-    public long ? TechnicianId { get; set; }
+    //public long ? TechnicianId { get; set; }
 
     public string ? UserId { get; set; } = null!;
 
@@ -59,6 +59,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public string? SnapId { get; set; }
     public string? GroupdId { get; set; }
     public ICollection<BookingService> BookingServices { get; set; } = new List<BookingService>();
+    public ICollection<BookingTechnician> BookingTechnicians { get; set; } = new HashSet<BookingTechnician>();
 
     public void SetBookingServices(List<BookingService> bookingServices)
     {
@@ -66,4 +67,9 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
         this.BookingServices = bookingServices;
     }
 
+    public void SetBookingTechnicians(List<BookingTechnician> bookingTechnicians)
+    {
+        this.BookingTechnicians.Clear();
+        this.BookingTechnicians = bookingTechnicians;
+    }
 }

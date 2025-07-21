@@ -16,7 +16,7 @@ public class BookingDto: BaseAuditableDto
 
     public long? ProductId { get; set; }
 
-    public long? TechnicianId { get; set; }
+    public List<long> TechnicianIds { get; set; } = new List<long>();
 
     public string UserId { get; set; } = null!;
 
@@ -50,7 +50,7 @@ public class BookingDto: BaseAuditableDto
 
     public StoreDto? Store { get; set; }
 
-    public TechnicianDto ? Technician { get; set; }
+    public List<TechnicianDto> ? Technicians { get; set; }
 
     public List<int> ServiceIds { get; set; } = new List<int>();
 

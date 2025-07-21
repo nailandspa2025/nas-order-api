@@ -5,7 +5,6 @@ using BuildingBlocks.Common.Firebase;
 using BuildingBlocks.Core.Response;
 using FirebaseAdmin.Messaging;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
 using Order.Domain.Entities;
@@ -19,7 +18,7 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public long? ProductId { get; init; }
 
-    public long? TechnicianId { get; init; }
+    public List<long> TechnicianIds { get; init; } = new List<long>();
 
     public DateTime BookingDate { get; init; }
 
@@ -75,7 +74,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
         {
             StoreId = request.StoreId,
             ProductId = request.ProductId,
-            TechnicianId = request.TechnicianId,
+            //TechnicianId = request.TechnicianId,
             BookingTime = request.BookingTime,
             BookingDate = request.BookingDate,
             Status = BookingStatus.Pending,
@@ -98,6 +97,15 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             }).ToList();
             
             entity.SetBookingServices(bookingServices);
+        }
+        if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        {
+            var bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+            {
+                TechnicianId = id
+            }).ToList();
+
+            entity.SetBookingTechnicians(bookingTechnicians);
         }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);

@@ -71,7 +71,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         }
         entity.StoreId = entity.StoreId;
         entity.ProductId = request.ProductId;
-        entity.TechnicianId = request.TechnicianId;
+        //entity.TechnicianId = request.TechnicianId;
         entity.BookingTime = request.BookingTime;
         entity.Note = request.Note;
         entity.FullName = request.FullName;

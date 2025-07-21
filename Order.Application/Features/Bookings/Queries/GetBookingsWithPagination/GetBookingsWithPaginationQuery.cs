@@ -83,7 +83,7 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
         catch (Exception) { }
         try
         {
-            var technicianIds = paginationResult.Items.Select(s => s.TechnicianId).Distinct().ToList();
+            var technicianIds = paginationResult.Items.SelectMany(b => b.TechnicianIds).Distinct().ToList();
             if (technicianIds.Any())
             {
                 var technicians = (await _identityClient.GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken))?.Data;
@@ -91,10 +91,10 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
 
                 foreach (var booking in paginationResult.Items)
                 {
-                    if (technicianDictionary.TryGetValue((long)booking.TechnicianId, out var technician))
-                    {
-                        booking.Technician = technician;
-                    }
+                    booking.Technicians = booking.TechnicianIds
+                        .Where(technicianDictionary.ContainsKey)
+                        .Select(id => technicianDictionary[id])
+                        .ToList();
                 }
             }
         }
