@@ -40,9 +40,8 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public List<int> ServiceIds { get; init; } = new List<int>();
 
-    public string? SnapId { get; init; }
-
-    public string? GroupdId { get; init; }
+    public List<string> SnapIds { get; init; } = new List<string>();
+    public List<string> GroupdIds { get; init; } = new List<string>();
 
 }
 
@@ -86,8 +85,6 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Address = request.Address,
             Number = request.Number,
             Email = request.Email,
-            SnapId = request.SnapId,
-            GroupdId = request.GroupdId,
         };
         if (request.ServiceIds != null && request.ServiceIds.Any())
         {
@@ -106,6 +103,24 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             }).ToList();
 
             entity.SetBookingTechnicians(bookingTechnicians);
+        }
+        if (request.SnapIds != null && request.SnapIds.Any())
+        {
+            var snaps = request.SnapIds.Select(s => new BookingSnap
+            {
+                SnapId = s
+            }).ToList();
+
+            entity.SetBookingSnaps(snaps);
+        }
+        if (request.GroupdIds != null && request.GroupdIds.Any())
+        {
+            var groups = request.GroupdIds.Select(g => new BookingSnapGroup
+            {
+                GroupdId = g
+            }).ToList();
+
+            entity.SetBookingGroups(groups);
         }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);

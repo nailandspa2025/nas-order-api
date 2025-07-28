@@ -54,17 +54,21 @@ public class BookingDto: BaseAuditableDto
 
     public List<int> ServiceIds { get; set; } = new List<int>();
 
-    public string? SnapId { get; set; }
-
     public List<ServiceDto>? Services { get; set; }
 
-    public string GroupdId { get; set; }
+    public List<string> GroupdIds { get; set; } = new List<string>();
+    public List<string> SnapIds { get; set; } = new List<string>();
 
     private class Mapping: Profile
     {
         public Mapping()
         {
-            CreateMap<Booking, BookingDto>();
+            CreateMap<Booking, BookingDto>()
+                 .ForMember(dest => dest.SnapIds,
+                opt => opt.MapFrom(src => src.BookingSnaps.Select(x => x.SnapId).ToList()))
+                 .ForMember(dest => dest.GroupdIds,
+                opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList()));
+            ;
         }
     }
 }

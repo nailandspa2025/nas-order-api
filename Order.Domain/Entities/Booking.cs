@@ -60,6 +60,8 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public string? GroupdId { get; set; }
     public ICollection<BookingService> BookingServices { get; set; } = new List<BookingService>();
     public ICollection<BookingTechnician> BookingTechnicians { get; set; } = new HashSet<BookingTechnician>();
+    public ICollection<BookingSnap> BookingSnaps { get; set; } = new List<BookingSnap>();
+    public ICollection<BookingSnapGroup> BookingSnapGroups { get; set; } = new List<BookingSnapGroup>();
 
     public void SetBookingServices(List<BookingService> bookingServices)
     {
@@ -71,5 +73,16 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     {
         this.BookingTechnicians.Clear();
         this.BookingTechnicians = bookingTechnicians;
+    }
+    public void SetBookingSnaps(List<BookingSnap> snaps)
+    {
+        this.BookingSnaps.Clear();
+        this.BookingSnaps = snaps;
+    }
+
+    public void SetBookingGroups(List<BookingSnapGroup> groups)
+    {
+        this.BookingSnapGroups.Clear();
+        this.BookingSnapGroups = groups;
     }
 }
