@@ -71,6 +71,9 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
         }
         var paginationResult = await query
             .OrderBy(x => x.Created)
+            .Include(x => x.BookingTechnicians)
+            .Include(x => x.BookingSnaps)
+            .Include(x => x.BookingSnapGroups)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
         try

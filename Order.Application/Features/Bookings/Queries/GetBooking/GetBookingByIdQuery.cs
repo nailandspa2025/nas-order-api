@@ -34,6 +34,9 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
     {
         var entity = await _context.Booking
             .Include(x => x.BookingServices)
+            .Include(x => x.BookingTechnicians)
+            .Include(x => x.BookingSnaps)
+            .Include(x => x.BookingSnapGroups)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
