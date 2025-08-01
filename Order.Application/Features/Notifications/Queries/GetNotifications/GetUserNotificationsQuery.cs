@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Notifications.Models;
-using Order.Domain.Enums;
 
 namespace Order.Application.Features.Notifications.Queries.GetNotifications;
 

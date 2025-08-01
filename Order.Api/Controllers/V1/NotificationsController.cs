@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Bookings.Commands.CreateBooking;
 using Order.Application.Features.Bookings.Commands.UpdateBooking;
 using Order.Application.Features.Bookings.Models;
+using Order.Application.Features.Bookings.Queries.GetBooking;
 using Order.Application.Features.Notifications.Commands.CreateNotification;
 using Order.Application.Features.Notifications.Commands.DeleteNotification;
 using Order.Application.Features.Notifications.Commands.UpdateNotification;
 using Order.Application.Features.Notifications.Models;
+using Order.Application.Features.Notifications.Queries.GetNotification;
 using Order.Application.Features.Notifications.Queries.GetNotifications;
 using Order.Application.Features.Notifications.Queries.GetNotificationsWithPagination;
 
@@ -68,5 +70,19 @@ public class NotificationsController : ApiControllerBase
     public async Task<ActionResult<ApiResponse>> UpdateReadForMobileAsync(int id)
     {
         return await Mediator.Send(new UpdateReadNotificationCommand(id));
+    }
+
+    [HttpGet("merchant/{id}")]
+    [ProducesResponseType(typeof(ApiResponse<NotificationDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<NotificationDto>>> GetForMerchantByIdAsync(int id)
+    {
+        return await Mediator.Send(new GetNotificationByIdQuery { Id = id });
+    }
+
+    [HttpGet("mobile/{id}")]
+    [ProducesResponseType(typeof(ApiResponse<NotificationDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<NotificationDto>>> GetForMobileByIdAsync(int id)
+    {
+        return await Mediator.Send(new GetNotificationByIdQuery { Id = id });
     }
 }

@@ -72,7 +72,6 @@
     <Folder Include="Features\Bookings\Queries\GetBookingsWithPagination\" />
     <Folder Include="Features\Bookings\Queries\GetBooking\" />
     <Folder Include="Features\Notifications\Models\" />
-    <Folder Include="Features\Notifications\Queries\" />
     <Folder Include="Features\Notifications\Commands\CreateNotification\" />
     <Folder Include="Features\Notifications\Commands\DeleteNotification\" />
     <Folder Include="Features\Notifications\Queries\GetNotificationsWithPagination\" />
