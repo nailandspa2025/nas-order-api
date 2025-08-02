@@ -75,7 +75,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             ProductId = request.ProductId,
             //TechnicianId = request.TechnicianId,
             BookingTime = request.BookingTime,
-            BookingDate = request.BookingDate,
+            BookingDate = request.BookingDate.Date,
             Status = BookingStatus.Pending,
             UserId = _curentUser.UserId,
             Note = request.Note,
