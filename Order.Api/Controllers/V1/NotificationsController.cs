@@ -10,6 +10,7 @@ using Order.Application.Features.Notifications.Commands.DeleteNotification;
 using Order.Application.Features.Notifications.Commands.UpdateNotification;
 using Order.Application.Features.Notifications.Models;
 using Order.Application.Features.Notifications.Queries.GetNotification;
+using Order.Application.Features.Notifications.Queries.GetNotificationCount;
 using Order.Application.Features.Notifications.Queries.GetNotifications;
 using Order.Application.Features.Notifications.Queries.GetNotificationsWithPagination;
 
@@ -84,5 +85,12 @@ public class NotificationsController : ApiControllerBase
     public async Task<ActionResult<ApiResponse<NotificationDto>>> GetForMobileByIdAsync(int id)
     {
         return await Mediator.Send(new GetNotificationByIdQuery { Id = id });
+    }
+
+    [HttpGet("unread-me")]
+    [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<int>>> GetUnreadForMeAsync()
+    {
+        return await Mediator.Send(new GetNotificationCountByMeQuery());
     }
 }
