@@ -21,7 +21,8 @@ public class PaymentDto: BaseAuditableDto
     public string? Email { get; init; }
 
     public string? Phone { get; init; }
-    
+
+    public string? ApproveUrl { get; set; }
     private class Mapping : Profile
     {
         public Mapping()

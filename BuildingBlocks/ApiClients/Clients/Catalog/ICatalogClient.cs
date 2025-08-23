@@ -25,5 +25,8 @@ public interface ICatalogClient
 
     [Refit.Get("/api/v1/services/{id}")]
     Task<ApiResponse<ServiceDto>> GetServiceIdAsync(int id, CancellationToken cancellationToken = default);
+
+    [Refit.Get("/api/v1/stores/paypal-config/{storeId}")]
+    Task<ApiResponse<PaypalConfigDto>> GetPaypalConfigAsync(long storeId, CancellationToken cancellationToken = default);
 }
 

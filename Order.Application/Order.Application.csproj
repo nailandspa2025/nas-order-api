@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Payments\Commands\DeletePayment\**" />
+    <EmbeddedResource Remove="Features\Payments\Commands\DeletePayment\**" />
+    <None Remove="Features\Payments\Commands\DeletePayment\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks\Common\Common.csproj" />
     <ProjectReference Include="..\BuildingBlocks\Authentication\Authentication.csproj" />
     <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus.csproj" />
@@ -75,13 +81,10 @@
     <Folder Include="Features\Notifications\Commands\CreateNotification\" />
     <Folder Include="Features\Notifications\Commands\DeleteNotification\" />
     <Folder Include="Features\Notifications\Queries\GetNotificationsWithPagination\" />
-    <Folder Include="Features\Payments\" />
-    <Folder Include="Features\Payments\Commands\" />
     <Folder Include="Features\Payments\Models\" />
     <Folder Include="Features\Payments\Queries\" />
     <Folder Include="Features\Payments\Commands\CretePayment\" />
     <Folder Include="Features\Payments\Commands\UpdatePayment\" />
-    <Folder Include="Features\Payments\Commands\DeletePayment\" />
     <Folder Include="Features\Payments\Queries\GetPayment\" />
     <Folder Include="Features\Payments\Queries\GetPaymentsWithPagination\" />
     <Folder Include="Features\Notifications\Queries\GetNotifications\" />
@@ -103,5 +106,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
   </ItemGroup>
 </Project>

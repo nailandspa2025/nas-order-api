@@ -1,10 +1,10 @@
-﻿using Order.Infrastructure.Persistence;
-using BuildingBlocks.Common.Extensions;
+﻿using BuildingBlocks.Common.Extensions;
 using BuildingBlocks.Common.FileStorage;
 using BuildingBlocks.Common.Firebase;
 using BuildingBlocks.Common.Swagger;
-using BuildingBlocks.EventBus;
 using BuildingBlocks.CommonAuthorization.CommonAuthorizationExtensions;
+using BuildingBlocks.EventBus;
+using Order.Infrastructure.Persistence;
 namespace Order.Api;
 
 public static class ConfigureServices

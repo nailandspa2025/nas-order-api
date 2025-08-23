@@ -7,7 +7,8 @@ public enum PaymentMethod
     Zalopay = 4,
     BankTransfer = 5,
     MoMo = 6,
-    VNPay = 7
+    VNPay = 7,
+    Paypal = 8,
 }
 
 public enum PaymentStatus

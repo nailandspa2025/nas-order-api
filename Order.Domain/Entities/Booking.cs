@@ -38,9 +38,9 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public int ? Number { get; set; }
 
-    public int TransactionId { get; set; }
+    //public int TransactionId { get; set; }
 
-    public virtual Payment? Payment { get; set; }
+    //public virtual Payment? Payment { get; set; }
     
     public string? Reason { get; set; }
 
@@ -62,7 +62,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public ICollection<BookingTechnician> BookingTechnicians { get; set; } = new HashSet<BookingTechnician>();
     public ICollection<BookingSnap> BookingSnaps { get; set; } = new List<BookingSnap>();
     public ICollection<BookingSnapGroup> BookingSnapGroups { get; set; } = new List<BookingSnapGroup>();
-
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     public void SetBookingServices(List<BookingService> bookingServices)
     {
         this.BookingServices.Clear();
