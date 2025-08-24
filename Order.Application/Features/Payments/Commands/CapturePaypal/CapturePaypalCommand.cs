@@ -14,8 +14,9 @@ namespace Order.Application.Features.Payments.Commands.CapturePaypal;
 
 public record CapturePaypalCommand: IRequest<ApiResponse<PaymentDto>>
 {
-    public string OrderId { get; set; } = null!;
-    public int BookingId { get; set; }
+    public int BookingId { get; init; }
+    public string Token { get; init; } = null!;
+    public string PayerId { get; init; } = null;
 }
 
 public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand, ApiResponse<PaymentDto>>
@@ -42,6 +43,10 @@ public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand,
         {
             throw new NotFoundException(nameof(Booking), request.BookingId);
         }
+        if (entity.Status == BookingStatus.Completed)
+        {
+            return ApiResponse<PaymentDto>.Error("Booking has been paid");
+        }
         var payment = entity.Payments.FirstOrDefault();
         if (payment == null)
         {
@@ -64,7 +69,8 @@ public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand,
         }
 
         var paypalService = new PaypalService(config);
-        var order = await paypalService.CaptureOrderAsync(request.OrderId);
+        var order = await paypalService.CaptureOrderAsync(request.Token);
+
 
         if (order.Status == "COMPLETED")
         {

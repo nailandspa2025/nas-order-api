@@ -27,6 +27,10 @@ public record CreatePaymentCommand: IRequest<ApiResponse<PaymentDto>>
 
     public string? Phone { get; init; }
 
+    public string ReturnUrl { get; init; }
+
+    public string CancelUrl { get; init; }
+
 }
 
 public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, ApiResponse<PaymentDto>>
@@ -48,6 +52,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     public async Task<ApiResponse<PaymentDto>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
         var booking = await _context.Booking
+            .Include(x => x.Payments)
             .SingleOrDefaultAsync(x => x.Id == request.BookingId, cancellationToken);
 
         if (booking == null)
@@ -63,7 +68,18 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         {
             return ApiResponse<PaymentDto>.Error("StoreId is required for PayPal payment.");
         }
-        
+        //var existingPayment = booking.Payments
+        //                .FirstOrDefault(p => p.BookingId == request.BookingId 
+        //                && p.Status == PaymentStatus.Pending
+        //                && !string.IsNullOrEmpty(p.ApproveUrl)
+        //                );
+
+        //if (existingPayment != null)
+        //{
+        //    var dto = _mapper.Map<PaymentDto>(existingPayment);
+        //    return ApiResponse<PaymentDto>.Success(dto);
+        //}
+
         var payment = new Payment
         {
             BookingId = request.BookingId,
@@ -81,13 +97,11 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             Status = TransactionStatus.Pending,
             ProcessedAt = DateTime.UtcNow
         };
-        string? approveUrl = null;
         switch (request.Method)
         {
             case PaymentMethod.Paypal:
-                var res = _httpContextAccessor.HttpContext.Request;
-                var returnUrl = $"{res.Scheme}://{res.Host}/api/payments/success";
-                var cancelUrl = $"{res.Scheme}://{res.Host}/api/payments/cancel";
+                var returnUrl = $"{request.ReturnUrl}?bookingId={booking.Id}";
+                var cancelUrl = $"{request.CancelUrl}?bookingId={booking.Id}";
                 var response = await _catalogClient.GetPaypalConfigAsync(booking.StoreId.Value);
                 var config = response?.Data;
                 if (config == null)
@@ -96,13 +110,13 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
                 }
                 var paypalService = new PaypalService(config);
                 var order = await paypalService.CreateOrderAsync(request.Amount, returnUrl, cancelUrl);
-                approveUrl = order.Links.FirstOrDefault(l => l.Rel == "approve")?.Href ?? "";
-                
+                var approveUrl = order.Links.FirstOrDefault(l => l.Rel == "approve")?.Href ?? "";
+
+                payment.ApproveUrl = approveUrl;
                 payment.Status = PaymentStatus.Pending;
                 transaction.Status = TransactionStatus.Pending;
                 transaction.Provider = "PayPal";
                 transaction.TransactionId = order.Id;
-                //booking.Status = BookingStatus.Completed;
                 break;
             case PaymentMethod.Cash:
                 payment.Status = PaymentStatus.Success;
@@ -131,7 +145,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         await _context.SaveChangesAsync(cancellationToken);
 
         var result = _mapper.Map<PaymentDto>(payment);
-        result.ApproveUrl = approveUrl;
+        
         return ApiResponse<PaymentDto>.Success(result);
     }
 }

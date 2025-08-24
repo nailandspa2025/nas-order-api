@@ -36,4 +36,6 @@ public class Payment : BaseAuditableEntity<int>, ISoftDelete
 
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
+    public string? ApproveUrl { get; set; }
+
 }

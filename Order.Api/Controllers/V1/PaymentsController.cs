@@ -1,5 +1,6 @@
 using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 using BuildingBlocks.Core.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Payments.Commands.CapturePaypal;
 using Order.Application.Features.Payments.Commands.CretePayment;
@@ -58,20 +59,13 @@ public class PaymentsController : ApiControllerBase
         }
         return await Mediator.Send(command);
     }
-    [HttpGet("success")]
+
+    [AllowAnonymous]
+    [HttpPost("capture-paypal")]
     [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<PaymentDto>>> SuccessAsync([FromQuery] string token, [FromQuery] int bookingId)
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> SuccessAsync([FromForm] CapturePaypalCommand command)
     {
-        var command = new CapturePaypalCommand
-        {
-            OrderId = token, 
-            BookingId = bookingId
-        };
         return await Mediator.Send(command);
     }
-    [HttpGet("cancel")]
-    public IActionResult CancelAsync()
-    {
-        return Redirect($"{Request.Scheme}://{Request.Host}/booking");
-    }
+   
 }

@@ -60,8 +60,9 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
         }
         var paginationResult = await query
             .OrderBy(x => x.Created)
+            .Include(x => x.Payments)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)
-        .PaginatedListAsync(request.PageNumber, request.PageSize);
+            .PaginatedListAsync(request.PageNumber, request.PageSize);
 
         try
         {
