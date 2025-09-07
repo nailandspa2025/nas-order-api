@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks\Common\Common.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\Authentication\Authentication.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\ApiClients\ApiClients.csproj" />
+    <ProjectReference Include="..\Loyalty.Domain\Loyalty.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Common\" />
+    <None Remove="Common\Interfaces\" />
+    <None Remove="Features\" />
+    <None Remove="Features\Bookings\" />
+    <None Remove="Features\Notifications\" />
+    <None Remove="Features\Payments\" />
+    <None Remove="Features\BookingCancelReasons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "Loyalty.Api\\Loyalty.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Loyalty.Infrastructure\\Loyalty.Infrastructure.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
