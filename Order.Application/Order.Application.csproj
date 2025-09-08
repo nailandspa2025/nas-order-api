@@ -1,0 +1,111 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Features\Payments\Commands\DeletePayment\**" />
+    <EmbeddedResource Remove="Features\Payments\Commands\DeletePayment\**" />
+    <None Remove="Features\Payments\Commands\DeletePayment\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks\Common\Common.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\Authentication\Authentication.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\EventBus\EventBus.csproj" />
+    <ProjectReference Include="..\Order.Domain\Order.Domain.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\ApiClients\ApiClients.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Common\" />
+    <None Remove="Common\Interfaces\" />
+    <None Remove="Features\" />
+    <None Remove="Features\Bookings\" />
+    <None Remove="Features\Bookings\Commands\" />
+    <None Remove="Features\Bookings\Models\" />
+    <None Remove="Features\Bookings\Queries\" />
+    <None Remove="Features\Bookings\Commands\CreateBooking\" />
+    <None Remove="Features\Bookings\Commands\UpdateBooking\" />
+    <None Remove="Features\Bookings\Commands\DeleteBooking\" />
+    <None Remove="Features\Bookings\Queries\GetBookingsWithPagination\" />
+    <None Remove="Features\Bookings\Queries\GetBooking\" />
+    <None Remove="Features\Notifications\" />
+    <None Remove="Features\Notifications\Commands\" />
+    <None Remove="Features\Notifications\Models\" />
+    <None Remove="Features\Notifications\Queries\" />
+    <None Remove="Features\Notifications\Commands\CreateNotification\" />
+    <None Remove="Features\Notifications\Commands\UpdateNotification\" />
+    <None Remove="Features\Notifications\Queries\GetNotificationsWithPagination\" />
+    <None Remove="Features\Payments\" />
+    <None Remove="Features\Payments\Commands\" />
+    <None Remove="Features\Payments\Models\" />
+    <None Remove="Features\Payments\Queries\" />
+    <None Remove="Features\Payments\Commands\CretePayment\" />
+    <None Remove="Features\Payments\Commands\UpdatePayment\" />
+    <None Remove="Features\Payments\Commands\DeletePayment\" />
+    <None Remove="Features\Payments\Queries\GetPayment\" />
+    <None Remove="Features\Payments\Queries\GetPaymentsWithPagination\" />
+    <None Remove="Features\Notifications\Queries\GetNotifications\" />
+    <None Remove="Features\Bookings\Commands\CreateBookingMobile\" />
+    <None Remove="Features\Bookings\Queries\GetBookings\" />
+    <None Remove="Features\Bookings\Commands\CancelBooking\" />
+    <None Remove="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
+    <None Remove="Features\Payments\Queries\GetPaymentForMerchantsWithPagination\" />
+    <None Remove="Features\BookingCancelReasons\" />
+    <None Remove="Features\BookingCancelReasons\Commands\" />
+    <None Remove="Features\BookingCancelReasons\Models\" />
+    <None Remove="Features\BookingCancelReasons\Queries\" />
+    <None Remove="Features\BookingCancelReasons\Commands\CreateBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Commands\UpdateBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Commands\DeleteBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Queries\GetBookingCancelReason\" />
+    <None Remove="Features\BookingCancelReasons\Queries\GetBookingCancelReasons\" />
+    <None Remove="Features\BookingCancelReasons\Queries\GetBookingCancelReasonsWithPagination\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\" />
+    <Folder Include="Common\Interfaces\" />
+    <Folder Include="Features\Bookings\" />
+    <Folder Include="Features\Bookings\Commands\" />
+    <Folder Include="Features\Bookings\Models\" />
+    <Folder Include="Features\Bookings\Queries\" />
+    <Folder Include="Features\Bookings\Commands\CreateBooking\" />
+    <Folder Include="Features\Bookings\Commands\UpdateBooking\" />
+    <Folder Include="Features\Bookings\Commands\DeleteBooking\" />
+    <Folder Include="Features\Bookings\Queries\GetBookingsWithPagination\" />
+    <Folder Include="Features\Bookings\Queries\GetBooking\" />
+    <Folder Include="Features\Notifications\Models\" />
+    <Folder Include="Features\Notifications\Commands\CreateNotification\" />
+    <Folder Include="Features\Notifications\Commands\DeleteNotification\" />
+    <Folder Include="Features\Notifications\Queries\GetNotificationsWithPagination\" />
+    <Folder Include="Features\Payments\Models\" />
+    <Folder Include="Features\Payments\Queries\" />
+    <Folder Include="Features\Payments\Commands\CretePayment\" />
+    <Folder Include="Features\Payments\Commands\UpdatePayment\" />
+    <Folder Include="Features\Payments\Queries\GetPayment\" />
+    <Folder Include="Features\Payments\Queries\GetPaymentsWithPagination\" />
+    <Folder Include="Features\Notifications\Queries\GetNotifications\" />
+    <Folder Include="Features\Bookings\Commands\CreateBookingMobile\" />
+    <Folder Include="Features\Bookings\Queries\GetBookings\" />
+    <Folder Include="Features\Bookings\Commands\CancelBooking\" />
+    <Folder Include="Features\Bookings\Queries\GetBookingForMerchantsWithPagination\" />
+    <Folder Include="Features\Payments\Queries\GetPaymentForMerchantsWithPagination\" />
+    <Folder Include="Features\BookingCancelReasons\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\" />
+    <Folder Include="Features\BookingCancelReasons\Models\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\CreateBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\UpdateBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Commands\DeleteBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReason\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReasons\" />
+    <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReasonsWithPagination\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
+  </ItemGroup>
+</Project>

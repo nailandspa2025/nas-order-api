@@ -1,9 +1,0 @@
-﻿using Loyalty.Application.Common.Interfaces;
-
-namespace Loyalty.Infrastructure.Services;
-
-public class DateTimeService: IDateTime
-{
-    public DateTime Now => DateTime.Now;
-}
-
