@@ -22,4 +22,9 @@
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\LoyaltyGroups\Commands\CreateLoyaltyGroup\" />
+    <Folder Include="Features\LoyaltyGroups\Models\" />
+    <Folder Include="Features\LoyaltyGroups\Queries\" />
+  </ItemGroup>
 </Project>
