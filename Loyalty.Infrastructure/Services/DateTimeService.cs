@@ -1,4 +1,4 @@
-﻿using Order.Application.Common.Interfaces;
+﻿using Loyalty.Application.Common.Interfaces;
 
 namespace Loyalty.Infrastructure.Services;
 

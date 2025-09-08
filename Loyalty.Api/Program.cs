@@ -2,7 +2,7 @@
 using Loyalty.Api;
 using Loyalty.Infrastructure;
 using Loyalty.Infrastructure.Persistence;
-using Order.Application;
+using Loyalty.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 

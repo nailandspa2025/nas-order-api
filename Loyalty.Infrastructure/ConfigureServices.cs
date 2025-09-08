@@ -1,4 +1,4 @@
-﻿using Order.Application.Common.Interfaces;
+﻿using Loyalty.Application.Common.Interfaces;
 using Loyalty.Infrastructure.Persistence;
 using Loyalty.Infrastructure.Services;
 using BuildingBlocks.Common.Extensions;
@@ -11,7 +11,6 @@ using BuildingBlocks.ApiClients.Clients.Identity;
 using Refit;
 using BuildingBlocks.ApiClients;
 using BuildingBlocks.ApiClients.Clients.Catalog;
-using Loyalty.Application.Common.Interfaces;
 
 namespace Loyalty.Infrastructure;
 

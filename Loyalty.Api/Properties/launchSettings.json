@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "Order.Api": {
+    "Loyalty.Api": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api",

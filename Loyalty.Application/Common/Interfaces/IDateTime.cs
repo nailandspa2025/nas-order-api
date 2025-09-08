@@ -1,4 +1,4 @@
-﻿namespace Order.Application.Common.Interfaces;
+﻿namespace Loyalty.Application.Common.Interfaces;
 
 public interface IDateTime
 {

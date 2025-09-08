@@ -4,7 +4,7 @@ using FluentValidation;
 using MediatR;
 using BuildingBlocks.Common.Mediator.Behaviours;
 
-namespace Order.Application;
+namespace Loyalty.Application;
 
 public static class ConfigureServices
 {
