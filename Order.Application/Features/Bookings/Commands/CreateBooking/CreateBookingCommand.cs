@@ -19,7 +19,7 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
 
     public long? ProductId { get; init; }
 
-    public long? TechnicianId { get; init; }
+    public List<long> TechnicianIds { get; init; } = new List<long>();
 
     public DateTime BookingDate { get; init; }
 
@@ -41,6 +41,7 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
 
     public string ? UserId { get; init; }
 
+    public List<int> ServiceIds { get; init; } = new List<int>();
 }
 
 public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, ApiResponse<BookingDto>>
@@ -71,7 +72,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
         {
             StoreId = request.StoreId,
             ProductId = request.ProductId,
-            TechnicianId = request.TechnicianId,
+            //TechnicianId = request.TechnicianId,
             BookingTime = request.BookingTime,
             BookingDate = request.BookingDate,
             Status = BookingStatus.Pending,
@@ -84,7 +85,24 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             Number = request.Number,
             Email = request.Email
         };
+        if (request.ServiceIds != null && request.ServiceIds.Any())
+        {
+            var bookingServices = request.ServiceIds.Select(id => new BookingService
+            {
+                ServiceId = id
+            }).ToList();
 
+            entity.SetBookingServices(bookingServices);
+        }
+        if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        {
+            var bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+            {
+                TechnicianId = id
+            }).ToList();
+
+            entity.SetBookingTechnicians(bookingTechnicians);
+        }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)
@@ -119,8 +137,9 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
                             AccountId = request.UserId,
                             Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
                             Content = request.Note,
-                            SentTime = DateTime.UtcNow,
-                            Status = NotificationStatus.Unread,
+                            BookingId = entity.Id,
+                            IsRead = false,
+                            Type = NotificationType.Booking
                         });
 
                         _context.Notification.AddRange(notifications);

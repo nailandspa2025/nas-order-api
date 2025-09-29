@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
@@ -78,7 +79,7 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
                 new PaginatedList<BookingDto>(new List<BookingDto>(), 0, request.PageNumber, request.PageSize));
         }
         var paginationResult = await query
-            .OrderBy(x => x.Created)
+            .OrderByDescending(x => x.Created)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
 
@@ -101,7 +102,7 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
         catch (Exception) { }
         try
         {
-            var technicianIds = paginationResult.Items.Select(s => s.TechnicianId).Distinct().ToList();
+            var technicianIds = paginationResult.Items.SelectMany(b => b.TechnicianIds).Distinct().ToList();
             if (technicianIds.Any())
             {
                 var technicians = (await _identityClient.GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken))?.Data;
@@ -109,10 +110,28 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
 
                 foreach (var booking in paginationResult.Items)
                 {
-                    if (technicianDictionary.TryGetValue((long)booking.TechnicianId, out var technician))
-                    {
-                        booking.Technician = technician;
-                    }
+                    booking.Technicians = booking.TechnicianIds
+                        .Where(technicianDictionary.ContainsKey)
+                        .Select(id => technicianDictionary[id])
+                        .ToList();
+                }
+            }
+        }
+        catch (Exception) { }
+        try
+        {
+            var serviceIds = paginationResult.Items.SelectMany(b => b.ServiceIds).Distinct().ToList();
+            if (serviceIds.Any())
+            {
+                var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
+                var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
+
+                foreach (var booking in paginationResult.Items)
+                {
+                    booking.Services = booking.ServiceIds
+                        .Where(serviceDictionary.ContainsKey)
+                        .Select(id => serviceDictionary[id])
+                        .ToList();
                 }
             }
         }

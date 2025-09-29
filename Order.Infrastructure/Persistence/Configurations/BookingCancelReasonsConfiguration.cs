@@ -12,9 +12,8 @@ public class BookingCancelReasonsConfiguration : IEntityTypeConfiguration<Bookin
             .HasMaxLength(250)
             .IsRequired();
 
-        builder.HasOne(x => x.Booking)
+        builder.HasMany(x => x.Bookings)
             .WithOne(x => x.BookingCancelReason)
-            .HasForeignKey<Booking>(r => r.BookingCancelReasonId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -18,7 +18,7 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public long? ProductId { get; init; }
 
-    public long? TechnicianId { get; init; }
+    public List<long> TechnicianIds { get; init; } = new List<long>();
 
     public DateTime BookingDate { get; init; }
 
@@ -37,6 +37,12 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
     public string Email { get; init; } = null!;
 
     public int? Number { get; init; }
+
+    public List<int> ServiceIds { get; init; } = new List<int>();
+
+    public List<string> SnapIds { get; init; } = new List<string>();
+    public List<string> GroupdIds { get; init; } = new List<string>();
+
 }
 
 public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMobileCommand, ApiResponse<BookingDto>>
@@ -67,9 +73,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
         {
             StoreId = request.StoreId,
             ProductId = request.ProductId,
-            TechnicianId = request.TechnicianId,
+            //TechnicianId = request.TechnicianId,
             BookingTime = request.BookingTime,
-            BookingDate = request.BookingDate,
+            BookingDate = request.BookingDate.Date,
             Status = BookingStatus.Pending,
             UserId = _curentUser.UserId,
             Note = request.Note,
@@ -78,9 +84,44 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Phone = request.Phone,
             Address = request.Address,
             Number = request.Number,
-            Email = request.Email
+            Email = request.Email,
         };
+        if (request.ServiceIds != null && request.ServiceIds.Any())
+        {
+            var bookingServices = request.ServiceIds.Select(id => new BookingService
+            {
+                ServiceId = id
+            }).ToList();
+            
+            entity.SetBookingServices(bookingServices);
+        }
+        if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        {
+            var bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+            {
+                TechnicianId = id
+            }).ToList();
 
+            entity.SetBookingTechnicians(bookingTechnicians);
+        }
+        if (request.SnapIds != null && request.SnapIds.Any())
+        {
+            var snaps = request.SnapIds.Select(s => new BookingSnap
+            {
+                SnapId = s
+            }).ToList();
+
+            entity.SetBookingSnaps(snaps);
+        }
+        if (request.GroupdIds != null && request.GroupdIds.Any())
+        {
+            var groups = request.GroupdIds.Select(g => new BookingSnapGroup
+            {
+                GroupdId = g
+            }).ToList();
+
+            entity.SetBookingGroups(groups);
+        }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)
@@ -105,8 +146,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                                 },
                                 Data = new Dictionary<string, string>()
                                 {
-                                { "ObjectId", entity.Id.ToString() },
-                                { "Type", "Booking" },
+                                    { "ObjectId", entity.Id.ToString() },
+
+                                    { "Type", "Booking" },
                                 }
                             });
 
@@ -115,8 +157,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                             AccountId = _curentUser.UserId,
                             Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
                             Content = request.Note,
-                            SentTime = DateTime.UtcNow,
-                            Status = NotificationStatus.Unread,
+                            IsRead = false,
+                            BookingId = entity.Id,
+                            Type = NotificationType.Important
                         });
 
                         _context.Notification.AddRange(notifications);

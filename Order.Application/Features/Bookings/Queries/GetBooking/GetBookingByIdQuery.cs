@@ -33,6 +33,10 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
     public async Task<ApiResponse<BookingDto>> Handle(GetBookingByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _context.Booking
+            .Include(x => x.BookingServices)
+            .Include(x => x.BookingTechnicians)
+            .Include(x => x.BookingSnaps)
+            .Include(x => x.BookingSnapGroups)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
@@ -54,16 +58,30 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
         catch (Exception ex){}
         try
         {
-            if (entity.TechnicianId.HasValue)
+            var technicianIds = entity.BookingTechnicians.Select(x => x.TechnicianId).ToList();
+            if (technicianIds.Any())
             {
-                var technicianRespnse = await _identityClient.GetTechnicianByIdAsync(entity.TechnicianId.Value, cancellationToken);
-                if (technicianRespnse?.Data != null)
+                var technicianResponse = await _identityClient.GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken);
+                if (technicianResponse?.Data != null)
                 {
-                    bookingDto.Technician = technicianRespnse.Data;
+                    bookingDto.Technicians = technicianResponse.Data.ToList();
                 }
             }
         }
         catch (Exception ){}
+        try
+        {
+            var serviceIds = entity.BookingServices.Select(bs => bs.ServiceId).ToList();
+            if (serviceIds.Any())
+            {
+                var serviceResponse = await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken);
+                if (serviceResponse?.Data != null)
+                {
+                    bookingDto.Services = serviceResponse.Data.ToList();
+                }
+            }
+        }
+        catch (Exception){}
 
         return ApiResponse<BookingDto>.Success(bookingDto);
     }

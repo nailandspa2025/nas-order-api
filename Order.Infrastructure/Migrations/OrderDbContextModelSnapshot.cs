@@ -67,6 +67,9 @@ namespace Order.Infrastructure.Migrations
                     b.Property<int?>("Gender")
                         .HasColumnType("integer");
 
+                    b.Property<string>("GroupdId")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -101,25 +104,21 @@ namespace Order.Infrastructure.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<string>("SnapId")
+                        .HasColumnType("text");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<long?>("StoreId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("TechnicianId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("UserId")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookingCancelReasonId")
-                        .IsUnique();
+                    b.HasIndex("BookingCancelReasonId");
 
                     b.ToTable("Booking");
                 });
@@ -166,6 +165,116 @@ namespace Order.Infrastructure.Migrations
                     b.ToTable("BookingCancelReason");
                 });
 
+            modelBuilder.Entity("Order.Domain.Entities.BookingService", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingService");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.BookingSnap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SnapId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingSnap");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.BookingSnapGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GroupdId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingSnapGroup");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.BookingTechnician", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("TechnicianId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingTechnician");
+                });
+
             modelBuilder.Entity("Order.Domain.Entities.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -176,6 +285,9 @@ namespace Order.Infrastructure.Migrations
 
                     b.Property<string>("AccountId")
                         .HasColumnType("text");
+
+                    b.Property<int?>("BookingId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Content")
                         .HasColumnType("text");
@@ -195,23 +307,25 @@ namespace Order.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("SentTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
 
                     b.ToTable("Notification");
                 });
@@ -226,6 +340,9 @@ namespace Order.Infrastructure.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("ApproveUrl")
+                        .HasColumnType("text");
 
                     b.Property<int>("BookingId")
                         .HasColumnType("integer");
@@ -280,8 +397,7 @@ namespace Order.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookingId")
-                        .IsUnique();
+                    b.HasIndex("BookingId");
 
                     b.ToTable("Payment");
                 });
@@ -336,18 +452,69 @@ namespace Order.Infrastructure.Migrations
             modelBuilder.Entity("Order.Domain.Entities.Booking", b =>
                 {
                     b.HasOne("Order.Domain.Entities.BookingCancelReason", "BookingCancelReason")
-                        .WithOne("Booking")
-                        .HasForeignKey("Order.Domain.Entities.Booking", "BookingCancelReasonId")
+                        .WithMany("Bookings")
+                        .HasForeignKey("BookingCancelReasonId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("BookingCancelReason");
                 });
 
+            modelBuilder.Entity("Order.Domain.Entities.BookingService", b =>
+                {
+                    b.HasOne("Order.Domain.Entities.Booking", "Booking")
+                        .WithMany("BookingServices")
+                        .HasForeignKey("BookingId");
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.BookingSnap", b =>
+                {
+                    b.HasOne("Order.Domain.Entities.Booking", "Booking")
+                        .WithMany("BookingSnaps")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.BookingSnapGroup", b =>
+                {
+                    b.HasOne("Order.Domain.Entities.Booking", "Booking")
+                        .WithMany("BookingSnapGroups")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.BookingTechnician", b =>
+                {
+                    b.HasOne("Order.Domain.Entities.Booking", "Booking")
+                        .WithMany("BookingTechnicians")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Order.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("Order.Domain.Entities.Booking", "Booking")
+                        .WithMany("Notifications")
+                        .HasForeignKey("BookingId");
+
+                    b.Navigation("Booking");
+                });
+
             modelBuilder.Entity("Order.Domain.Entities.Payment", b =>
                 {
                     b.HasOne("Order.Domain.Entities.Booking", "Booking")
-                        .WithOne("Payment")
-                        .HasForeignKey("Order.Domain.Entities.Payment", "BookingId")
+                        .WithMany("Payments")
+                        .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -367,12 +534,22 @@ namespace Order.Infrastructure.Migrations
 
             modelBuilder.Entity("Order.Domain.Entities.Booking", b =>
                 {
-                    b.Navigation("Payment");
+                    b.Navigation("BookingServices");
+
+                    b.Navigation("BookingSnapGroups");
+
+                    b.Navigation("BookingSnaps");
+
+                    b.Navigation("BookingTechnicians");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Order.Domain.Entities.BookingCancelReason", b =>
                 {
-                    b.Navigation("Booking");
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Order.Domain.Entities.Payment", b =>

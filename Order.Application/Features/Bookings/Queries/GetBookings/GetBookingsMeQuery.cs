@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
@@ -12,6 +14,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
+using Order.Domain.Entities;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Queries.GetBookings;
 
@@ -46,7 +50,13 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
     public async Task<ApiResponse<PaginatedList<BookingDto>>> Handle(GetBookingsMeQuery request, CancellationToken cancellationToken)
     {
         var paramSearchText = request.SearchText ?? string.Empty;
-        var query = _context.Booking.AsNoTracking();
+        var query = _context.Booking
+            .Where(x => 
+                !x.IsDeleted 
+                && x.UserId == _currentUser.UserId 
+                && (x.BookingDate.Date >= DateTime.UtcNow.Date || x.Status != BookingStatus.Pending) 
+            )
+            .AsNoTracking();
         if (!paramSearchText.IsNullOrEmpty())
         {
             var lowerSearch = request.SearchText.ToLower();
@@ -60,11 +70,12 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             query = query.Where(x => request.Status.Contains((int)x.Status));
         }
         var paginationResult = await query
-            .Where(x => !x.IsDeleted && x.UserId == _currentUser.UserId )
             .OrderBy(x => x.Created)
+            .Include(x => x.BookingTechnicians)
+            .Include(x => x.BookingSnaps)
+            .Include(x => x.BookingSnapGroups)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
-
         try
         {
             var storeIds = paginationResult.Items.Select(x => x.StoreId).Distinct().ToList();
@@ -85,7 +96,7 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
         catch (Exception) { }
         try
         {
-            var technicianIds = paginationResult.Items.Select(s => s.TechnicianId).Distinct().ToList();
+            var technicianIds = paginationResult.Items.SelectMany(b => b.TechnicianIds).Distinct().ToList();
             if (technicianIds.Any())
             {
                 var technicians = (await _identityClient.GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken))?.Data;
@@ -93,14 +104,32 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
 
                 foreach (var booking in paginationResult.Items)
                 {
-                    if (technicianDictionary.TryGetValue((long)booking.TechnicianId, out var technician))
-                    {
-                        booking.Technician = technician;
-                    }
+                    booking.Technicians = booking.TechnicianIds
+                        .Where(technicianDictionary.ContainsKey)
+                        .Select(id => technicianDictionary[id])
+                        .ToList();
                 }
             }
         }
         catch (Exception) { }
+        try
+        {
+            var serviceIds = paginationResult.Items.SelectMany(b => b.ServiceIds).Distinct().ToList();
+            if (serviceIds.Any())
+            {
+                var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
+                var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
+
+                foreach (var booking in paginationResult.Items)
+                {
+                    booking.Services = booking.ServiceIds
+                        .Where(serviceDictionary.ContainsKey)
+                        .Select(id => serviceDictionary[id])
+                        .ToList();
+                }
+            }
+        }
+        catch (Exception){}
         return ApiResponse<PaginatedList<BookingDto>>.Success(paginationResult);
     }
 }

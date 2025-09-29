@@ -2,7 +2,9 @@
 
 public enum NotificationStatus
 {
-    Unread = 1,
-    Read = 2
+    Completed = 1,
+    Canceled = 2,
+    Failed = 3,
+    Pending = 4,
 }
 

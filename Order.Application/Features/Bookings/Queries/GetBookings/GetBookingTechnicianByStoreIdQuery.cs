@@ -31,7 +31,10 @@ public class GetBookingTechnicianByStoreIdQueryHandler : IRequestHandler<GetBook
         var utcDate = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc);
 
         var bookings = await _context.Booking
-            .Where(x => x.StoreId == request.StoreId && x.TechnicianId == request.TechnicianId && x.BookingDate.Date == utcDate.Date)
+            .Include(x => x.BookingTechnicians)
+            .Where(x => x.StoreId == request.StoreId 
+            && x.BookingDate.Date == utcDate.Date 
+            && x.BookingTechnicians.Any(bt => bt.TechnicianId == request.TechnicianId))
             .ToListAsync(cancellationToken);
 
         return ApiResponse<IEnumerable<BookingDto>>.Success(_mapper.Map<IEnumerable<BookingDto>>(bookings));

@@ -17,5 +17,7 @@ public interface IOrderDbContext : IEfCoreDbContext
     DbSet<Transaction> Transaction { get; }
 
     DbSet<BookingCancelReason> BookingCancelReason { get; }
+
+    DbSet<BookingService> BookingService { get; }
 }
 

@@ -1,0 +1,6 @@
+2025-09-29 21:30:25 [Information] Bus started: amazonsqs://ap-southeast-1/dev LogProperties={ SourceContext: "MassTransit" }
+2025-09-29 21:30:26 [Information] Now listening on: "https://localhost:6002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-09-29 21:30:26 [Information] Now listening on: "http://localhost:7002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-09-29 21:30:26 [Information] Application started. Press Ctrl+C to shut down. LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-09-29 21:30:26 [Information] Hosting environment: "Development" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
+2025-09-29 21:30:26 [Information] Content root path: "/Users/canhlv/NAS/BackEndAPI/nas-order-api/Order.Api" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }

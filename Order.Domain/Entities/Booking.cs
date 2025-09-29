@@ -10,7 +10,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public long ? ProductId { get; set; }
 
-    public long ? TechnicianId { get; set; }
+    //public long ? TechnicianId { get; set; }
 
     public string ? UserId { get; set; } = null!;
 
@@ -38,9 +38,9 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public int ? Number { get; set; }
 
-    public int TransactionId { get; set; }
+    //public int TransactionId { get; set; }
 
-    public virtual Payment? Payment { get; set; }
+    //public virtual Payment? Payment { get; set; }
     
     public string? Reason { get; set; }
 
@@ -54,4 +54,35 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public virtual BookingCancelReason? BookingCancelReason { get; set; }
 
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public string? SnapId { get; set; }
+    public string? GroupdId { get; set; }
+    public ICollection<BookingService> BookingServices { get; set; } = new List<BookingService>();
+    public ICollection<BookingTechnician> BookingTechnicians { get; set; } = new HashSet<BookingTechnician>();
+    public ICollection<BookingSnap> BookingSnaps { get; set; } = new List<BookingSnap>();
+    public ICollection<BookingSnapGroup> BookingSnapGroups { get; set; } = new List<BookingSnapGroup>();
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public void SetBookingServices(List<BookingService> bookingServices)
+    {
+        this.BookingServices.Clear();
+        this.BookingServices = bookingServices;
+    }
+
+    public void SetBookingTechnicians(List<BookingTechnician> bookingTechnicians)
+    {
+        this.BookingTechnicians.Clear();
+        this.BookingTechnicians = bookingTechnicians;
+    }
+    public void SetBookingSnaps(List<BookingSnap> snaps)
+    {
+        this.BookingSnaps.Clear();
+        this.BookingSnaps = snaps;
+    }
+
+    public void SetBookingGroups(List<BookingSnapGroup> groups)
+    {
+        this.BookingSnapGroups.Clear();
+        this.BookingSnapGroups = groups;
+    }
 }

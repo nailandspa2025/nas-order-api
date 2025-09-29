@@ -1,6 +1,8 @@
 using BuildingBlocks.CommonAuthorization.CommonAuthorizationAttributes;
 using BuildingBlocks.Core.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Order.Application.Features.Payments.Commands.CapturePaypal;
 using Order.Application.Features.Payments.Commands.CretePayment;
 using Order.Application.Features.Payments.Commands.UpdatePayment;
 using Order.Application.Features.Payments.Models;
@@ -57,4 +59,13 @@ public class PaymentsController : ApiControllerBase
         }
         return await Mediator.Send(command);
     }
+
+    [AllowAnonymous]
+    [HttpPost("capture-paypal")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<PaymentDto>>> SuccessAsync([FromForm] CapturePaypalCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+   
 }
