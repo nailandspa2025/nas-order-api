@@ -68,13 +68,14 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
 
     public async Task<ApiResponse<BookingDto>> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
     {
+        var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Utc);
         var entity = new Booking
         {
             StoreId = request.StoreId,
             ProductId = request.ProductId,
             //TechnicianId = request.TechnicianId,
             BookingTime = request.BookingTime,
-            BookingDate = request.BookingDate,
+            BookingDate = bookingDate,
             Status = BookingStatus.Pending,
             UserId = request.UserId,
             Note = request.Note,
