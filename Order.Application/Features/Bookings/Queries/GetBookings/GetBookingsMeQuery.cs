@@ -70,7 +70,8 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             query = query.Where(x => request.Status.Contains((int)x.Status));
         }
         var paginationResult = await query
-            .OrderBy(x => x.Created)
+             .OrderByDescending(x => x.Created)
+
             .Include(x => x.BookingTechnicians)
             .Include(x => x.BookingSnaps)
             .Include(x => x.BookingSnapGroups)
