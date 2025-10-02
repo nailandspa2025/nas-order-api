@@ -30,7 +30,7 @@ public record GetBookingsWithPaginationQuery : IRequest<ApiResponse<PaginatedLis
 
     public DateTime? FromDate { get; init; }
 
-    public DateTime? ToDate { get; init; }
+    public DateTime? EndDate { get; init; }
 }
 
 public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookingsWithPaginationQuery, ApiResponse<PaginatedList<BookingDto>>>
@@ -79,10 +79,10 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
             query = query.Where(x => x.BookingDate >= fromUtc);
         }
 
-        if (request.ToDate.HasValue)
+        if (request.EndDate.HasValue)
         {
-            var toUtc = DateTime.SpecifyKind(request.ToDate.Value.Date, DateTimeKind.Utc);
-            query = query.Where(x => x.BookingDate < toUtc);
+            var endUtc = DateTime.SpecifyKind(request.EndDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(x => x.BookingDate < endUtc);
         }
 
 
