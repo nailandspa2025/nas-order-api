@@ -81,7 +81,7 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
 
         if (request.ToDate.HasValue)
         {
-            var toUtc = DateTime.SpecifyKind(request.ToDate.Value.Date.AddDays(1), DateTimeKind.Utc);
+            var toUtc = DateTime.SpecifyKind(request.ToDate.Value.Date, DateTimeKind.Utc);
             query = query.Where(x => x.BookingDate < toUtc);
         }
 
