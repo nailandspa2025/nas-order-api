@@ -25,6 +25,12 @@ public record GetBookingsWithPaginationQuery : IRequest<ApiResponse<PaginatedLis
     public string? SearchText { get; init; }
 
     public BookingStatus ? Status { get; init; }
+
+    public DateTime ? TargetDate { get; init; }
+
+    public DateTime? FromDate { get; init; }
+
+    public DateTime? ToDate { get; init; }
 }
 
 public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookingsWithPaginationQuery, ApiResponse<PaginatedList<BookingDto>>>
@@ -54,10 +60,32 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
             || s.Phone.Contains(lowerSearch)
             || s.Email.ToLower().Contains(lowerSearch));
         }
+
         if (request.Status.HasValue)
         {
             query = query.Where(x => x.Status == request.Status);
         }
+
+        if (request.TargetDate.HasValue)
+        {
+            var targetUtc = DateTime.SpecifyKind(request.TargetDate.Value.Date, DateTimeKind.Utc);
+            var nextDayUtc = targetUtc.AddDays(1);
+            query = query.Where(x => x.BookingDate >= targetUtc && x.BookingDate < nextDayUtc);
+        }
+
+        if (request.FromDate.HasValue)
+        {
+            var fromUtc = DateTime.SpecifyKind(request.FromDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(x => x.BookingDate >= fromUtc);
+        }
+
+        if (request.ToDate.HasValue)
+        {
+            var toUtc = DateTime.SpecifyKind(request.ToDate.Value.Date.AddDays(1), DateTimeKind.Utc);
+            query = query.Where(x => x.BookingDate < toUtc);
+        }
+
+
         var paginationResult = await query
             .OrderBy(x => x.Created)
             .Include(x => x.Payments)
