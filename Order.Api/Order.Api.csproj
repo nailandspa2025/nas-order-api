@@ -19,10 +19,12 @@
   <ItemGroup>
     <None Remove="Controllers\V1\" />
     <None Remove="Private\" />
+    <None Remove="Consumer\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\V1\" />
     <Folder Include="Private\" />
+    <Folder Include="Consumer\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks\Authentication\Authentication.csproj">

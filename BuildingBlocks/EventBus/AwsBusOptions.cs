@@ -20,5 +20,7 @@ public class Queue
 public class Topic
 {
     public string IdentityUserLoggedOut { get; set; } = null!;
+
+    public string BookingUpdateRate { get; set; } = null!;
 }
 
