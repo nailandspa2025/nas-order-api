@@ -59,6 +59,7 @@ public class BookingDto: BaseAuditableDto
     public List<string> GroupdIds { get; set; } = new List<string>();
     public List<string> SnapIds { get; set; } = new List<string>();
 
+    public bool IsRated { get; set; }
 
     private class Mapping: Profile
     {

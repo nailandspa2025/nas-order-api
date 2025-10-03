@@ -23,6 +23,8 @@ public record GetBookingForMerchantsWithPaginationQuery: IRequest<ApiResponse<Pa
     public int PageSize { get; init; } = 10;
     public string? SearchText { get; init; }
     public BookingStatus? Status { get; init; }
+    public DateTime? FromDate { get; init; }
+    public DateTime? EndDate { get; init; }
 }
 
 
@@ -58,6 +60,17 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
         if (request.Status.HasValue)
         {
             query = query.Where(x => x.Status == request.Status);
+        }
+        if (request.FromDate.HasValue)
+        {
+            var fromUtc = DateTime.SpecifyKind(request.FromDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(x => x.BookingDate >= fromUtc);
+        }
+
+        if (request.EndDate.HasValue)
+        {
+            var endUtc = DateTime.SpecifyKind(request.EndDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(x => x.BookingDate < endUtc);
         }
         List<long> storeIds = new List<long>();
         try

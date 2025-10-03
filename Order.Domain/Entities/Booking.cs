@@ -50,7 +50,9 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public bool IsDeleted { get; set; }
 
-    public int? BookingCancelReasonId { get; set; } 
+    public int? BookingCancelReasonId { get; set; }
+
+    public bool IsRated { get; set; } = false;
 
     public virtual BookingCancelReason? BookingCancelReason { get; set; }
 
