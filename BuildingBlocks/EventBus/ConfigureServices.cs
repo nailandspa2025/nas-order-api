@@ -34,6 +34,7 @@ public static class ConfigureServices
                 cfg.ConfigureEndpoints(context, new DefaultEndpointNameFormatter($"{configuration["AwsBusOptions:TargetEnvironment"]}-", false));
                 cfg.Message<UserLoggedOutEvent>(e => e.SetEntityName("identity-user-logged-out-topic"));
                 cfg.Message<BookingUpdateRateEvent>(e => e.SetEntityName("booking-update-rate-topic"));
+                cfg.Message<BookingPaidEvent>(e => e.SetEntityName("booking-paid-topic"));
             });
 
             x.SetKebabCaseEndpointNameFormatter();

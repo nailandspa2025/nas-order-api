@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
+using BuildingBlocks.ApiClients.Clients.Identity;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Common.Exceptions;
+using BuildingBlocks.Common.Firebase;
+using BuildingBlocks.Core.Response;
+using FirebaseAdmin.Messaging;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
-using Order.Domain.Enums;
-using BuildingBlocks.Common.Exceptions;
-using BuildingBlocks.Common.FileStorage;
-using BuildingBlocks.Core.Response;
-using MediatR;
 using Order.Domain.Entities;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Commands.UpdateBooking;
 
@@ -18,7 +22,7 @@ public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
 
     public long? ProductId { get; init; }
 
-    public long? TechnicianId { get; init; }
+    public List<long> TechnicianIds { get; init; } = new List<long>();
 
     public DateTime BookingDate { get; init; }
 
@@ -26,38 +30,53 @@ public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
 
     public string? Note { get; set; }
 
-    public string? FullName { get; init; }
+    public string FullName { get; init; } = null!;
 
-    public string? Address { get; init; }
+    public string Address { get; init; } = null!;
 
     public Gender? Gender { get; init; }
 
-    public string? Phone { get; init; }
+    public string Phone { get; init; } = null!;
 
-    public string? Email { get; init; }
+    public string Email { get; init; } = null!;
 
     public int? Number { get; init; }
+
+    public List<int> ServiceIds { get; init; } = new List<int>();
+
+    public List<string> SnapIds { get; init; } = new List<string>();
+    public List<string> GroupdIds { get; init; } = new List<string>();
 }
 
 public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IStorageService _storageService;
+    private readonly ICurrentUser _curentUser;
+    private readonly IIdentityClient _identityClient;
+    private readonly IFirebaseService _firebaseService;
 
     public UpdateBookingCommandHandler(
-        IMapper mapper,
         IOrderDbContext context,
-        
-        IStorageService storageService)
+        IMapper mapper,
+        ICurrentUser currentUser,
+        IIdentityClient identityClient,
+        IFirebaseService firebaseService)
     {
-        _context = context;
         _mapper = mapper;
-        
-        _storageService = storageService;
+        _context = context;
+        _curentUser = currentUser;
+        _firebaseService = firebaseService;
+        _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
+
     public async Task<ApiResponse<BookingDto>> Handle(UpdateBookingCommand request, CancellationToken cancellationToken)
     {
+        var services = await _context.BookingService.Where(x => request.ServiceIds.Contains(x.ServiceId)).ToListAsync();
+        var technicians = await _context.BookingTechnician.Where(x => request.TechnicianIds.Contains(x.TechnicianId)).ToListAsync();
+        var snaps = await _context.BookingSnap.Where(x => request.SnapIds.Contains(x.SnapId)).ToListAsync();
+        var groups = await _context.BookingSnapGroup.Where(x => request.GroupdIds.Contains(x.GroupdId)).ToListAsync();
+
         var entity = await _context.Booking
             .FindAsync(request.Id, cancellationToken);
 
@@ -69,20 +88,68 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         {
             return ApiResponse<BookingDto>.Error("Only update bookings with status pending.");
         }
-        entity.StoreId = entity.StoreId;
+        var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Utc);
+
+        entity.StoreId = request.StoreId;
         entity.ProductId = request.ProductId;
-        //entity.TechnicianId = request.TechnicianId;
         entity.BookingTime = request.BookingTime;
+        entity.BookingDate = bookingDate;
+        entity.UserId = _curentUser.UserId;
         entity.Note = request.Note;
         entity.FullName = request.FullName;
-        entity.Address = request.Address;
         entity.Gender = request.Gender;
-        entity.Email = request.Email;
         entity.Phone = request.Phone;
+        entity.Address = request.Address;
         entity.Number = request.Number;
-
+        entity.Email = request.Email;
+        entity.SetBookingServices(services);
+        entity.SetBookingTechnicians(technicians);
+        entity.SetBookingSnaps(snaps);
+        entity.SetBookingGroups(groups);
         await _context.SaveChangesAsync(cancellationToken);
 
+        try
+        {
+            var devices = (await _identityClient.GetAccountDeviceAsync(_curentUser.UserId, cancellationToken))?.Data;
+            if (devices != null && devices.Any())
+            {
+                var deviceTokens = devices.Select(d => d.Token).ToList();
+                if (deviceTokens.Any())
+                {
+                    var notifications = new List<Domain.Entities.Notification>();
+                    await _firebaseService.SendMulticastAsync(
+                        new MulticastMessage()
+                        {
+                            Tokens = deviceTokens,
+                            Notification = new FirebaseAdmin.Messaging.Notification()
+                            {
+                                Title = $"Update Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
+                                Body = request.Note,
+                            },
+                            Data = new Dictionary<string, string>()
+                            {
+                                    { "ObjectId", entity.Id.ToString() },
+
+                                    { "Type", "Booking" },
+                            }
+                        });
+
+                    notifications.Add(new Domain.Entities.Notification
+                    {
+                        AccountId = _curentUser.UserId,
+                        Title = $"Update Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
+                        Content = request.Note,
+                        IsRead = false,
+                        BookingId = entity.Id,
+                        Type = NotificationType.Important
+                    });
+
+                    _context.Notification.AddRange(notifications);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+            }
+        }
+        catch (Exception) { }
         return ApiResponse<BookingDto>.Success(_mapper.Map<BookingDto>(entity));
     }
 }

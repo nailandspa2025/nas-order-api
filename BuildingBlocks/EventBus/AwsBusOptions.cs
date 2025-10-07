@@ -22,5 +22,7 @@ public class Topic
     public string IdentityUserLoggedOut { get; set; } = null!;
 
     public string BookingUpdateRate { get; set; } = null!;
+
+    public string BookingPaid { get; set; } = null!;
 }
 

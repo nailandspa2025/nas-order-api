@@ -26,6 +26,12 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
 
     public DbSet<BookingService> BookingService =>Set<BookingService>();
 
+    public DbSet<BookingTechnician> BookingTechnician => Set<BookingTechnician>();
+
+    public DbSet<BookingSnap> BookingSnap => Set<BookingSnap>();
+
+    public DbSet<BookingSnapGroup> BookingSnapGroup => Set<BookingSnapGroup>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

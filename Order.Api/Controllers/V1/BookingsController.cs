@@ -87,6 +87,18 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(new DeleteBookingCommand(id));
     }
 
+    [HttpPut("update/{id}")]
+    [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromForm] UpdateBookingCommand command)
+    {
+        if (id != command.Id)
+        {
+            return BadRequest();
+        }
+        return await Mediator.Send(command);
+    }
+
     [HttpPost("create")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromForm] CreateBookingMobileCommand command)

@@ -2,6 +2,8 @@
 using BuildingBlocks.ApiClients.Clients.Catalog;
 using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Core.Response;
+using BuildingBlocks.EventBus.Events;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -39,14 +41,15 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly IMapper _mapper;
     private readonly ICatalogClient _catalogClient;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-
-    public CreatePaymentCommandHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient, IHttpContextAccessor httpContextAccessor)
+    public CreatePaymentCommandHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient, IHttpContextAccessor httpContextAccessor, IPublishEndpoint publishEndpoint)
     {
         _context = context;
         _mapper = mapper;
         _catalogClient = catalogClient;
         _httpContextAccessor = httpContextAccessor;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<ApiResponse<PaymentDto>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -138,11 +141,18 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
                 return ApiResponse<PaymentDto>.Error("Invalid payment method.");
         }
 
-        
-
         await _context.Payment.AddAsync(payment, cancellationToken);
         await _context.Transaction.AddAsync(transaction, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _publishEndpoint.Publish(new BookingPaidEvent
+        {
+            BookingId = booking.Id,
+            StoreId = (long)booking.StoreId,
+            AccountId = booking.UserId,
+            Amount = request.Amount,
+            Process = (int)LoyaltyProcess.Payment
+        });
 
         var result = _mapper.Map<PaymentDto>(payment);
         
