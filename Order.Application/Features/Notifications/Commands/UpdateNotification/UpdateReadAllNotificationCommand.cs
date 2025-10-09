@@ -22,12 +22,13 @@ public class UpdateReadAllNotificationCommandHandler : IRequestHandler<UpdateRea
     }
     public async Task<ApiResponse> Handle(UpdateReadAllNotificationCommand request, CancellationToken cancellationToken)
     {
-        var notifications = await _context.Notification
-            .Where(n => n.AccountId == _currentUser.UserId && !n.IsRead)
-            .ToListAsync(cancellationToken);
-        foreach (var notification in notifications)
+        var recipients = await _context.NotificationRecipient
+        .Where(r => r.UserId == _currentUser.UserId && !r.IsRead)
+        .ToListAsync(cancellationToken);
+
+        foreach (var recipient in recipients)
         {
-            notification.IsRead = true;
+            recipient.IsRead = true;
         }
         await _context.SaveChangesAsync(cancellationToken);
 

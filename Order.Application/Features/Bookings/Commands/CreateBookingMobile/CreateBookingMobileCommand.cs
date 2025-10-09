@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BuildingBlocks.ApiClients.Clients.AccountDevice.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Common.Firebase;
@@ -128,46 +129,68 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
         {
             try
             {
-                var devices = (await _identityClient.GetAccountDeviceAsync(_curentUser.UserId, cancellationToken))?.Data;
-                if (devices != null && devices.Any())
+                var devices = new List<AccountDeviceDto>();
+                if (request.TechnicianIds.Any())
                 {
-                    var deviceTokens = devices.Select(d => d.Token).ToList();
-                    if (deviceTokens.Any())
+                    var accountDeviceResponse = await _identityClient
+                   .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
+
+                    if (accountDeviceResponse?.Data != null)
+                        devices.AddRange(accountDeviceResponse.Data);
+                }
+
+                if (entity.StoreId.HasValue)
+                {
+                    var storeDeviceResponse = await _identityClient
+                        .GetAccountDeviceByStoreIdAsync(entity.StoreId.Value, cancellationToken);
+
+                    if (storeDeviceResponse?.Data != null)
+                        devices.AddRange(storeDeviceResponse.Data);
+                }
+
+                if (devices.Any())
+                {
+                    var deviceTokens = devices.Select(d => d.Token).Distinct().ToList();
+                    var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
+                    
+                    await _firebaseService.SendMulticastAsync(new MulticastMessage
                     {
-                        var notifications = new List<Domain.Entities.Notification>();
-                        await _firebaseService.SendMulticastAsync(
-                            new MulticastMessage()
-                            {
-                                Tokens = deviceTokens,
-                                Notification = new FirebaseAdmin.Messaging.Notification()
-                                {
-                                    Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
-                                    Body = request.Note,
-                                },
-                                Data = new Dictionary<string, string>()
-                                {
-                                    { "ObjectId", entity.Id.ToString() },
-
-                                    { "Type", "Booking" },
-                                }
-                            });
-
-                        notifications.Add(new Domain.Entities.Notification
+                        Tokens = deviceTokens,
+                        Notification = new FirebaseAdmin.Messaging.Notification
                         {
-                            AccountId = _curentUser.UserId,
-                            Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
-                            Content = request.Note,
-                            IsRead = false,
-                            BookingId = entity.Id,
-                            Type = NotificationType.Important
-                        });
+                            Title = title,
+                            Body = request.Note
+                        },
+                        Data = new Dictionary<string, string>
+                        {
+                            { "ObjectId", entity.Id.ToString()},
+                            { "Type", "Booking" },
+                            //{ "TestKey", "TestValue" }
+                        }
+                    });
+                    var notification = new Domain.Entities.Notification
+                    {
+                        AccountId = _curentUser.UserId,
+                        Title = title,
+                        Content = request.Note,
+                        BookingId = entity.Id,
+                        Type = NotificationType.Important,
+                    };
 
-                        _context.Notification.AddRange(notifications);
-                        await _context.SaveChangesAsync(cancellationToken);
-                    }
+                    notification.Recipients = devices.Select(token => new NotificationRecipient
+                    {
+                        UserId = token.AccountId,
+                        IsRead = false
+                    }).ToList();
+
+                    _context.Notification.Add(notification);
+                    await _context.SaveChangesAsync(cancellationToken);
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending: {ex.Message}");
+            }
         }
         return ApiResponse<BookingDto>.Success(_mapper.Map<BookingDto>(entity));
     }

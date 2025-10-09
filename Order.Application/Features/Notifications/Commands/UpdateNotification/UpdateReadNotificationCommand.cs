@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Core.Response;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 namespace Order.Application.Features.Notifications.Commands.UpdateNotification;
 
@@ -19,8 +20,9 @@ public class UpdateReadNotificationCommandHandler : IRequestHandler<UpdateReadNo
 
     public async Task<ApiResponse> Handle(UpdateReadNotificationCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.Notification
-            .FindAsync(request.Id, cancellationToken);
+        var entity = await _context.NotificationRecipient
+            .Where(x => x.NotificationId == request.Id && x.UserId == _currentUser.UserId)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (entity == null)
         {

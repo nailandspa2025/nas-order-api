@@ -56,6 +56,23 @@ public class NotificationsController : ApiControllerBase
         return await Mediator.Send(new DeleteNotificationCommand(id));
     }
 
+    [HttpPut("read-all")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse>> UpdateReadAllAsync()
+    {
+
+        return await Mediator.Send(new UpdateReadAllNotificationCommand());
+    }
+
+    [HttpPut("read/{id}")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse>> UpdateReadAsync(int id)
+    {
+        return await Mediator.Send(new UpdateReadNotificationCommand(id));
+    }
+
     [HttpPut("mobile-read-all")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

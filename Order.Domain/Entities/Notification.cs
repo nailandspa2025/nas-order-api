@@ -13,6 +13,7 @@ public class Notification : BaseAuditableEntity<int>, ISoftDelete
     public string? Content { get; set; }
 
     public NotificationType Type { get; set; }
+
     public bool IsRead { get; set; }
 
     public string? DeletedBy { get; set; }
@@ -23,5 +24,14 @@ public class Notification : BaseAuditableEntity<int>, ISoftDelete
 
     public int? BookingId { get; set; }
 
-    public virtual Booking? Booking { get; set; } 
+    public virtual Booking? Booking { get; set; }
+
+    public virtual ICollection<NotificationRecipient> Recipients { get; set; } = new List<NotificationRecipient>();
+
+    public void SetNotificationRecipient(List<NotificationRecipient> recipients)
+    {
+        this.Recipients.Clear();
+        this.Recipients = recipients;
+    }
+
 }

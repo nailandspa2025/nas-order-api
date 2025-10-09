@@ -29,7 +29,8 @@ public class NotificationDto: BaseAuditableDto
     {
         public Mapping()
         {
-            CreateMap<Notification, NotificationDto>();
+            CreateMap<Notification, NotificationDto>()
+                .ForMember(dest => dest.IsRead, opt => opt.MapFrom(src => src.Recipients.Any(r => r.IsRead)));
         }
     }
 }

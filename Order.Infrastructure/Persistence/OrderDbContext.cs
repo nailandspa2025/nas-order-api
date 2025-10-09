@@ -32,6 +32,8 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
 
     public DbSet<BookingSnapGroup> BookingSnapGroup => Set<BookingSnapGroup>();
 
+    public DbSet<NotificationRecipient> NotificationRecipient => Set<NotificationRecipient>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

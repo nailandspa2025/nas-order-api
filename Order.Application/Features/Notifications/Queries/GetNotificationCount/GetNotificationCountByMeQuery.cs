@@ -24,10 +24,10 @@ public class GetNotificationCountByMeQueryHandler : IRequestHandler<GetNotificat
     public async Task<ApiResponse<int>> Handle(GetNotificationCountByMeQuery request, CancellationToken cancellationToken)
     {
         var count = await _context.Notification
-       .Where(n => n.AccountId == _currentUser.UserId
-                   && !n.IsRead
-                   && !n.IsDeleted)
-       .CountAsync(cancellationToken);
+        .Include(n => n.Recipients)
+        .Where(n => n.Recipients.Any(r => r.UserId == _currentUser.UserId && !r.IsRead)
+                    && !n.IsDeleted)
+        .CountAsync(cancellationToken);
         return ApiResponse<int>.Success(count);
     }
 }

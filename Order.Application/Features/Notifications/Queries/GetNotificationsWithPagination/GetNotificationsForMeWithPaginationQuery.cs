@@ -43,7 +43,7 @@ public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<G
     public async Task<ApiResponse<PaginatedList<NotificationDto>>> Handle(GetNotificationsForMeWithPaginationQuery request, CancellationToken cancellationToken)
     {
         var paramSearchText = request.SearchText ?? string.Empty;
-        var query = _context.Notification.Where(s => s.AccountId == _currentUser.UserId).AsNoTracking();
+        var query = _context.Notification.AsNoTracking();
         if (!paramSearchText.IsNullOrEmpty())
         {
             var lowerSearch = request.SearchText.ToLower();
@@ -57,8 +57,9 @@ public class GetNotificationsForMeWithPaginationQueryHandler : IRequestHandler<G
         }
         var paginationResult = await query
             .Include( x => x.Booking)
-            .Where(x => !x.IsDeleted)
-            .OrderBy(x => x.Created)
+            .Include(x => x.Recipients)
+            .Where(x => !x.IsDeleted && x.Recipients.Any(r => r.UserId == _currentUser.UserId))
+            .OrderByDescending(x => x.Created)
             .ProjectTo<NotificationDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
         try
