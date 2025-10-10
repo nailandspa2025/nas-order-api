@@ -130,6 +130,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             try
             {
                 var devices = new List<AccountDeviceDto>();
+                var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
                 if (request.TechnicianIds.Any())
                 {
                     var accountDeviceResponse = await _identityClient
@@ -151,23 +152,26 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                 if (devices.Any())
                 {
                     var deviceTokens = devices.Select(d => d.Token).Distinct().ToList();
-                    var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
-                    
-                    await _firebaseService.SendMulticastAsync(new MulticastMessage
+
+                    if (deviceTokens.Any())
                     {
-                        Tokens = deviceTokens,
-                        Notification = new FirebaseAdmin.Messaging.Notification
+                        await _firebaseService.SendMulticastAsync(new MulticastMessage
                         {
-                            Title = title,
-                            Body = request.Note
-                        },
-                        Data = new Dictionary<string, string>
+                            Tokens = deviceTokens,
+                            Notification = new FirebaseAdmin.Messaging.Notification
+                            {
+                                Title = title,
+                                Body = request.Note
+                            },
+                            Data = new Dictionary<string, string>
                         {
                             { "ObjectId", entity.Id.ToString()},
                             { "Type", "Booking" },
                             //{ "TestKey", "TestValue" }
                         }
-                    });
+                        });
+                    }
+
                     var notification = new Domain.Entities.Notification
                     {
                         AccountId = _curentUser.UserId,
@@ -185,12 +189,15 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
                     _context.Notification.Add(notification);
                     await _context.SaveChangesAsync(cancellationToken);
+
                 }
+                
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error sending: {ex.Message}");
             }
+            
         }
         return ApiResponse<BookingDto>.Success(_mapper.Map<BookingDto>(entity));
     }

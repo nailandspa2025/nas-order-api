@@ -112,6 +112,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         try
         {
             var devices = new List<AccountDeviceDto>();
+            var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
             if (request.TechnicianIds.Any())
             {
                 var accountDeviceResponse = await _identityClient
@@ -133,22 +134,26 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
             if (devices.Any())
             {
                 var deviceTokens = devices.Select(d => d.Token).Distinct().ToList();
-                var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
 
-                await _firebaseService.SendMulticastAsync(new MulticastMessage
+                if (deviceTokens.Any())
                 {
-                    Tokens = deviceTokens,
-                    Notification = new FirebaseAdmin.Messaging.Notification
+                    await _firebaseService.SendMulticastAsync(new MulticastMessage
                     {
-                        Title = title,
-                        Body = request.Note
-                    },
-                    Data = new Dictionary<string, string>
-                    {
-                        { "ObjectId", entity.Id.ToString()},
-                        { "Type", "Booking" },
-                    }
-                });
+                        Tokens = deviceTokens,
+                        Notification = new FirebaseAdmin.Messaging.Notification
+                        {
+                            Title = title,
+                            Body = request.Note
+                        },
+                        Data = new Dictionary<string, string>
+                        {
+                            { "ObjectId", entity.Id.ToString()},
+                            { "Type", "Booking" },
+                            //{ "TestKey", "TestValue" }
+                        }
+                    });
+                }
+
                 var notification = new Domain.Entities.Notification
                 {
                     AccountId = _curentUser.UserId,
@@ -166,7 +171,9 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
 
                 _context.Notification.Add(notification);
                 await _context.SaveChangesAsync(cancellationToken);
+
             }
+
         }
         catch (Exception ex)
         {
