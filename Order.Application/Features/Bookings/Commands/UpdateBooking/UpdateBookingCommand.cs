@@ -73,13 +73,18 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
 
     public async Task<ApiResponse<BookingDto>> Handle(UpdateBookingCommand request, CancellationToken cancellationToken)
     {
-        var services = await _context.BookingService.Where(x => request.ServiceIds.Contains(x.ServiceId)).ToListAsync();
-        var technicians = await _context.BookingTechnician.Where(x => request.TechnicianIds.Contains(x.TechnicianId)).ToListAsync();
-        var snaps = await _context.BookingSnap.Where(x => request.SnapIds.Contains(x.SnapId)).ToListAsync();
-        var groups = await _context.BookingSnapGroup.Where(x => request.GroupdIds.Contains(x.GroupdId)).ToListAsync();
+        var bookingServices = new List<BookingService>();
+        var bookingTechnicians = new List<BookingTechnician>();
+
+        var bookingSnaps =  new List<BookingSnap>();
+        var bookingGroups = new List<BookingSnapGroup>();
 
         var entity = await _context.Booking
-            .FindAsync(request.Id, cancellationToken);
+            .Include(x => x.BookingServices)
+            .Include(x => x.BookingSnapGroups)
+            .Include(x=>x.BookingSnaps)
+            .Include(x => x.BookingTechnicians)
+            .Where(x=> x.Id == request.Id).FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -103,10 +108,41 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.Address = request.Address;
         entity.Number = request.Number;
         entity.Email = request.Email;
-        entity.SetBookingServices(services);
-        entity.SetBookingTechnicians(technicians);
-        entity.SetBookingSnaps(snaps);
-        entity.SetBookingGroups(groups);
+
+        if (request.ServiceIds != null && request.ServiceIds.Any())
+        {
+            bookingServices = request.ServiceIds.Select(id => new BookingService
+            {
+                ServiceId = id
+            }).ToList();
+        }
+        if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        {
+             bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+            {
+                TechnicianId = id
+            }).ToList();
+            
+        }
+        if (request.SnapIds != null && request.SnapIds.Any())
+        {
+            bookingSnaps = request.SnapIds.Select(s => new BookingSnap
+            {
+                SnapId = s
+            }).ToList();
+
+        }
+        if (request.GroupdIds != null && request.GroupdIds.Any())
+        {
+            bookingGroups = request.GroupdIds.Select(g => new BookingSnapGroup
+            {
+                GroupdId = g
+            }).ToList();
+        }
+        entity.SetBookingServices(bookingServices);
+        entity.SetBookingTechnicians(bookingTechnicians);
+        entity.SetBookingSnaps(bookingSnaps);
+        entity.SetBookingGroups(bookingGroups);
         await _context.SaveChangesAsync(cancellationToken);
 
         try
