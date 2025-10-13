@@ -111,47 +111,56 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             try
             {
                 var devices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
+                var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
                 if (devices != null && devices.Any())
                 {
                     var deviceTokens = devices.Select(d => d.Token).ToList();
                     if (deviceTokens.Any())
                     {
-                        var notifications = new List<Domain.Entities.Notification>();
+                        // Send push notifications
                         await _firebaseService.SendMulticastAsync(
                             new MulticastMessage()
                             {
                                 Tokens = deviceTokens,
                                 Notification = new FirebaseAdmin.Messaging.Notification()
                                 {
-                                    Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
+                                    Title = title,
                                     Body = request.Note,
                                 },
                                 Data = new Dictionary<string, string>()
                                 {
-                                { "ObjectId", entity.Id.ToString() },
-                                { "Type", "Booking" },
+                                    { "ObjectId", entity.Id.ToString() },
+                                    { "Type", "Booking" },
                                 }
                             });
 
-                        notifications.Add(new Domain.Entities.Notification
+                        // Create a single notification entity
+                        var notification = new Domain.Entities.Notification
                         {
                             AccountId = request.UserId,
-                            Title = $"Booking {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
+                            Title = title,
                             Content = request.Note,
                             BookingId = entity.Id,
                             IsRead = false,
-                            Type = NotificationType.Booking
-                        });
+                            Type = NotificationType.Booking,
+                            Recipients = devices.Select(d => new NotificationRecipient
+                            {
+                                UserId = d.AccountId,
+                                IsRead = false
+                            }).ToList()
+                        };
 
-                        _context.Notification.AddRange(notifications);
+                        // Save to database
+                        _context.Notification.Add(notification);
                         await _context.SaveChangesAsync(cancellationToken);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine($"Error sending: {ex.Message}");
             }
+
         }
         return ApiResponse<BookingDto>.Success(_mapper.Map<BookingDto>(entity));
     }

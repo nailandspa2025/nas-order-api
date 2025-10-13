@@ -197,13 +197,12 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
                     Content = request.Note,
                     BookingId = entity.Id,
                     Type = NotificationType.Important,
+                    Recipients = devices.Select(d => new NotificationRecipient
+                    {
+                        UserId = d.AccountId,
+                        IsRead = false
+                    }).ToList()
                 };
-
-                notification.Recipients = devices.Select(token => new NotificationRecipient
-                {
-                    UserId = token.AccountId,
-                    IsRead = false
-                }).ToList();
 
                 _context.Notification.Add(notification);
                 await _context.SaveChangesAsync(cancellationToken);
