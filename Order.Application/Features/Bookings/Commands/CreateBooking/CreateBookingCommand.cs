@@ -114,7 +114,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
                 var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
                 if (devices != null && devices.Any())
                 {
-                    var deviceTokens = devices.Select(d => d.Token).ToList();
+                    var deviceTokens = devices.Where(d => !string.IsNullOrWhiteSpace(d.Token)).Select(d => d.Token).Distinct().ToList();
                     if (deviceTokens.Any())
                     {
                         // Send push notifications

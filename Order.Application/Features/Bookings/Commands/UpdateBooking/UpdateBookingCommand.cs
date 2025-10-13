@@ -148,7 +148,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         try
         {
             var devices = new List<AccountDeviceDto>();
-            var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
+            var title = $"Update booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
             if (request.TechnicianIds.Any())
             {
                 var accountDeviceResponse = await _identityClient
@@ -169,7 +169,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
 
             if (devices.Any())
             {
-                var deviceTokens = devices.Select(d => d.Token).Distinct().ToList();
+                var deviceTokens = devices.Where(d => !string.IsNullOrWhiteSpace(d.Token)) .Select(d => d.Token).Distinct().ToList();
 
                 if (deviceTokens.Any())
                 {
