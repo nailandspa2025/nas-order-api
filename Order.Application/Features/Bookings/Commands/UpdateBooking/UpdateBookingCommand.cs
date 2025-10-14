@@ -169,7 +169,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
 
             if (devices.Any())
             {
-                var deviceTokens = devices.Where(d => !string.IsNullOrWhiteSpace(d.Token)) .Select(d => d.Token).Distinct().ToList();
+                var deviceTokens = devices.Where(d => !string.IsNullOrEmpty(d.Token)) .Select(d => d.Token).Distinct().ToList();
 
                 if (deviceTokens.Any())
                 {

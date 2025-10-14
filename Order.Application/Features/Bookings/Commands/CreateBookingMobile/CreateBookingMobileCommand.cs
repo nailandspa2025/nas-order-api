@@ -151,7 +151,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
                 if (devices.Any())
                 {
-                    var deviceTokens = devices.Select(d => d.Token).Distinct().ToList();
+                    var deviceTokens = devices.Where(d => !string.IsNullOrEmpty(d.Token)).Select(d => d.Token).Distinct().ToList();
 
                     if (deviceTokens.Any())
                     {
