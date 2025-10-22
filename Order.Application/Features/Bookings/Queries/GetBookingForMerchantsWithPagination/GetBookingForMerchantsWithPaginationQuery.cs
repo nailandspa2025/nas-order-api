@@ -63,14 +63,14 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
         }
         if (request.FromDate.HasValue)
         {
-            var fromUtc = DateTime.SpecifyKind(request.FromDate.Value.Date, DateTimeKind.Utc);
-            query = query.Where(x => x.BookingDate >= fromUtc);
+            var from = request.FromDate.Value.Date; 
+            query = query.Where(x => x.BookingDate >= from);
         }
 
         if (request.EndDate.HasValue)
         {
-            var endUtc = DateTime.SpecifyKind(request.EndDate.Value.Date, DateTimeKind.Utc);
-            query = query.Where(x => x.BookingDate < endUtc);
+            var end = request.EndDate.Value.Date.AddDays(1); // để include ngày EndDate
+            query = query.Where(x => x.BookingDate < end);
         }
         List<long> storeIds = new List<long>();
         try

@@ -30,6 +30,9 @@ public class BookingConfiguration: IEntityTypeConfiguration<Booking>
         builder.Property(p => p.Reason)
             .HasMaxLength(250);
 
+        builder.Property(p => p.BookingDate)
+            .HasColumnType("date");
+
     }
 }
 

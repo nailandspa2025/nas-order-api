@@ -70,7 +70,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
     public async Task<ApiResponse<BookingDto>> Handle(CreateBookingMobileCommand request, CancellationToken cancellationToken)
     {
-        var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Utc);
+        //var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Utc);
+        //var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Unspecified);
+        var bookingDate = request.BookingDate.Date;
         var entity = new Booking
         {
             StoreId = request.StoreId,

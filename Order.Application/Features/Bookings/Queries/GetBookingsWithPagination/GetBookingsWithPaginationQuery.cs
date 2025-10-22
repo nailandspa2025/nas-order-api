@@ -66,25 +66,17 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
             query = query.Where(x => x.Status == request.Status);
         }
 
-        if (request.TargetDate.HasValue)
-        {
-            var targetUtc = DateTime.SpecifyKind(request.TargetDate.Value.Date, DateTimeKind.Utc);
-            var nextDayUtc = targetUtc.AddDays(1);
-            query = query.Where(x => x.BookingDate >= targetUtc && x.BookingDate < nextDayUtc);
-        }
-
         if (request.FromDate.HasValue)
         {
-            var fromUtc = DateTime.SpecifyKind(request.FromDate.Value.Date, DateTimeKind.Utc);
-            query = query.Where(x => x.BookingDate >= fromUtc);
+            var from = request.FromDate.Value.Date; // Unspecified
+            query = query.Where(x => x.BookingDate >= from);
         }
 
         if (request.EndDate.HasValue)
         {
-            var endUtc = DateTime.SpecifyKind(request.EndDate.Value.Date, DateTimeKind.Utc);
-            query = query.Where(x => x.BookingDate < endUtc);
+            var end = request.EndDate.Value.Date.AddDays(1); // để include ngày EndDate
+            query = query.Where(x => x.BookingDate < end);
         }
-
 
         var paginationResult = await query
             .OrderBy(x => x.Created)

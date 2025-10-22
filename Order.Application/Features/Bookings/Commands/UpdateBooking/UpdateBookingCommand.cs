@@ -94,7 +94,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         {
             return ApiResponse<BookingDto>.Error("Only update bookings with status pending.");
         }
-        var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Utc);
+        var bookingDate = request.BookingDate.Date;
 
         entity.StoreId = request.StoreId;
         entity.ProductId = request.ProductId;
