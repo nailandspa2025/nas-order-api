@@ -69,7 +69,7 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
 
         if (request.EndDate.HasValue)
         {
-            var end = request.EndDate.Value.Date.AddDays(1); // để include ngày EndDate
+            var end = request.EndDate.Value.Date;
             query = query.Where(x => x.BookingDate < end);
         }
         List<long> storeIds = new List<long>();

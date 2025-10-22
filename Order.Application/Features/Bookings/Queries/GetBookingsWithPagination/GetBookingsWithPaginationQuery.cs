@@ -68,13 +68,13 @@ public class GetBookingsWithPaginationQueryHandler : IRequestHandler<GetBookings
 
         if (request.FromDate.HasValue)
         {
-            var from = request.FromDate.Value.Date; // Unspecified
+            var from = request.FromDate.Value.Date; 
             query = query.Where(x => x.BookingDate >= from);
         }
 
         if (request.EndDate.HasValue)
         {
-            var end = request.EndDate.Value.Date.AddDays(1); // để include ngày EndDate
+            var end = request.EndDate.Value.Date;
             query = query.Where(x => x.BookingDate < end);
         }
 
