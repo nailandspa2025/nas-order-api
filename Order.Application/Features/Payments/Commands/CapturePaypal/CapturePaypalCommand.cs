@@ -2,6 +2,8 @@
 using BuildingBlocks.ApiClients.Clients.Catalog;
 using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Core.Response;
+using BuildingBlocks.EventBus.Events;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
@@ -24,12 +26,14 @@ public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand,
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICatalogClient _catalogClient;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public CapturePaypalCommandHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient)
+    public CapturePaypalCommandHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient, IPublishEndpoint publishEndpoint)
     {
         _context = context;
         _mapper = mapper;
         _catalogClient = catalogClient;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<ApiResponse<PaymentDto>> Handle(CapturePaypalCommand request, CancellationToken cancellationToken)
@@ -82,6 +86,16 @@ public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand,
             transaction.TransactionId = order.Id;
 
             entity.Status = BookingStatus.Completed;
+
+            // ✅ Publish event khi thanh toán thành công
+            await _publishEndpoint.Publish(new BookingPaidEvent
+            {
+                BookingId = entity.Id,
+                StoreId = (long)entity.StoreId,
+                AccountId = entity.UserId,
+                Amount = payment.Amount,
+                Process = (int)LoyaltyProcess.Payment
+            });
         }
         else
         {

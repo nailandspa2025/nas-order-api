@@ -145,14 +145,17 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         await _context.Transaction.AddAsync(transaction, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new BookingPaidEvent
+        if (payment.Status == PaymentStatus.Success)
         {
-            BookingId = booking.Id,
-            StoreId = (long)booking.StoreId,
-            AccountId = booking.UserId,
-            Amount = request.Amount,
-            Process = (int)LoyaltyProcess.Payment
-        });
+            await _publishEndpoint.Publish(new BookingPaidEvent
+            {
+                BookingId = booking.Id,
+                StoreId = (long)booking.StoreId,
+                AccountId = booking.UserId,
+                Amount = request.Amount,
+                Process = (int)LoyaltyProcess.Payment
+            });
+        }
 
         var result = _mapper.Map<PaymentDto>(payment);
         
