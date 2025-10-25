@@ -25,6 +25,9 @@ public class NotificationDto: BaseAuditableDto
     public bool IsRead { get; set; }
 
     public string Title { get; set; } = null!;
+
+    public int? BookingId { get; set; }
+
     private class Mapping : Profile
     {
         public Mapping()
