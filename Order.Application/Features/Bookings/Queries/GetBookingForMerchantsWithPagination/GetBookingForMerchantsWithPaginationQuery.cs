@@ -36,6 +36,7 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
     private readonly ICatalogClient _catalogClient;
     private readonly ICurrentUser _currentUser;
 
+
     public GetBookingForMerchantsWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient, ICurrentUser currentUser)
     {
         _context = context;
@@ -75,22 +76,21 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
         List<long> storeIds = new List<long>();
         try
         {
-            var response = (await _catalogClient.GetUserStoreByUserIdAsync(_currentUser.UserId))?.Data;
-            if (response != null)
+            var response = (await _identityClient.GetUserMerchantByIdAsync(_currentUser.UserId))?.Data;
+            if (response != null && response.IsOwner && response.StoreIds?.Any() == true)
             {
-                storeIds = response.Select(u => u.StoreId).Distinct().ToList();
+                storeIds = response.StoreIds.Distinct().ToList();
             }
         }
         catch (Exception ex) { }
-        if (storeIds.Any())
-        {
-            query = query.Where(x => storeIds.Contains((long)x.StoreId));
-        }
-        else
+        if (!storeIds.Any())
         {
             return ApiResponse<PaginatedList<BookingDto>>.Success(
                 new PaginatedList<BookingDto>(new List<BookingDto>(), 0, request.PageNumber, request.PageSize));
         }
+        
+        query = query.Where(x => storeIds.Contains((long)x.StoreId));
+
         var paginationResult = await query
             .OrderByDescending(x => x.Created)
             .ProjectTo<BookingDto>(_mapper.ConfigurationProvider)

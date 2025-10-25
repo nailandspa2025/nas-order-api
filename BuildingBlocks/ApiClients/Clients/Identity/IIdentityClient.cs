@@ -21,6 +21,10 @@ public interface IIdentityClient
 
     [Refit.Get("/api/v1/accountdevices/by-store/{storeId}")]
     Task<ApiResponse<IEnumerable<AccountDeviceDto>>> GetAccountDeviceByStoreIdAsync(long storeId, CancellationToken cancellationToken = default);
+
+    [Refit.Get("/api/v1/dropdownlist/user-merchant/{id}")]
+    Task<ApiResponse<UserMerchantDto>> GetUserMerchantByIdAsync(string id, CancellationToken cancellationToken = default);
+
 }
 
 
