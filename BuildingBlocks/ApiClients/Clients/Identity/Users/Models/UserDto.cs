@@ -1,5 +1,4 @@
-﻿using System;
-namespace BuildingBlocks.ApiClients.Clients.Users.Models;
+﻿namespace BuildingBlocks.ApiClients.Clients.Users.Models;
 
 public class UserDto
 {

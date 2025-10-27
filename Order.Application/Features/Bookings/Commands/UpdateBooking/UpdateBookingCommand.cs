@@ -47,6 +47,8 @@ public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
 
     public List<string> SnapIds { get; init; } = new List<string>();
     public List<string> GroupdIds { get; init; } = new List<string>();
+
+    public string ? UserId { get; init; }
 }
 
 public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand, ApiResponse<BookingDto>>
@@ -100,7 +102,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.ProductId = request.ProductId;
         entity.BookingTime = request.BookingTime;
         entity.BookingDate = bookingDate;
-        entity.UserId = _curentUser.UserId;
+        entity.UserId = request.UserId ?? _curentUser.UserId;
         entity.Note = request.Note;
         entity.FullName = request.FullName;
         entity.Gender = request.Gender;
@@ -108,6 +110,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.Address = request.Address;
         entity.Number = request.Number;
         entity.Email = request.Email;
+        
 
         if (request.ServiceIds != null && request.ServiceIds.Any())
         {
