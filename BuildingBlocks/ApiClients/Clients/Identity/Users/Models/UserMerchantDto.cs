@@ -8,5 +8,7 @@ public class UserMerchantDto
 
     public bool IsOwner { get; set; }
 
+    public int TechnicianId { get; set; }
+
 }
 

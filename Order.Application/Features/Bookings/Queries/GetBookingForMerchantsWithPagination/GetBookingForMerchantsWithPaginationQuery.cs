@@ -74,22 +74,45 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
             query = query.Where(x => x.BookingDate < end);
         }
         List<long> storeIds = new List<long>();
+        bool isOwner = false;
+        long? technicianId = null;
+
         try
         {
             var response = (await _identityClient.GetUserMerchantByIdAsync(_currentUser.UserId))?.Data;
-            if (response != null && response.IsOwner && response.StoreIds?.Any() == true)
+            if (response != null)
             {
-                storeIds = response.StoreIds.Distinct().ToList();
+                isOwner = response.IsOwner;
+
+                if (isOwner && response.StoreIds?.Any() == true)
+                {
+                    storeIds = response.StoreIds.Distinct().ToList();
+                }
+                else if (!isOwner)
+                {
+                    technicianId = response.TechnicianId; 
+                }
             }
         }
         catch (Exception ex) { }
-        if (!storeIds.Any())
+        if (isOwner)
         {
-            return ApiResponse<PaginatedList<BookingDto>>.Success(
-                new PaginatedList<BookingDto>(new List<BookingDto>(), 0, request.PageNumber, request.PageSize));
+            if (!storeIds.Any())
+            {
+                return ApiResponse<PaginatedList<BookingDto>>.Success(
+                    new PaginatedList<BookingDto>(new List<BookingDto>(), 0, request.PageNumber, request.PageSize));
+            }
+            query = query.Where(x => storeIds.Contains((long)x.StoreId));
         }
-        
-        query = query.Where(x => storeIds.Contains((long)x.StoreId));
+        else
+        {
+            if (!technicianId.HasValue)
+            {
+                return ApiResponse<PaginatedList<BookingDto>>.Success(
+                    new PaginatedList<BookingDto>(new List<BookingDto>(), 0, request.PageNumber, request.PageSize));
+            }
+            query = query.Where(x => x.BookingTechnicians.Any(bt => bt.TechnicianId == technicianId));
+        }
 
         var paginationResult = await query
             .OrderByDescending(x => x.Created)
