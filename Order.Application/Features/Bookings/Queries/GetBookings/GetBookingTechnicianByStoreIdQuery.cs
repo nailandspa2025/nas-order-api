@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
+using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Queries.GetBookings;
 
@@ -33,7 +34,9 @@ public class GetBookingTechnicianByStoreIdQueryHandler : IRequestHandler<GetBook
         var bookings = await _context.Booking
             .Include(x => x.BookingTechnicians)
             .Where(x => x.StoreId == request.StoreId 
-            && x.BookingDate.Date == utcDate.Date 
+            && x.BookingDate.Date == utcDate.Date
+            && !x.IsDeleted
+            && x.Status != BookingStatus.Cancelled
             && x.BookingTechnicians.Any(bt => bt.TechnicianId == request.TechnicianId))
             .ToListAsync(cancellationToken);
 
