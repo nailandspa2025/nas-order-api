@@ -11,6 +11,7 @@
     <EmbeddedResource Remove="Features\Payments\Commands\DeletePayment\**" />
     <None Remove="Features\Payments\Commands\DeletePayment\**" />
     <None Remove="Features\Bookings\Commands\UpdateRateBooking\" />
+    <None Remove="Features\Bookings\Commands\UpdateBookingMobile\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -105,6 +106,7 @@
     <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReasons\" />
     <Folder Include="Features\BookingCancelReasons\Queries\GetBookingCancelReasonsWithPagination\" />
     <Folder Include="Features\Bookings\Commands\UpdateRateBooking\" />
+    <Folder Include="Features\Bookings\Commands\UpdateBookingMobile\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />

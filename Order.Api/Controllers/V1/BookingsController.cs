@@ -7,6 +7,7 @@ using Order.Application.Features.Bookings.Commands.CreateBooking;
 using Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 using Order.Application.Features.Bookings.Commands.DeleteBooking;
 using Order.Application.Features.Bookings.Commands.UpdateBooking;
+using Order.Application.Features.Bookings.Commands.UpdateBookingMobile;
 using Order.Application.Features.Bookings.Commands.UpdateRateBooking;
 using Order.Application.Features.Bookings.Models;
 using Order.Application.Features.Bookings.Queries.GetBooking;
@@ -90,7 +91,7 @@ public class BookingsController : ApiControllerBase
     [HttpPut("update/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromForm] UpdateBookingCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromForm] UpdateBookingMoileCommand command)
     {
         if (id != command.Id)
         {

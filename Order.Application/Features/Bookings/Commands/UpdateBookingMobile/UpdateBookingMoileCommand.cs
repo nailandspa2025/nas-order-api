@@ -13,9 +13,9 @@ using Order.Application.Features.Bookings.Models;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
 
-namespace Order.Application.Features.Bookings.Commands.UpdateBooking;
+namespace Order.Application.Features.Bookings.Commands.UpdateBookingMobile;
 
-public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
+public record UpdateBookingMoileCommand: IRequest<ApiResponse<BookingDto>>
 {
     public int Id { get; init; }
 
@@ -46,12 +46,12 @@ public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
     public List<int> ServiceIds { get; init; } = new List<int>();
 
     public List<string> SnapIds { get; init; } = new List<string>();
+
     public List<string> GroupdIds { get; init; } = new List<string>();
 
-    public string ? UserId { get; init; }
 }
 
-public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand, ApiResponse<BookingDto>>
+public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoileCommand, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
@@ -59,7 +59,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
     private readonly IIdentityClient _identityClient;
     private readonly IFirebaseService _firebaseService;
 
-    public UpdateBookingCommandHandler(
+    public UpdateBookingMoileCommandHandler(
         IOrderDbContext context,
         IMapper mapper,
         ICurrentUser currentUser,
@@ -73,20 +73,20 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
 
-    public async Task<ApiResponse<BookingDto>> Handle(UpdateBookingCommand request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<BookingDto>> Handle(UpdateBookingMoileCommand request, CancellationToken cancellationToken)
     {
         var bookingServices = new List<BookingService>();
         var bookingTechnicians = new List<BookingTechnician>();
 
-        var bookingSnaps =  new List<BookingSnap>();
+        var bookingSnaps = new List<BookingSnap>();
         var bookingGroups = new List<BookingSnapGroup>();
 
         var entity = await _context.Booking
             .Include(x => x.BookingServices)
             .Include(x => x.BookingSnapGroups)
-            .Include(x=>x.BookingSnaps)
+            .Include(x => x.BookingSnaps)
             .Include(x => x.BookingTechnicians)
-            .Where(x=> x.Id == request.Id).FirstOrDefaultAsync();
+            .Where(x => x.Id == request.Id).FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -102,7 +102,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.ProductId = request.ProductId;
         entity.BookingTime = request.BookingTime;
         entity.BookingDate = bookingDate;
-        entity.UserId = request.UserId;
+        entity.UserId =  _curentUser.UserId;
         entity.Note = request.Note;
         entity.FullName = request.FullName;
         entity.Gender = request.Gender;
@@ -110,7 +110,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.Address = request.Address;
         entity.Number = request.Number;
         entity.Email = request.Email;
-        
+
 
         if (request.ServiceIds != null && request.ServiceIds.Any())
         {
@@ -121,11 +121,11 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         }
         if (request.TechnicianIds != null && request.TechnicianIds.Any())
         {
-             bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+            bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
             {
                 TechnicianId = id
             }).ToList();
-            
+
         }
         if (request.SnapIds != null && request.SnapIds.Any())
         {
@@ -172,7 +172,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
 
             if (devices.Any())
             {
-                var deviceTokens = devices.Where(d => !string.IsNullOrEmpty(d.Token)) .Select(d => d.Token).Distinct().ToList();
+                var deviceTokens = devices.Where(d => !string.IsNullOrEmpty(d.Token)).Select(d => d.Token).Distinct().ToList();
 
                 if (deviceTokens.Any())
                 {
