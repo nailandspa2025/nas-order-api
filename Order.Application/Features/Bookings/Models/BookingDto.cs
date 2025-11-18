@@ -61,6 +61,8 @@ public class BookingDto: BaseAuditableDto
 
     public bool IsRated { get; set; }
 
+    public TimeSpan ? WorkingTime { get; set; }
+
     private class Mapping: Profile
     {
         public Mapping()
