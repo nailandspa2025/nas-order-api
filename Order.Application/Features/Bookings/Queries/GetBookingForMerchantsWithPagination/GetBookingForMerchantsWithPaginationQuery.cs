@@ -168,6 +168,10 @@ public class GetBookingForMerchantsWithPaginationQueryHandler : IRequestHandler<
                         .Where(serviceDictionary.ContainsKey)
                         .Select(id => serviceDictionary[id])
                         .ToList();
+                    
+                    booking.WorkingTime = booking.Services
+                        .Where(s => s.WorkingTime.HasValue)
+                        .Aggregate(TimeSpan.Zero, (total, s) => total + s.WorkingTime.Value);
                 }
             }
         }
