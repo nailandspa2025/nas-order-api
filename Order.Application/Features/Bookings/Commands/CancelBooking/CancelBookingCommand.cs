@@ -51,7 +51,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         }
         entity.Status = BookingStatus.Cancelled;
         entity.Reason = request.Reason;
-        entity.BookingCancelReasonId = request.ReasonId;
+        entity.BookingCancelReasonId = request.ReasonId == 0 ? null : request.ReasonId;
 
         await _context.SaveChangesAsync(cancellationToken);
         try
