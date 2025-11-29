@@ -147,14 +147,17 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
         if (payment.Status == PaymentStatus.Success)
         {
-            await _publishEndpoint.Publish(new BookingPaidEvent
+            try
             {
-                BookingId = booking.Id,
-                StoreId = (long)booking.StoreId,
-                AccountId = booking.UserId,
-                Amount = request.Amount,
-                Process = (int)LoyaltyProcess.Payment
-            });
+                await _publishEndpoint.Publish(new BookingPaidEvent
+                {
+                    BookingId = booking.Id,
+                    StoreId = (long)booking.StoreId,
+                    AccountId = booking.UserId,
+                    Amount = request.Amount,
+                    Process = (int)LoyaltyProcess.Payment
+                });
+            } catch(Exception) {}
         }
 
         var result = _mapper.Map<PaymentDto>(payment);
