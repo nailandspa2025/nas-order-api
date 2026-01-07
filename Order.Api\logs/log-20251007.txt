@@ -1,7 +1,0 @@
-2025-10-07 22:00:32 [Information] Configured endpoint "booking-update-rate-topic", Consumer: "Order.Api.Consumer.SentBookingRateEventConsumer" LogProperties={ SourceContext: "MassTransit" }
-2025-10-07 22:00:35 [Information] Now listening on: "https://localhost:6002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
-2025-10-07 22:00:35 [Information] Now listening on: "http://localhost:7002" LogProperties={ EventId: { Id: 14, Name: "ListeningOnAddress" }, SourceContext: "Microsoft.Hosting.Lifetime" }
-2025-10-07 22:00:35 [Information] Application started. Press Ctrl+C to shut down. LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
-2025-10-07 22:00:35 [Information] Hosting environment: "Development" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
-2025-10-07 22:00:35 [Information] Content root path: "/Users/canhlv/NAS/BackEndAPI/nas-order-api/Order.Api" LogProperties={ SourceContext: "Microsoft.Hosting.Lifetime" }
-2025-10-07 22:00:36 [Information] Bus started: amazonsqs://ap-southeast-1/dev LogProperties={ SourceContext: "MassTransit" }

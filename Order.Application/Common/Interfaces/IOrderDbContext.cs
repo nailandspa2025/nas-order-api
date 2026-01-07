@@ -27,6 +27,7 @@ public interface IOrderDbContext : IEfCoreDbContext
     DbSet<BookingSnapGroup> BookingSnapGroup { get; }
 
     DbSet<NotificationRecipient> NotificationRecipient { get; }
+    DbSet<ReminderConfig> ReminderConfig { get; }
 
 }
 

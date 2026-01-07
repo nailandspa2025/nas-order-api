@@ -33,6 +33,7 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
     public DbSet<BookingSnapGroup> BookingSnapGroup => Set<BookingSnapGroup>();
 
     public DbSet<NotificationRecipient> NotificationRecipient => Set<NotificationRecipient>();
+    public DbSet<ReminderConfig> ReminderConfig => Set<ReminderConfig>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
