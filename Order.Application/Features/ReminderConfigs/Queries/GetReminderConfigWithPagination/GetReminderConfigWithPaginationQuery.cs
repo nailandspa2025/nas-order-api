@@ -49,6 +49,7 @@ public class GetReminderConfigWithPaginationQueryHandler : IRequestHandler<GetRe
         }
 
         var paginationResult = await query
+            .Include(x => x.Store)
             .Where(x => !x.IsDeleted)
             .OrderBy(x => x.Created)
             .ProjectTo<ReminderConfigDto>(_mapper.ConfigurationProvider)
