@@ -24,8 +24,7 @@ public class ReminderConfigDto: BaseAuditableDto
     {
         public Mapping()
         {
-            CreateMap<ReminderConfig, ReminderConfigDto>()
-                .ForMember(dest => dest.StoreName, opt => opt.MapFrom(src => src.Store.Name));
+            CreateMap<ReminderConfig, ReminderConfigDto>();
         }
     }
 }

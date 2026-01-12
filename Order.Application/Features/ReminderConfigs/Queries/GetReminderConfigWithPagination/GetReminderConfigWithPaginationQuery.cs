@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using BuildingBlocks.ApiClients.Clients.Catalog;
 using BuildingBlocks.Common.Extensions;
 using BuildingBlocks.Common.Mappings;
 using BuildingBlocks.Core.Response;
@@ -24,11 +25,13 @@ public class GetReminderConfigWithPaginationQueryHandler : IRequestHandler<GetRe
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
+    private readonly ICatalogClient _catalogClient;
 
-    public GetReminderConfigWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper)
+    public GetReminderConfigWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient)
     {
         _context = context;
         _mapper = mapper;
+        _catalogClient = catalogClient;
     }
 
     public async Task<ApiResponse<PaginatedList<ReminderConfigDto>>> Handle(GetReminderConfigWithPaginationQuery request, CancellationToken cancellationToken)
@@ -49,12 +52,31 @@ public class GetReminderConfigWithPaginationQueryHandler : IRequestHandler<GetRe
         }
 
         var paginationResult = await query
-            .Include(x => x.Store)
             .Where(x => !x.IsDeleted)
             .OrderBy(x => x.Created)
             .ProjectTo<ReminderConfigDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
 
+        var storeIds = paginationResult.Items
+            .Select(x => x.StoreId)
+            .Distinct()
+            .ToList();
+
+        var ids = string.Join(",", storeIds);
+        var storeResponse = await _catalogClient.GetStoreByIdsAsync(ids, cancellationToken);
+        if (storeResponse.Succeeded && storeResponse.Data != null)
+        {
+            var storeDict = storeResponse.Data
+                .ToDictionary(x => x.Id, x => x.StoreName);
+
+            foreach (var item in paginationResult.Items)
+            {
+                if (storeDict.TryGetValue(item.StoreId, out var storeName))
+                {
+                    item.StoreName = storeName;
+                }
+            }
+        }
         return ApiResponse<PaginatedList<ReminderConfigDto>>.Success(paginationResult);
         
     }
