@@ -151,7 +151,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         try
         {
             var devices = new List<AccountDeviceDto>();
-            var accountDevices = (await _identityClient.GetAccountDeviceAsync(_curentUser.UserId, cancellationToken))?.Data;
+            var accountDevices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
             devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
             var title = $"Update booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
             if (request.TechnicianIds.Any())
