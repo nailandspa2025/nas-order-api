@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BuildingBlocks.ApiClients.Clients.AccountDevice.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Common.Firebase;
@@ -111,7 +112,26 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
         {
             try
             {
-                var devices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
+                var devices = new List<AccountDeviceDto>();
+                var accountDevices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
+                devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
+                if (request.TechnicianIds.Any())
+                {
+                    var accountDeviceResponse = await _identityClient
+                   .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
+
+                    if (accountDeviceResponse?.Data != null)
+                        devices.AddRange(accountDeviceResponse.Data);
+                }
+                if (entity.StoreId.HasValue)
+                {
+                    var storeDeviceResponse = await _identityClient
+                        .GetAccountDeviceByStoreIdAsync(entity.StoreId.Value, cancellationToken);
+
+                    if (storeDeviceResponse?.Data != null)
+                        devices.AddRange(storeDeviceResponse.Data);
+                }
+                //var devices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
                 var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
                 if (devices != null && devices.Any())
                 {

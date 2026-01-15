@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using BuildingBlocks.ApiClients.Clients.AccountDevice.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.Common.Exceptions;
+using BuildingBlocks.Common.Firebase;
 using BuildingBlocks.Core.Response;
 using BuildingBlocks.EventBus.Events;
+using FirebaseAdmin.Messaging;
 using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -42,14 +46,19 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly ICatalogClient _catalogClient;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IIdentityClient _identityClient;
+    private readonly IFirebaseService _firebaseService;
 
-    public CreatePaymentCommandHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient, IHttpContextAccessor httpContextAccessor, IPublishEndpoint publishEndpoint)
+
+    public CreatePaymentCommandHandler(IOrderDbContext context, IMapper mapper, ICatalogClient catalogClient, IHttpContextAccessor httpContextAccessor, IPublishEndpoint publishEndpoint, IIdentityClient identityClient, IFirebaseService firebaseService)
     {
         _context = context;
         _mapper = mapper;
         _catalogClient = catalogClient;
         _httpContextAccessor = httpContextAccessor;
         _publishEndpoint = publishEndpoint;
+        _identityClient = identityClient;
+        _firebaseService = firebaseService;
     }
 
     public async Task<ApiResponse<PaymentDto>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -71,18 +80,6 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         {
             return ApiResponse<PaymentDto>.Error("StoreId is required for PayPal payment.");
         }
-        //var existingPayment = booking.Payments
-        //                .FirstOrDefault(p => p.BookingId == request.BookingId 
-        //                && p.Status == PaymentStatus.Pending
-        //                && !string.IsNullOrEmpty(p.ApproveUrl)
-        //                );
-
-        //if (existingPayment != null)
-        //{
-        //    var dto = _mapper.Map<PaymentDto>(existingPayment);
-        //    return ApiResponse<PaymentDto>.Success(dto);
-        //}
-
         var payment = new Payment
         {
             BookingId = request.BookingId,
@@ -149,6 +146,71 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         {
             try
             {
+                var notificationDevices = new List<AccountDeviceDto>();
+                var userDeviceResponse = await _identityClient
+                    .GetAccountDeviceAsync(booking.UserId, cancellationToken);
+
+                notificationDevices.AddRange(
+                    userDeviceResponse?.Data ?? Enumerable.Empty<AccountDeviceDto>()
+                );
+                // Store devices (optional – nếu muốn báo cho store)
+                if (booking.StoreId.HasValue)
+                {
+                    var storeDeviceResponse = await _identityClient
+                        .GetAccountDeviceByStoreIdAsync(booking.StoreId.Value, cancellationToken);
+
+                    notificationDevices.AddRange(
+                        storeDeviceResponse?.Data ?? Enumerable.Empty<AccountDeviceDto>()
+                    );
+                }
+               if (booking.BookingTechnicians != null && booking.BookingTechnicians.Any(x => x != null))
+                {
+                    var technicianIds = booking.BookingTechnicians
+                    .Where(x => x != null)
+                    .Select(x => x!.ToString())
+                    .Distinct();
+
+                    var accountDeviceResponse = await _identityClient
+                        .GetAccountDeviceAsync(string.Join(",", technicianIds), cancellationToken);
+                    if (accountDeviceResponse?.Data != null)
+                        notificationDevices.AddRange(accountDeviceResponse.Data);
+                }
+                var notificationTokens = notificationDevices
+                    .Where(d => !string.IsNullOrWhiteSpace(d.Token))
+                    .Select(d => d.Token)
+                    .Distinct()
+                    .ToList();
+                if (notificationTokens.Any())
+                {
+                    var notifications = new List<Domain.Entities.Notification>();
+                    var notificationTitle = $"Payment {booking.BookingDate.ToString("yyyy-MM-dd")} {booking.BookingTime.ToString(@"hh\:mm")}";
+                    var notificationBody =$"Your booking #{booking.Id} has been paid successfully.";
+                    await _firebaseService.SendMulticastAsync(
+                            new MulticastMessage()
+                            {
+                                Tokens = notificationTokens,
+                                Notification = new FirebaseAdmin.Messaging.Notification()
+                                {
+                                    Title = notificationTitle,
+                                    Body = notificationBody,
+                                },
+                                Data = new Dictionary<string, string>()
+                                {
+                                { "ObjectId", booking.Id.ToString() },
+                                { "Type", "Booking" },
+                                }
+                            });
+
+                        notifications.Add(new Domain.Entities.Notification
+                        {
+                            AccountId = booking.UserId,
+                            Title = notificationTitle,
+                            Content = notificationBody,
+                            IsRead = false,
+                            BookingId = booking.Id,
+                            Type = NotificationType.Important
+                        }); 
+                }
                 await _publishEndpoint.Publish(new BookingPaidEvent
                 {
                     BookingId = booking.Id,
@@ -157,7 +219,11 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
                     Amount = request.Amount,
                     Process = (int)LoyaltyProcess.Payment
                 });
-            } catch(Exception) {}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Payment notification error: {ex.Message}");
+            }
         }
 
         var result = _mapper.Map<PaymentDto>(payment);

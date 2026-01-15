@@ -42,7 +42,7 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
     public List<int> ServiceIds { get; init; } = new List<int>();
 
     public List<string> SnapIds { get; init; } = new List<string>();
-    public List<string> GroupdIds { get; init; } = new List<string>();
+    public List<string> GroupIds { get; init; } = new List<string>();
 
 }
 
@@ -50,7 +50,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
-    private readonly ICurrentUser _curentUser;
+    private readonly ICurrentUser _currentUser;
     private readonly IIdentityClient _identityClient;
     private readonly IFirebaseService _firebaseService;
 
@@ -63,15 +63,13 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
     {
         _mapper = mapper;
         _context = context;
-        _curentUser = currentUser;
+        _currentUser = currentUser;
         _firebaseService = firebaseService;
         _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
 
     public async Task<ApiResponse<BookingDto>> Handle(CreateBookingMobileCommand request, CancellationToken cancellationToken)
     {
-        //var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Utc);
-        //var bookingDate = DateTime.SpecifyKind(request.BookingDate.Date, DateTimeKind.Unspecified);
         var bookingDate = request.BookingDate.Date;
         var entity = new Booking
         {
@@ -80,7 +78,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             BookingTime = request.BookingTime,
             BookingDate = bookingDate,
             Status = BookingStatus.Pending,
-            UserId = _curentUser.UserId,
+            UserId = _currentUser.UserId,
             Note = request.Note,
             FullName = request.FullName,
             Gender = request.Gender,
@@ -116,9 +114,9 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
             entity.SetBookingSnaps(snaps);
         }
-        if (request.GroupdIds != null && request.GroupdIds.Any())
+        if (request.GroupIds != null && request.GroupIds.Any())
         {
-            var groups = request.GroupdIds.Select(g => new BookingSnapGroup
+            var groups = request.GroupIds.Select(g => new BookingSnapGroup
             {
                 GroupdId = g
             }).ToList();
@@ -132,7 +130,10 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             try
             {
                 var devices = new List<AccountDeviceDto>();
+                var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
+                devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
                 var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
+               
                 if (request.TechnicianIds.Any())
                 {
                     var accountDeviceResponse = await _identityClient
@@ -154,47 +155,42 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                 if (devices.Any())
                 {
                     var deviceTokens = devices.Where(d => !string.IsNullOrEmpty(d.Token)).Select(d => d.Token).Distinct().ToList();
-
                     if (deviceTokens.Any())
                     {
-                        await _firebaseService.SendMulticastAsync(new MulticastMessage
-                        {
-                            Tokens = deviceTokens,
-                            Notification = new FirebaseAdmin.Messaging.Notification
+                        var notifications = new List<Domain.Entities.Notification>();
+                        await _firebaseService.SendMulticastAsync(
+                            new MulticastMessage()
                             {
-                                Title = title,
-                                Body = request.Note
-                            },
-                            Data = new Dictionary<string, string>
+                                Tokens = deviceTokens,
+                                Notification = new FirebaseAdmin.Messaging.Notification()
+                                {
+                                    Title = title,
+                                    Body = request.Note,
+                                },
+                                Data = new Dictionary<string, string>()
+                                {
+                                { "ObjectId", entity.Id.ToString() },
+                                { "Type", "Booking" },
+                                }
+                            });
+
+                        notifications.Add(new Domain.Entities.Notification
                         {
-                            { "ObjectId", entity.Id.ToString()},
-                            { "Type", "Booking" },
-                            //{ "TestKey", "TestValue" }
-                        }
+                            AccountId = _currentUser.UserId,
+                            Title = title,
+                            Content = request.Note,
+                            IsRead = false,
+                            BookingId = entity.Id,
+                            Type = NotificationType.Important
                         });
+
+                        _context.Notification.AddRange(notifications);
+                        await _context.SaveChangesAsync(cancellationToken);
                     }
-
-                    var notification = new Domain.Entities.Notification
-                    {
-                        AccountId = _curentUser.UserId,
-                        Title = title,
-                        Content = request.Note,
-                        BookingId = entity.Id,
-                        Type = NotificationType.Important,
-                    };
-
-                    notification.Recipients = devices.Select(token => new NotificationRecipient
-                    {
-                        UserId = token.AccountId,
-                        IsRead = false
-                    }).ToList();
-
-                    _context.Notification.Add(notification);
-                    await _context.SaveChangesAsync(cancellationToken);
-
                 }
-                
+            
             }
+                
             catch (Exception ex)
             {
                 Console.WriteLine($"Error sending: {ex.Message}");

@@ -86,7 +86,6 @@ public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand,
             transaction.TransactionId = order.Id;
 
             entity.Status = BookingStatus.Completed;
-
             // ✅ Publish event khi thanh toán thành công
             await _publishEndpoint.Publish(new BookingPaidEvent
             {

@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.ApiClients.Clients.Identity;
+﻿using BuildingBlocks.ApiClients.Clients.AccountDevice.Models;
+using BuildingBlocks.ApiClients.Clients.Identity;
 using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Common.Firebase;
@@ -23,7 +24,7 @@ public record CancelBookingCommand: IRequest<ApiResponse>
 public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, ApiResponse>
 {
     private readonly IOrderDbContext _context;
-    private readonly ICurrentUser _curentUser;
+    private readonly ICurrentUser _currentUser;
     private readonly IIdentityClient _identityClient;
     private readonly IFirebaseService _firebaseService;
 
@@ -32,7 +33,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         IFirebaseService firebaseService)
     {
         _context = context;
-        _curentUser = currentUser;
+        _currentUser = currentUser;
         _firebaseService = firebaseService;
         _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
@@ -56,10 +57,36 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         await _context.SaveChangesAsync(cancellationToken);
         try
         {
-            var devices = (await _identityClient.GetAccountDeviceAsync(_curentUser.UserId, cancellationToken))?.Data;
+            var devices = new List<AccountDeviceDto>();
+            var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
+            devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
+            
+            if (entity.StoreId.HasValue)
+            {
+                var storeDeviceResponse = await _identityClient
+                    .GetAccountDeviceByStoreIdAsync(entity.StoreId.Value, cancellationToken);
+
+                if (storeDeviceResponse?.Data != null)
+                    devices.AddRange(storeDeviceResponse.Data);
+            }
+
+
+            if (entity.BookingTechnicians != null && entity.BookingTechnicians.Any(x => x != null))
+            {
+                var technicianIds = entity.BookingTechnicians
+                .Where(x => x != null)
+                .Select(x => x!.ToString())
+                .Distinct();
+                var accountDeviceResponse = await _identityClient
+                    .GetAccountDeviceAsync(string.Join(",", technicianIds), cancellationToken);
+                if (accountDeviceResponse?.Data != null)
+                    devices.AddRange(accountDeviceResponse.Data);
+            }
+
+            //var devices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
             if (devices != null && devices.Any())
             {
-                var deviceTokens = devices.Select(d => d.Token).ToList();
+                var deviceTokens = devices.Select(d => d.Token).Distinct().ToList();
                 if (deviceTokens.Any())
                 {
                     var notifications = new List<Domain.Entities.Notification>();
@@ -81,7 +108,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
 
                     notifications.Add(new Domain.Entities.Notification
                     {
-                        AccountId = _curentUser.UserId,
+                        AccountId = _currentUser.UserId,
                         Title = $"Cancel {entity.BookingDate:yyyy-MM-dd} {entity.BookingTime}",
                         Content = request.Reason,
                         IsRead = false,

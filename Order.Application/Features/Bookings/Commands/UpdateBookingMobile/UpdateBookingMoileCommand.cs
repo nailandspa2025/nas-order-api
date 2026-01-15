@@ -47,7 +47,7 @@ public record UpdateBookingMoileCommand: IRequest<ApiResponse<BookingDto>>
 
     public List<string> SnapIds { get; init; } = new List<string>();
 
-    public List<string> GroupdIds { get; init; } = new List<string>();
+    public List<string> GroupIds { get; init; } = new List<string>();
 
 }
 
@@ -55,7 +55,7 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
 {
     private readonly IOrderDbContext _context;
     private readonly IMapper _mapper;
-    private readonly ICurrentUser _curentUser;
+    private readonly ICurrentUser _currentUser;
     private readonly IIdentityClient _identityClient;
     private readonly IFirebaseService _firebaseService;
 
@@ -68,7 +68,7 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
     {
         _mapper = mapper;
         _context = context;
-        _curentUser = currentUser;
+        _currentUser = currentUser;
         _firebaseService = firebaseService;
         _identityClient = identityClient ?? throw new ArgumentNullException(nameof(_identityClient));
     }
@@ -102,7 +102,7 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
         entity.ProductId = request.ProductId;
         entity.BookingTime = request.BookingTime;
         entity.BookingDate = bookingDate;
-        entity.UserId =  _curentUser.UserId;
+        entity.UserId =  _currentUser.UserId;
         entity.Note = request.Note;
         entity.FullName = request.FullName;
         entity.Gender = request.Gender;
@@ -135,9 +135,9 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
             }).ToList();
 
         }
-        if (request.GroupdIds != null && request.GroupdIds.Any())
+        if (request.GroupIds != null && request.GroupIds.Any())
         {
-            bookingGroups = request.GroupdIds.Select(g => new BookingSnapGroup
+            bookingGroups = request.GroupIds.Select(g => new BookingSnapGroup
             {
                 GroupdId = g
             }).ToList();
@@ -151,6 +151,8 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
         try
         {
             var devices = new List<AccountDeviceDto>();
+            var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
+            devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
             var title = $"Update booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
             if (request.TechnicianIds.Any())
             {
@@ -191,27 +193,25 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
                             //{ "TestKey", "TestValue" }
                         }
                     });
-                }
 
-                var notification = new Domain.Entities.Notification
-                {
-                    AccountId = _curentUser.UserId,
-                    Title = title,
-                    Content = request.Note,
-                    BookingId = entity.Id,
-                    Type = NotificationType.Important,
-                    Recipients = devices.Select(d => new NotificationRecipient
+                    var notification = new Domain.Entities.Notification
                     {
-                        UserId = d.AccountId,
-                        IsRead = false
-                    }).ToList()
-                };
+                        AccountId = _currentUser.UserId,
+                        Title = title,
+                        Content = request.Note,
+                        BookingId = entity.Id,
+                        Type = NotificationType.Important,
+                        Recipients = devices.Select(d => new NotificationRecipient
+                        {
+                            UserId = d.AccountId,
+                            IsRead = false
+                        }).ToList()
+                    };
 
-                _context.Notification.Add(notification);
-                await _context.SaveChangesAsync(cancellationToken);
-
+                    _context.Notification.Add(notification);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
-
         }
         catch (Exception ex)
         {
