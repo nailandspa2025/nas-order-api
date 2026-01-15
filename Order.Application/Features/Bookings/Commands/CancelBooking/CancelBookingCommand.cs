@@ -58,7 +58,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         try
         {
             var devices = new List<AccountDeviceDto>();
-            var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
+            var accountDevices = (await _identityClient.GetAccountDeviceAsync(entity.UserId, cancellationToken))?.Data;
             devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
             
             if (entity.StoreId.HasValue)
@@ -69,8 +69,6 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
                 if (storeDeviceResponse?.Data != null)
                     devices.AddRange(storeDeviceResponse.Data);
             }
-
-
             if (entity.BookingTechnicians != null && entity.BookingTechnicians.Any(x => x != null))
             {
                 var technicianIds = entity.BookingTechnicians
