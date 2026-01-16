@@ -47,5 +47,7 @@ public class SendNotificationMessageEventConsumer : IConsumer<PushNotificationEv
             UserId = data.UserId
         };
         await _mediator.Send(command);
+
+        await Task.CompletedTask;
     }
 }
