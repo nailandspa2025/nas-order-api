@@ -24,5 +24,7 @@ public class Topic
     public string BookingUpdateRate { get; set; } = null!;
 
     public string BookingPaid { get; set; } = null!;
+
+    public string CommunicationSentNotify { get; set; } = null!;
 }
 
