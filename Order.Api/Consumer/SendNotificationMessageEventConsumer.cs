@@ -12,7 +12,7 @@ public class SendNotificationMessageEventConsumerDefinition: ConsumerDefinition<
     public SendNotificationMessageEventConsumerDefinition(IOptions<AwsBusOptions> options)
     {
         // override the default endpoint name, for whatever reason
-        EndpointName = options.Value.Topic.BookingUpdateRate;
+        EndpointName = options.Value.Topic.CommunicationSentNotify;
     }
 
     protected override void ConfigureConsumer(
