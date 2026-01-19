@@ -11,7 +11,7 @@ public class SendNotificationMessageEventConsumerDefinition
 {
     public SendNotificationMessageEventConsumerDefinition(IOptions<AwsBusOptions> options)
     {
-        EndpointName = options.Value.Topic.CommunicationSentNotify;
+        EndpointName = options.Value.Topic.SendNotificationMessage;
     }
 
     protected override void ConfigureConsumer(
