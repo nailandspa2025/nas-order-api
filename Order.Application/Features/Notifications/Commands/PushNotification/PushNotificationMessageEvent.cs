@@ -48,7 +48,7 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
                         },
                         Data = new Dictionary<string, string>
                         {
-                            { "ObjectId", request.UserId},
+                            { "ObjectId", request.UserId.ToString()},
                             { "Type", "Message" },
                         }
                     });
@@ -58,8 +58,7 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
 
         catch (Exception ex)
         {
-            _logger.LogWarning("PushNotificationMessageEvent: UserId is empty");
-            Console.WriteLine($"Error push notifycation: {ex.Message}");
+            _logger.LogWarning("PushNotificationMessageEvent: ", ex.Message);
         }
         return Unit.Value;
     }
