@@ -30,36 +30,78 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
     }
     public async Task<Unit> Handle(PushNotificationMessageEvent request, CancellationToken cancellationToken)
     {
-        try
+        if (string.IsNullOrWhiteSpace(request.UserId))
         {
-            var accountDevices = (await _identityClient.GetAccountDeviceAsync(request.UserId, cancellationToken))?.Data;
-            if (accountDevices.Any())
-            {
-                var deviceTokens = accountDevices.Where(d => !string.IsNullOrEmpty(d.Token)).Select(d => d.Token).Distinct().ToList();
-                if (deviceTokens.Any())
-                {
-                    await _firebaseService.SendMulticastAsync(new MulticastMessage
-                    {
-                        Tokens = deviceTokens,
-                        Notification = new FirebaseAdmin.Messaging.Notification
-                        {
-                            Title = "New message",
-                            Body = request.Content
-                        },
-                        Data = new Dictionary<string, string>
-                        {
-                            { "ObjectId", request.UserId.ToString()},
-                            { "Type", "Message" },
-                        }
-                    });
-                }
-            }
+            _logger.LogWarning(
+                "PushNotificationMessageEvent ignored: UserId is empty. Content={Content}",
+                request.Content
+            );
+            return Unit.Value;
         }
 
+        try
+        {
+            var response = await _identityClient.GetAccountDeviceAsync(
+                request.UserId,
+                cancellationToken
+            );
+
+            var accountDevices = response?.Data;
+
+            if (accountDevices == null || !accountDevices.Any())
+            {
+                _logger.LogInformation(
+                    "No device found for UserId={UserId}",
+                    request.UserId
+                );
+                return Unit.Value;
+            }
+
+            var deviceTokens = accountDevices
+                .Where(d => !string.IsNullOrWhiteSpace(d.Token))
+                .Select(d => d.Token!)
+                .Distinct()
+                .ToList();
+
+            if (!deviceTokens.Any())
+            {
+                _logger.LogInformation(
+                    "No valid device token for UserId={UserId}",
+                    request.UserId
+                );
+                return Unit.Value;
+            }
+
+            await _firebaseService.SendMulticastAsync(new MulticastMessage
+            {
+                Tokens = deviceTokens,
+                Notification = new FirebaseAdmin.Messaging.Notification
+                {
+                    Title = "New message",
+                    Body = request.Content
+                },
+                Data = new Dictionary<string, string>
+                {
+                    { "ObjectId", request.UserId },
+                    { "Type", "Message" }
+                }
+            });
+
+            _logger.LogInformation(
+                "Push notification sent SUCCESS. UserId={UserId}, TokenCount={Count}",
+                request.UserId,
+                deviceTokens.Count
+            );
+        }
         catch (Exception ex)
         {
-            _logger.LogWarning("PushNotificationMessageEvent: ", ex.Message);
+            _logger.LogError(
+                ex,
+                "PushNotificationMessageEvent FAILED. UserId={UserId}",
+                request.UserId
+            );
         }
+
         return Unit.Value;
     }
 }
