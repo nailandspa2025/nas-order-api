@@ -44,7 +44,7 @@ public class SendNotificationMessageEventConsumer
 
         var command = new PushNotificationMessageEvent
         {
-            Content = "Test Push Notification",
+            Content = data.Content,
             UserId = data.UserId
         };
         await _mediator.Send(command);
