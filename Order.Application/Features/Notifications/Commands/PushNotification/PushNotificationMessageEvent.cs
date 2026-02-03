@@ -48,7 +48,7 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
                     { "Type", "Message" }
                 }
             };
-
+            _logger.LogInformation("Sending push notification to tokens: {Tokens}", request.Tokens);
             await _firebaseService.SendMulticastAsync(message);
         return Unit.Value;
     }
