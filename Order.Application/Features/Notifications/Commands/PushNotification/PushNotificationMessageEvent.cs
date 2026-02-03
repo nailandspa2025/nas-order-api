@@ -10,7 +10,7 @@ public record PushNotificationMessageEvent : IRequest<Unit>
 {
     public string UserId { get; init; }
     public string Content { get; init; }
-    public List<string> Tokens { get; init; } = new List<string>();
+    public List<string> Tokens { get; init; } 
 }
 
 public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificationMessageEvent, Unit>
