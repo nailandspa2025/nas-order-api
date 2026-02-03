@@ -37,25 +37,22 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
                 "dR2PWyXUSYaZUVzsIy8iSe:APA91bE_nGHZHZqX2t7Wci1878gTmyOEDMYHEA77kxEPNsP0nQnQ8skX8b4c8RP9Y63r9Iy33p6QTT0Sh2hJHsiD8U3BQLHzq1x9ulQ6CcIh6AC4EFfPxec"
             };
         
-            await _firebaseService.SendMulticastAsync(
-            new MulticastMessage()
+            var message = new MulticastMessage
             {
                 Tokens = deviceTokens,
-                Notification = new FirebaseAdmin.Messaging.Notification()
+                Notification = new FirebaseAdmin.Messaging.Notification
                 {
                     Title = "New message",
-                    Body = request.Content,
+                    Body = request.Content
                 },
-                Data = new Dictionary<string, string>()
+                Data = new Dictionary<string, string>
                 {
-                        { "ObjectId", request.UserId.ToString() },
-                        { "Type", "Message" },
+                    { "ObjectId", request.UserId.ToString() },
+                    { "Type", "Message" }
                 }
-            });
-            _logger.LogInformation(
-                "Push notification sent SUCCESS. TokenCount={Count}",
-                deviceTokens.Count
-            );
+            };
+
+            await _firebaseService.SendMulticastAsync(message);
         return Unit.Value;
     }
 }
