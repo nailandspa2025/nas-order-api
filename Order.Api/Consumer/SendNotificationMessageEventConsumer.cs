@@ -38,13 +38,13 @@ public class SendNotificationMessageEventConsumer
 
     public async Task Consume(ConsumeContext<PushNotificationEvent> context)
     {
-        _logger.LogInformation("Consume Push Notification Message", context.Message);
+        _logger.LogInformation("Consume Push Notification Message", "Test Push Notification");
 
         var data = context.Message;
 
         var command = new PushNotificationMessageEvent
         {
-            Content = data.Content,
+            Content = "Test Push Notification",
             UserId = data.UserId
         };
         await _mediator.Send(command);
