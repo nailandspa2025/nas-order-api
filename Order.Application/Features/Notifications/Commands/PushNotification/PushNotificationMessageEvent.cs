@@ -39,8 +39,6 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
             return Unit.Value;
         }
 
-        try
-        {
             var response = await _identityClient.GetAccountDeviceAsync(
                 request.UserId,
                 cancellationToken
@@ -86,19 +84,10 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
                         { "Type", "Message" },
                     }
                 });
-            _logger.LogInformation(
-                "Push notification sent SUCCESS", deviceTokens
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "PushNotificationMessageEvent FAILED. UserId={UserId}",
-                request.UserId
-            );
-        }
-
+        _logger.LogInformation(
+            "Push notification sent SUCCESS. TokenCount={Count}",
+            deviceTokens.Count
+        );
         return Unit.Value;
     }
 }

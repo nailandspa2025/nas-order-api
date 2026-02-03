@@ -38,40 +38,17 @@ public class SendNotificationMessageEventConsumer
 
     public async Task Consume(ConsumeContext<PushNotificationEvent> context)
     {
+        _logger.LogInformation("Consume Push Notification Message", context.Message);
+
         var data = context.Message;
 
-        _logger.LogInformation(
-            "Consume PushNotificationEvent. UserId={UserId}, CorrelationId={CorrelationId}",
-            data.UserId,
-            context.CorrelationId
-        );
-
-        try
+        var command = new PushNotificationMessageEvent
         {
-            var command = new PushNotificationMessageEvent
-            {
-                Content = data.Content,
-                UserId = data.UserId
-            };
+            Content = data.Content,
+            UserId = data.UserId
+        };
+        await _mediator.Send(command);
 
-            await _mediator.Send(command);
-
-            _logger.LogInformation(
-                "Push notification handled SUCCESS. UserId={UserId}, CorrelationId={CorrelationId}",
-                data.UserId,
-                context.CorrelationId
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "Push notification FAILED. UserId={UserId}, CorrelationId={CorrelationId}",
-                data.UserId,
-                context.CorrelationId
-            );
-
-            throw; // 🔥 BẮT BUỘC để MassTransit retry / DLQ
-        }
+        await Task.CompletedTask;
     }
 }
