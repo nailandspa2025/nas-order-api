@@ -32,9 +32,9 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
     {
             var deviceTokens = new List<string>
             {
-                "APA91bHayeD4zCBY4bRIJDqFnIPhHpS5U76hbVhR4GsM-s8mv8a_m5AalFjCe3zD-0c9OF9eNlrUbearVbh1zJmVlQHw17Nn9KEdIS2gFbhapWzjgpXWA0Q",
-                "APA91bF-LxvwSUMtxjTF9O4fU1edgVVMgXdTWilZpgrx_Z37GStb9w8cVM6aSzuonsXvKVFHFGAjoNjwsDL52EsR927g9tqMimuOM0QowCB9WH-ciH4G9NI",
-                "APA91bE_nGHZHZqX2t7Wci1878gTmyOEDMYHEA77kxEPNsP0nQnQ8skX8b4c8RP9Y63r9Iy33p6QTT0Sh2hJHsiD8U3BQLHzq1x9ulQ6CcIh6AC4EFfPxec"
+                "ckkWLzCV4k3Omu9V_qFhLr:APA91bHayeD4zCBY4bRIJDqFnIPhHpS5U76hbVhR4GsM-s8mv8a_m5AalFjCe3zD-0c9OF9eNlrUbearVbh1zJmVlQHw17Nn9KEdIS2gFbhapWzjgpXWA0Q",
+                "cSlkVc9VziTcx66JjdnXly:APA91bF-LxvwSUMtxjTF9O4fU1edgVVMgXdTWilZpgrx_Z37GStb9w8cVM6aSzuonsXvKVFHFGAjoNjwsDL52EsR927g9tqMimuOM0QowCB9WH-ciH4G9NI",
+                "dR2PWyXUSYaZUVzsIy8iSe:APA91bE_nGHZHZqX2t7Wci1878gTmyOEDMYHEA77kxEPNsP0nQnQ8skX8b4c8RP9Y63r9Iy33p6QTT0Sh2hJHsiD8U3BQLHzq1x9ulQ6CcIh6AC4EFfPxec"
             };
         
             await _firebaseService.SendMulticastAsync(
