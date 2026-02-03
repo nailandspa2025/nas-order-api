@@ -30,71 +30,32 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
     }
     public async Task<Unit> Handle(PushNotificationMessageEvent request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.UserId))
-        {
-            _logger.LogWarning(
-                "PushNotificationMessageEvent ignored: UserId is empty. Content={Content}",
-                request.Content
-            );
-            return Unit.Value;
-        }
-
-            var response = await _identityClient.GetAccountDeviceAsync(
-                request.UserId,
-                cancellationToken
-            );
- _logger.LogInformation(
-                    "response: {response}",
-                    response
-                );
-            var accountDevices = response?.Data;
-            _logger.LogInformation(
-                    "GetAccountDeviceAsync: {accountDevices}",
-                    accountDevices
-                );
-
-            if (accountDevices == null || !accountDevices.Any())
-        {
-            _logger.LogInformation(
-                "No device found for UserId={UserId}",
-                request.UserId
-            );
-            return Unit.Value;
-        }
-
-            var deviceTokens = accountDevices
-                .Where(d => !string.IsNullOrWhiteSpace(d.Token))
-                .Select(d => d.Token!)
-                .Distinct()
-                .ToList();
-
-            if (!deviceTokens.Any())
+            var deviceTokens = new List<string>
             {
-                _logger.LogInformation(
-                    "No valid device token for UserId={UserId}",
-                    request.UserId
-                );
-                return Unit.Value;
-            }
+                "APA91bHayeD4zCBY4bRIJDqFnIPhHpS5U76hbVhR4GsM-s8mv8a_m5AalFjCe3zD-0c9OF9eNlrUbearVbh1zJmVlQHw17Nn9KEdIS2gFbhapWzjgpXWA0Q",
+                "APA91bF-LxvwSUMtxjTF9O4fU1edgVVMgXdTWilZpgrx_Z37GStb9w8cVM6aSzuonsXvKVFHFGAjoNjwsDL52EsR927g9tqMimuOM0QowCB9WH-ciH4G9NI",
+                "APA91bE_nGHZHZqX2t7Wci1878gTmyOEDMYHEA77kxEPNsP0nQnQ8skX8b4c8RP9Y63r9Iy33p6QTT0Sh2hJHsiD8U3BQLHzq1x9ulQ6CcIh6AC4EFfPxec"
+            };
+        
             await _firebaseService.SendMulticastAsync(
-                new MulticastMessage()
+            new MulticastMessage()
+            {
+                Tokens = deviceTokens,
+                Notification = new FirebaseAdmin.Messaging.Notification()
                 {
-                    Tokens = deviceTokens,
-                    Notification = new FirebaseAdmin.Messaging.Notification()
-                    {
-                        Title = "New message",
-                        Body = request.Content,
-                    },
-                    Data = new Dictionary<string, string>()
-                    {
+                    Title = "New message",
+                    Body = request.Content,
+                },
+                Data = new Dictionary<string, string>()
+                {
                         { "ObjectId", request.UserId.ToString() },
                         { "Type", "Message" },
-                    }
-                });
-        _logger.LogInformation(
-            "Push notification sent SUCCESS. TokenCount={Count}",
-            deviceTokens.Count
-        );
+                }
+            });
+            _logger.LogInformation(
+                "Push notification sent SUCCESS. TokenCount={Count}",
+                deviceTokens.Count
+            );
         return Unit.Value;
     }
 }

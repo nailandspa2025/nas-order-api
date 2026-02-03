@@ -38,7 +38,7 @@ public class SendNotificationMessageEventConsumer
 
     public async Task Consume(ConsumeContext<PushNotificationEvent> context)
     {
-        _logger.LogInformation("Consume Push Notification Message", "Test Push Notification");
+        _logger.LogInformation("Consume Push Notification Message");
 
         var data = context.Message;
 
