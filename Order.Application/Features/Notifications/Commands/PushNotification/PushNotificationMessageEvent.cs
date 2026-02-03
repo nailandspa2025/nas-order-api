@@ -43,17 +43,24 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
                 request.UserId,
                 cancellationToken
             );
-
+ _logger.LogInformation(
+                    "response: {response}",
+                    response
+                );
             var accountDevices = response?.Data;
+            _logger.LogInformation(
+                    "GetAccountDeviceAsync: {accountDevices}",
+                    accountDevices
+                );
 
             if (accountDevices == null || !accountDevices.Any())
-            {
-                _logger.LogInformation(
-                    "No device found for UserId={UserId}",
-                    request.UserId
-                );
-                return Unit.Value;
-            }
+        {
+            _logger.LogInformation(
+                "No device found for UserId={UserId}",
+                request.UserId
+            );
+            return Unit.Value;
+        }
 
             var deviceTokens = accountDevices
                 .Where(d => !string.IsNullOrWhiteSpace(d.Token))
