@@ -31,43 +31,65 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
     }
     public async Task<Unit> Handle(SendBookingReminderCommand request, CancellationToken cancellationToken)
     {
-        var now = DateTime.Now;
-        var today = now.Date;
+       var now = DateTime.UtcNow;
+
+        // Load configs
         var configs = await _context.ReminderConfig
             .Where(x => x.IsActive && !x.IsDeleted)
             .ToListAsync(cancellationToken);
+
         foreach (var config in configs)
         {
+            // 👉 Lấy booking trong khoảng an toàn ±1 ngày
+            var fromDate = now.Date.AddDays(-1);
+            var toDate = now.Date.AddDays(1);
+
             var bookings = await _context.Booking
                 .Where(x =>
                     x.StoreId == config.StoreId &&
-                    x.BookingDate == today &&
+                    x.BookingDate >= fromDate &&
+                    x.BookingDate <= toDate &&
                     x.Status == BookingStatus.Pending &&
                     !x.IsDeleted
                 )
                 .ToListAsync(cancellationToken);
+
             foreach (var booking in bookings)
             {
-                // Chặn gửi trùng
+                // ❌ Chặn gửi trùng
                 var sent = await _context.BookingReminderLog.AnyAsync(
                     x => x.BookingId == booking.Id
-                      && x.ReminderConfigId == config.Id,
+                    && x.ReminderConfigId == config.Id,
                     cancellationToken);
+
                 if (sent)
                     continue;
+
+                // ⏰ Booking datetime (UTC)
                 var bookingDateTime =
                     booking.BookingDate.Date + booking.BookingTime;
-                // Thời điểm cần gửi reminder
+
+                // ⏰ Thời điểm cần gửi reminder
                 var remindAt =
                     bookingDateTime.AddMinutes(-config.BeforeMinute);
+
                 _logger.LogInformation(
-                        "Reminder check: BookingId={BookingId}, Now={Now}, RemindAt={RemindAt}",
-                        booking.Id,
-                        now,
-                        remindAt
+                    "Reminder check | BookingId={BookingId} | Now={Now:o} | BookingAt={BookingAt:o} | RemindAt={RemindAt:o}",
+                    booking.Id,
+                    now,
+                    bookingDateTime,
+                    remindAt
                 );
-                if (now < remindAt || now > remindAt.AddMinutes(5))
+
+                // 👉 Chưa tới giờ
+                if (now < remindAt)
                     continue;
+
+                // 👉 Trễ quá 10 phút thì bỏ
+                if (now - remindAt > TimeSpan.FromMinutes(10))
+                    continue;
+
+                // 🚀 Send notification
                 if (config.Channel == ReminderChannel.PushNotification)
                 {
                     await SendPushAsync(booking, cancellationToken);
@@ -76,6 +98,8 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                 // {
                 //     await SendEmailAsync(booking, cancellationToken);
                 // }
+
+                // 📝 Log đã gửi
                 _context.BookingReminderLog.Add(new BookingReminderLog
                 {
                     BookingId = booking.Id,
@@ -84,6 +108,7 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                     SentAt = now
                 });
             }
+
             await _context.SaveChangesAsync(cancellationToken);
         }
         return Unit.Value;
