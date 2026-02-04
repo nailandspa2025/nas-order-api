@@ -89,28 +89,17 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                 // 👉 Trễ quá 10 phút thì bỏ
                if (now < remindAt)
                     continue;
-
-            // ⛔ QUÁ 10 PHÚT
-                if (now > remindAt.AddMinutes(15))
+                // ⛔ QUÁ 5 PHÚT
+                if (now > remindAt.AddMinutes(5))
                     continue;
-
-                // 🚀 Send notification
-                _logger.LogWarning(
-                    "Send notification"
-                );
                 if (config.Channel == ReminderChannel.PushNotification)
                 {
-                    _logger.LogWarning(
-                        "Booking push noti  Channel={Channel}",
-                        config.Channel
-                    );
                     await SendPushNotiAsync(booking, cancellationToken);
                 }
                 // else if (config.Channel == ReminderChannel.Email)
                 // {
                 //     await SendEmailAsync(booking, cancellationToken);
                 // }
-
                 // 📝 Log đã gửi
                 _context.BookingReminderLog.Add(new BookingReminderLog
                 {
