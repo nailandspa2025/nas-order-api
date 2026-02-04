@@ -5,6 +5,7 @@ using Order.Infrastructure.Persistence;
 using BuildingBlocks.Common.Extensions;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Order.Api.JobHangfire;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,6 +48,8 @@ await app.InitialiseDatabaseAsync();
 
 app.UseHangfireDashboard("/hangfire");
 
+//RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job", job => job.ExecuteAsync(), "0 0 * * *");
+RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job",job => job.ExecuteAsync(),Cron.Minutely);
 app.Run();
 
 // Make the implicit Program class public so test projects can access it

@@ -35,6 +35,8 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
     public DbSet<NotificationRecipient> NotificationRecipient => Set<NotificationRecipient>();
     public DbSet<ReminderConfig> ReminderConfig => Set<ReminderConfig>();
 
+    public DbSet<BookingReminderLog> BookingReminderLog => Set<BookingReminderLog>(); 
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
