@@ -46,9 +46,17 @@ app.UseServiceDefaults(builder);
 
 await app.InitialiseDatabaseAsync();
 
+app.UseRouting();
+
 app.UseHangfireServer();
 
 app.UseHangfireDashboard("/hangfire");
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
 
 //RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job", job => job.ExecuteAsync(), "0 0 * * *");
 RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job",job => job.ExecuteAsync(),Cron.Minutely);
