@@ -134,7 +134,16 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct()
                 .ToList();
-            if (!tokens.Any()) return;
+            if (!tokens.Any())
+            {
+                _logger.LogWarning(
+                    "Booking reminder skipped: NO TOKEN. BookingId={BookingId}, UserId={UserId}, StoreId={StoreId}",
+                    booking.Id,
+                    booking.UserId,
+                    booking.StoreId
+                );
+                return;
+            }
             var message = new MulticastMessage
             {
                 Tokens = tokens,
