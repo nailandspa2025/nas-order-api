@@ -6,6 +6,8 @@ using BuildingBlocks.Common.Extensions;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Order.Api.JobHangfire;
+using Hangfire.Dashboard;
+using Hangfire.PostgreSql.Properties;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,7 +52,13 @@ app.UseRouting();
 
 app.UseHangfireServer();
 
-app.UseHangfireDashboard("/hangfire");
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new IDashboardAuthorizationFilter[]
+    {
+        new InlineAllowAllDashboardAuthorizationFilter()
+    }
+});
 
 app.UseEndpoints(endpoints =>
 {
@@ -65,6 +73,13 @@ app.Run();
 // Make the implicit Program class public so test projects can access it
 public partial class Program { }
 
+class InlineAllowAllDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize([NotNull] DashboardContext context)
+    {
+        return true;
+    }
+}
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
