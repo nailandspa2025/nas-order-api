@@ -18,22 +18,29 @@ public class AuthorizationMessageHandler: DelegatingHandler
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        // get the token
-        var requestData = _accessor.HttpContext?.Request;
-        if (requestData!.Headers.TryGetValue(AuthorizationHeader, out var values))
-        {
-            var authHeaders = values.ToList();
-            if (authHeaders.Any())
-            {
-                var authorizationHeader = authHeaders.First();
-                var token = authorizationHeader.Replace($"{BearerAuthenticationPrefix} ", string.Empty);
+        var httpContext = _accessor.HttpContext;
 
-                // add header
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        // Background job → không có HttpContext
+        if (httpContext == null)
+            return await base.SendAsync(request, cancellationToken);
+
+        if (httpContext.Request.Headers.TryGetValue(AuthorizationHeader, out var values))
+        {
+            var authorizationHeader = values.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(authorizationHeader))
+            {
+                var token = authorizationHeader.Replace(
+                    $"{BearerAuthenticationPrefix} ",
+                    string.Empty
+                );
+
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
         return await base.SendAsync(request, cancellationToken);
     }
+
 }
 
