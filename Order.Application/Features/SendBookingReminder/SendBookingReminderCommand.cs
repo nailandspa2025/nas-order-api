@@ -95,6 +95,9 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                     continue;
 
                 // 🚀 Send notification
+                _logger.LogWarning(
+                    "Send notification"
+                );
                 if (config.Channel == ReminderChannel.PushNotification)
                 {
                     _logger.LogWarning(
