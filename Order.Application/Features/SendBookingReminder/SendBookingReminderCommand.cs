@@ -149,6 +149,11 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
             {
                 Title = "Booking Reminder",
                 Body = $"You have a schedule {booking.BookingDate:yyyy-MM-dd} {booking.BookingTime}"
+            },
+            Data = new Dictionary<string, string>()
+            {
+                { "ObjectId", booking.Id.ToString() },
+                { "Type", "Reminder" },
             }
         };
 

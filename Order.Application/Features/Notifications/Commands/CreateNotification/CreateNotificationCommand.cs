@@ -68,10 +68,10 @@ public class CreateNotificationCommandHandler : IRequestHandler<CreateNotificati
                             Body = request.Content
                         },
                         Data = new Dictionary<string, string>
-                    {
-                        { "ObjectId", entity.Id.ToString() },
-                        { "Type", request.Type.ToString() }
-                    }
+                        {
+                            { "ObjectId", entity.Id.ToString() },
+                            { "Type", request.Type.ToString() }
+                        }
                     };
 
                     await _firebaseService.SendMulticastAsync(message);
