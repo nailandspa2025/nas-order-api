@@ -31,8 +31,7 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
     }
     public async Task<Unit> Handle(SendBookingReminderCommand request, CancellationToken cancellationToken)
     {
-       var now = DateTime.UtcNow;
-
+       var now = DateTime.UtcNow.AddHours(7);
         // Load configs
         var configs = await _context.ReminderConfig
             .Where(x => x.IsActive && !x.IsDeleted)
