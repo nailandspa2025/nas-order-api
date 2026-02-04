@@ -97,7 +97,11 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                 // 🚀 Send notification
                 if (config.Channel == ReminderChannel.PushNotification)
                 {
-                    await SendPushAsync(booking, cancellationToken);
+                    _logger.LogWarning(
+                        "Booking push noti  Channel={Channel}",
+                        config.Channel
+                    );
+                    await SendPushNotiAsync(booking, cancellationToken);
                 }
                 // else if (config.Channel == ReminderChannel.Email)
                 // {
@@ -171,6 +175,52 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                 "Failed to send booking reminder. BookingId={BookingId}",
                 booking.Id);
         }
+    }
+    private async Task<bool> SendPushNotiAsync(Booking booking, CancellationToken cancellationToken)
+    {
+        var devices = new List<AccountDeviceDto>();
+
+        var userDevices = (await _identityClient
+            .GetAccountDeviceAsync(booking.UserId, cancellationToken))?.Data;
+
+        var storeDevices = (await _identityClient
+            .GetAccountDeviceByStoreIdAsync(booking.StoreId!.Value, cancellationToken))?.Data;
+
+        if (userDevices != null) devices.AddRange(userDevices);
+        if (storeDevices != null) devices.AddRange(storeDevices);
+
+        var tokens = devices
+            .Select(x => x.Token)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct()
+            .ToList();
+
+        if (!tokens.Any())
+        {
+            _logger.LogWarning(
+                "No tokens → skip push. BookingId={BookingId}",
+                booking.Id
+            );
+            return false;
+        }
+
+        var message = new MulticastMessage
+        {
+            Tokens = tokens,
+            Notification = new FirebaseAdmin.Messaging.Notification
+            {
+                Title = "Booking Reminder",
+                Body = $"You have a schedule {booking.BookingDate:yyyy-MM-dd} {booking.BookingTime}"
+            }
+        };
+
+        await _firebaseService.SendMulticastAsync(message);
+
+        _logger.LogInformation(
+            "Sending booking reminder. BookingId={BookingId}, Tokens={TokenCount}",
+            booking.Id,
+            tokens.Count);
+        return true;
     }
 
     private async Task SendEmailAsync(Booking booking, CancellationToken cancellationToken)
