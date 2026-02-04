@@ -7,7 +7,6 @@ namespace Order.Infrastructure.Persistence.Configurations;
 public class BookingConfiguration: IEntityTypeConfiguration<Booking>
 {
 	
-
     public void Configure(EntityTypeBuilder<Booking> builder)
     {
        builder.Property(p => p.FullName)

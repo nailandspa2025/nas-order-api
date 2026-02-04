@@ -60,7 +60,13 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                 // Thời điểm cần gửi reminder
                 var remindAt =
                     bookingDateTime.AddMinutes(-config.BeforeMinute);
-                if (now < remindAt || now >= remindAt.AddMinutes(1))
+                _logger.LogInformation(
+                        "Reminder check: BookingId={BookingId}, Now={Now}, RemindAt={RemindAt}",
+                        booking.Id,
+                        now,
+                        remindAt
+                );
+                if (now < remindAt || now > remindAt.AddMinutes(5))
                     continue;
                 if (config.Channel == ReminderChannel.PushNotification)
                 {
@@ -128,15 +134,15 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
         }
     }
 
-    // private async Task SendEmailAsync(Booking booking, CancellationToken cancellationToken)
-    // {
-    //     string subject = "Booking Reminder";
-    //     string body = $"You have a schedule {booking.BookingDate:yyyy-MM-dd} {booking.BookingTime}";
-    //     await _publishEndpoint.Publish(new SendEmailEvent
-    //     {
-    //         To = entity.Email,
-    //         Body = body,
-    //         Subject = subject
-    //     });
-    // }
+    private async Task SendEmailAsync(Booking booking, CancellationToken cancellationToken)
+    {
+        // string subject = "Booking Reminder";
+        // string body = $"You have a schedule {booking.BookingDate:yyyy-MM-dd} {booking.BookingTime}";
+        // await _publishEndpoint.Publish(new SendEmailEvent
+        // {
+        //     To = entity.Email,
+        //     Body = body,
+        //     Subject = subject
+        // });
+    }
 }
