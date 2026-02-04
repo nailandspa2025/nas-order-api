@@ -69,8 +69,10 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                     booking.BookingDate.Date + booking.BookingTime;
 
                 // ⏰ Thời điểm cần gửi reminder
-                var remindAt =
-                    bookingDateTime.AddMinutes(-config.BeforeMinute);
+                // var remindAt =
+                //     bookingDateTime.AddMinutes(-config.BeforeMinute);
+                var bookingAt = booking.BookingDate.Date + booking.BookingTime;
+                var remindAt = bookingAt.AddMinutes(-config.BeforeMinute);
 
                 _logger.LogInformation(
                     "Reminder check | BookingId={BookingId} | Now={Now:o} | BookingAt={BookingAt:o} | RemindAt={RemindAt:o}",
@@ -85,7 +87,11 @@ public class SendBookingReminderCommandHandler : IRequestHandler<SendBookingRemi
                     continue;
 
                 // 👉 Trễ quá 10 phút thì bỏ
-                if (now - remindAt > TimeSpan.FromMinutes(10))
+               if (now < remindAt)
+                    continue;
+
+            // ⛔ QUÁ 10 PHÚT
+                if (now > remindAt.AddMinutes(15))
                     continue;
 
                 // 🚀 Send notification
