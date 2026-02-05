@@ -11,6 +11,8 @@ public record PushNotificationMessageEvent : IRequest<Unit>
     public string UserId { get; init; }
     public string Content { get; init; }
     public List<string> Tokens { get; init; } 
+    public string SenderInfo { get; set; }
+    public string ReceiverInfo { get; set; }
 }
 
 public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificationMessageEvent, Unit>
@@ -39,6 +41,8 @@ public class PushNotificationMessageEventHandler : IRequestHandler<PushNotificat
                 Data = new Dictionary<string, string>
                 {
                     { "ObjectId", request.UserId.ToString() },
+                    { "SenderInfo", request.SenderInfo ?? string.Empty },
+                    { "ReceiverInfo", request.ReceiverInfo ?? string.Empty },
                     { "Type", "Message" }
                 }
             };

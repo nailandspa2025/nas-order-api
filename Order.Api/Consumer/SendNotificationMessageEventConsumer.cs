@@ -46,7 +46,9 @@ public class SendNotificationMessageEventConsumer
         {
             Content = data.Content,
             UserId = data.UserId,
-            Tokens = data.Tokens
+            Tokens = data.Tokens,
+            SenderInfo = data.SenderInfo,
+            ReceiverInfo = data.ReceiverInfo
         };
         await _mediator.Send(command);
 
