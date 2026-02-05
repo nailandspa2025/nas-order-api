@@ -5,5 +5,6 @@ public class PushNotificationEvent
     public string UserId { get; set; }
     public string Content { get; set; }
     public List<string> Tokens { get; set; } = new List<string>();
-    public string senderInfo { get; set; }
+    public string SenderInfo { get; set; }
+    public string ReceiverInfo { get; set; }
 }
