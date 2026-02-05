@@ -36,6 +36,7 @@ public static class ConfigureServices
                 cfg.Message<BookingUpdateRateEvent>(e => e.SetEntityName("booking-update-rate-topic"));
                 cfg.Message<BookingPaidEvent>(e => e.SetEntityName("booking-paid-topic"));
                 cfg.Message<PushNotificationEvent>(e => e.SetEntityName("push-notification-event-topic"));
+                cfg.Message<SendEmailEvent>(e => e.SetEntityName("communication-sent-email-queue"));
             });
 
             x.SetKebabCaseEndpointNameFormatter();
