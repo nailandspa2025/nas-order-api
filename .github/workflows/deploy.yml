@@ -33,8 +33,9 @@ jobs:
       - name: Log in to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -42,7 +43,9 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/nas-order-api:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/nas-order-api:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,14 +54,15 @@ jobs:
       - name: SSH into Server & Deploy
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          host: ${{ secrets.GCP_SERVER_HOST }}
+          username: ${{ secrets.GCP_SERVER_USER }}
+          # password: ${{ secrets.SERVER_PASSWORD }}
+          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+
           script: |
-            # 🔐 Đăng nhập Docker Registry
-            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
+            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/${{ github.repository_owner }}/nas-order-api:${{ github.sha }}
             docker network inspect nas-net >/dev/null 2>&1 || docker network create nas-net
-            docker pull docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
             docker stop nas-order-api || true
             docker rm nas-order-api || true
-            docker run -d --restart=always --name nas-order-api --network nas-net -p 6002:6002 docker.io/${{ secrets.REGISTRY_USERNAME }}/nas-reposetory:${{ github.sha }}
+            docker run -d --restart=always --pull=always --name nas-order-api --network nas-net -p 6002:6002 ghcr.io/${{ github.repository_owner }}/nas-catalog-api:${{ github.sha }}
