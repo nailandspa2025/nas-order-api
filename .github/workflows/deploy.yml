@@ -65,4 +65,4 @@ jobs:
             docker network inspect nas-net >/dev/null 2>&1 || docker network create nas-net
             docker stop nas-order-api || true
             docker rm nas-order-api || true
-            docker run -d --restart=always --pull=always --name nas-order-api --network nas-net -p 6002:6002 ghcr.io/${{ github.repository_owner }}/nas-catalog-api:${{ github.sha }}
+            docker run -d --restart=always --pull=always --name nas-order-api --network nas-net -p 6002:6002 ghcr.io/${{ github.repository_owner }}/nas-order-api:${{ github.sha }}
