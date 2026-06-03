@@ -9,6 +9,7 @@ using Order.Application.Features.Bookings.Commands.DeleteBooking;
 using Order.Application.Features.Bookings.Commands.UpdateBooking;
 using Order.Application.Features.Bookings.Commands.UpdateBookingMobile;
 using Order.Application.Features.Bookings.Commands.UpdateRateBooking;
+using Order.Application.Features.Bookings.Commands.UpdateStatusBooking;
 using Order.Application.Features.Bookings.Models;
 using Order.Application.Features.Bookings.Queries.GetBooking;
 using Order.Application.Features.Bookings.Queries.GetBookingForMerchantsWithPagination;
@@ -106,7 +107,7 @@ public class BookingsController : ApiControllerBase
     {
         return await Mediator.Send(command);
     }
-    
+
     [HttpGet("mobile/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<BookingDto>>> GetForMobileByIdAsync(int id)
@@ -166,6 +167,17 @@ public class BookingsController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateRateAsync(int id, [FromForm] UpdateRateBookingCommand command)
+    {
+        if (id != command.Id)
+        {
+            return BadRequest();
+        }
+        return await Mediator.Send(command);
+    }
+    [HttpPut("update-status/{id}")]
+    [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateStatusAsync(int id, [FromForm] UpdateStatusBookingCommand command)
     {
         if (id != command.Id)
         {
