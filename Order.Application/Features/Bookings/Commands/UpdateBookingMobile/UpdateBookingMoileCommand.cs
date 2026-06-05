@@ -15,7 +15,7 @@ using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Commands.UpdateBookingMobile;
 
-public record UpdateBookingMoileCommand: IRequest<ApiResponse<BookingDto>>
+public record UpdateBookingMoileCommand : IRequest<ApiResponse<BookingDto>>
 {
     public int Id { get; init; }
 
@@ -23,7 +23,7 @@ public record UpdateBookingMoileCommand: IRequest<ApiResponse<BookingDto>>
 
     public long? ProductId { get; init; }
 
-    public List<long> TechnicianIds { get; init; } = new List<long>();
+    //public List<long> TechnicianIds { get; init; } = new List<long>();
 
     public DateTime BookingDate { get; init; }
 
@@ -43,14 +43,19 @@ public record UpdateBookingMoileCommand: IRequest<ApiResponse<BookingDto>>
 
     public int? Number { get; init; }
 
-    public List<int> ServiceIds { get; init; } = new List<int>();
+    //public List<int> ServiceIds { get; init; } = new List<int>();
 
     public List<string> SnapIds { get; init; } = new List<string>();
 
     public List<string> GroupIds { get; init; } = new List<string>();
+    public List<BookingTechnicianRequest> Technicians { get; init; } = [];
 
 }
-
+public class BookingTechnicianRequest
+{
+    public int TechnicianId { get; set; }
+    public List<int> ServiceIds { get; set; } = [];
+}
 public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoileCommand, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
@@ -110,23 +115,21 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
         entity.Address = request.Address;
         entity.Number = request.Number;
         entity.Email = request.Email;
+        // if (request.ServiceIds != null && request.ServiceIds.Any())
+        // {
+        //     bookingServices = request.ServiceIds.Select(id => new BookingService
+        //     {
+        //         ServiceId = id
+        //     }).ToList();
+        // }
+        // if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        // {
+        //     bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+        //     {
+        //         TechnicianId = id
+        //     }).ToList();
 
-
-        if (request.ServiceIds != null && request.ServiceIds.Any())
-        {
-            bookingServices = request.ServiceIds.Select(id => new BookingService
-            {
-                ServiceId = id
-            }).ToList();
-        }
-        if (request.TechnicianIds != null && request.TechnicianIds.Any())
-        {
-            bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
-            {
-                TechnicianId = id
-            }).ToList();
-
-        }
+        // }
         if (request.SnapIds != null && request.SnapIds.Any())
         {
             bookingSnaps = request.SnapIds.Select(s => new BookingSnap
@@ -142,6 +145,21 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
                 GroupdId = g
             }).ToList();
         }
+        if (request.Technicians.Any())
+        {
+            bookingTechnicians = request.Technicians
+            .Select(t => new BookingTechnician
+            {
+                TechnicianId = t.TechnicianId,
+                Services = t.ServiceIds
+                    .Select(serviceId => new BookingTechnicianService
+                    {
+                        ServiceId = serviceId
+                    })
+                    .ToList()
+            })
+            .ToList();
+        }
         entity.SetBookingServices(bookingServices);
         entity.SetBookingTechnicians(bookingTechnicians);
         entity.SetBookingSnaps(bookingSnaps);
@@ -154,15 +172,22 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
             var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
             devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
             var title = $"Update booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
-            if (request.TechnicianIds.Any())
-            {
-                var accountDeviceResponse = await _identityClient
-               .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
+            // if (request.TechnicianIds.Any())
+            // {
+            //     var accountDeviceResponse = await _identityClient
+            //    .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
 
+            //     if (accountDeviceResponse?.Data != null)
+            //         devices.AddRange(accountDeviceResponse.Data);
+            // }
+            if (request.Technicians.Any())
+            {
+                var technicianIds = request.Technicians.Select(t => t.TechnicianId).ToList();
+                var accountDeviceResponse = await _identityClient
+                    .GetAccountDeviceAsync(string.Join(",", technicianIds), cancellationToken);
                 if (accountDeviceResponse?.Data != null)
                     devices.AddRange(accountDeviceResponse.Data);
             }
-
             if (entity.StoreId.HasValue)
             {
                 var storeDeviceResponse = await _identityClient
@@ -171,7 +196,7 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
                 if (storeDeviceResponse?.Data != null)
                     devices.AddRange(storeDeviceResponse.Data);
             }
-
+            
             if (devices.Any())
             {
                 var deviceTokens = devices.Where(d => !string.IsNullOrEmpty(d.Token)).Select(d => d.Token).Distinct().ToList();

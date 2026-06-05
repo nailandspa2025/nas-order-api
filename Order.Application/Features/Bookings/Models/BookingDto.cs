@@ -68,6 +68,9 @@ public class BookingDto: BaseAuditableDto
         public Mapping()
         {
             CreateMap<Booking, BookingDto>()
+                .ForMember(dest => dest.Technicians,
+                opt => opt.MapFrom(src => src.BookingTechnicians))
+
                 .ForMember(dest => dest.TechnicianIds,
                 opt => opt.MapFrom(src => src.BookingTechnicians.Select(x => x.TechnicianId).ToList()))
                 .ForMember(dest => dest.ServiceIds,
@@ -76,7 +79,20 @@ public class BookingDto: BaseAuditableDto
                 opt => opt.MapFrom(src => src.BookingSnaps.Select(x => x.SnapId).ToList()))
                  .ForMember(dest => dest.GroupdIds,
                 opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList()));
+                
+            CreateMap<BookingTechnician, BookingTechnicianDto>()
+                .ForMember(dest => dest.Technician,
+                    opt => opt.Ignore())
+                .ForMember(dest => dest.Services,
+                    opt => opt.Ignore());
         }
     }
 }
+public class BookingTechnicianDto
+{
+    public long TechnicianId { get; set; }
 
+    public TechnicianDto? Technician { get; set; }
+
+    public List<ServiceDto> Services { get; set; } = [];
+}

@@ -36,6 +36,7 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
     public DbSet<ReminderConfig> ReminderConfig => Set<ReminderConfig>();
 
     public DbSet<BookingReminderLog> BookingReminderLog => Set<BookingReminderLog>(); 
+    public DbSet<BookingTechnicianService> BookingTechnicianService => Set<BookingTechnicianService>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

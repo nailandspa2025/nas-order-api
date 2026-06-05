@@ -29,7 +29,8 @@ public interface IOrderDbContext : IEfCoreDbContext
     DbSet<NotificationRecipient> NotificationRecipient { get; }
     DbSet<ReminderConfig> ReminderConfig { get; }
 
-     DbSet<BookingReminderLog> BookingReminderLog { get; }
+    DbSet<BookingReminderLog> BookingReminderLog { get; }
+    DbSet<BookingTechnicianService> BookingTechnicianService { get; }
 
 }
 

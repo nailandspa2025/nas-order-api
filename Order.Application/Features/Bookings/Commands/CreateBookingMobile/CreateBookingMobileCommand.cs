@@ -13,13 +13,13 @@ using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 
-public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
+public record CreateBookingMobileCommand : IRequest<ApiResponse<BookingDto>>
 {
     public long? StoreId { get; init; }
 
     public long? ProductId { get; init; }
 
-    public List<long> TechnicianIds { get; init; } = new List<long>();
+    //public List<long> TechnicianIds { get; init; } = new List<long>();
 
     public DateTime BookingDate { get; init; }
 
@@ -39,13 +39,19 @@ public record CreateBookingMobileCommand: IRequest<ApiResponse<BookingDto>>
 
     public int? Number { get; init; }
 
-    public List<int> ServiceIds { get; init; } = new List<int>();
+    //public List<int> ServiceIds { get; init; } = new List<int>();
 
     public List<string> SnapIds { get; init; } = new List<string>();
     public List<string> GroupIds { get; init; } = new List<string>();
+    public List<BookingTechnicianRequest> Technicians { get; init; } = [];
+
 
 }
-
+public class BookingTechnicianRequest
+{
+    public int TechnicianId { get; set; }
+    public List<int> ServiceIds { get; set; } = [];
+}
 public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMobileCommand, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
@@ -87,24 +93,24 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Number = request.Number,
             Email = request.Email,
         };
-        if (request.ServiceIds != null && request.ServiceIds.Any())
-        {
-            var bookingServices = request.ServiceIds.Select(id => new BookingService
-            {
-                ServiceId = id
-            }).ToList();
+        // if (request.ServiceIds != null && request.ServiceIds.Any())
+        // {
+        //     var bookingServices = request.ServiceIds.Select(id => new BookingService
+        //     {
+        //         ServiceId = id
+        //     }).ToList();
             
-            entity.SetBookingServices(bookingServices);
-        }
-        if (request.TechnicianIds != null && request.TechnicianIds.Any())
-        {
-            var bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
-            {
-                TechnicianId = id
-            }).ToList();
+        //     entity.SetBookingServices(bookingServices);
+        // }
+        // if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        // {
+        //     var bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+        //     {
+        //         TechnicianId = id
+        //     }).ToList();
 
-            entity.SetBookingTechnicians(bookingTechnicians);
-        }
+        //     entity.SetBookingTechnicians(bookingTechnicians);
+        // }
         if (request.SnapIds != null && request.SnapIds.Any())
         {
             var snaps = request.SnapIds.Select(s => new BookingSnap
@@ -123,6 +129,23 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
             entity.SetBookingGroups(groups);
         }
+        if (request.Technicians != null && request.Technicians.Any())
+        {
+            var bookingTechnicians = request.Technicians
+                .Select(t => new BookingTechnician
+                {
+                    TechnicianId = t.TechnicianId,
+                    Services = t.ServiceIds
+                        .Select(serviceId => new BookingTechnicianService
+                        {
+                            ServiceId = serviceId
+                        })
+                        .ToList()
+                })
+                .ToList();
+
+            entity.SetBookingTechnicians(bookingTechnicians);
+        }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)
@@ -133,12 +156,19 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                 var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
                 devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
                 var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
-               
-                if (request.TechnicianIds.Any())
-                {
-                    var accountDeviceResponse = await _identityClient
-                   .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
+                // if (request.TechnicianIds.Any())
+                // {
+                //     var accountDeviceResponse = await _identityClient
+                //    .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
 
+                //     if (accountDeviceResponse?.Data != null)
+                //         devices.AddRange(accountDeviceResponse.Data);
+                // }
+                if (request.Technicians.Any())
+                {
+                    var technicianIds = request.Technicians.Select(t => t.TechnicianId).ToList();
+                    var accountDeviceResponse = await _identityClient
+                        .GetAccountDeviceAsync(string.Join(",", technicianIds), cancellationToken);
                     if (accountDeviceResponse?.Data != null)
                         devices.AddRange(accountDeviceResponse.Data);
                 }

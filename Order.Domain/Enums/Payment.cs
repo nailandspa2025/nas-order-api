@@ -9,6 +9,7 @@ public enum PaymentMethod
     MoMo = 6,
     VNPay = 7,
     Paypal = 8,
+    Stripe = 9,
 }
 
 public enum PaymentStatus

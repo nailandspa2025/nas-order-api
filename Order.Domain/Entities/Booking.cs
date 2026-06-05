@@ -65,6 +65,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public ICollection<BookingSnap> BookingSnaps { get; set; } = new List<BookingSnap>();
     public ICollection<BookingSnapGroup> BookingSnapGroups { get; set; } = new List<BookingSnapGroup>();
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    // public ICollection<BookingTechnicianService> BookingTechnicianServices { get; set; } = new List<BookingTechnicianService>();
     public void SetBookingServices(List<BookingService> bookingServices)
     {
         this.BookingServices.Clear();
@@ -87,4 +88,9 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
         this.BookingSnapGroups.Clear();
         this.BookingSnapGroups = groups;
     }
+    // public void SetBookingTechnicianServices(List<BookingTechnicianService> bookingTechnicianServices)
+    // {
+    //     this.BookingTechnicianServices.Clear();
+    //     this.BookingTechnicianServices = bookingTechnicianServices;
+    // }
 }
