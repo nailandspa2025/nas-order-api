@@ -80,11 +80,11 @@ public class BookingDto: BaseAuditableDto
                  .ForMember(dest => dest.GroupdIds,
                 opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList()));
                 
-            CreateMap<BookingTechnician, BookingTechnicianDto>()
-                .ForMember(dest => dest.Technician,
-                    opt => opt.Ignore())
-                .ForMember(dest => dest.Services,
-                    opt => opt.Ignore());
+            // CreateMap<BookingTechnician, BookingTechnicianDto>()
+            //     .ForMember(dest => dest.Technician,
+            //         opt => opt.Ignore())
+            //     .ForMember(dest => dest.Services,
+            //         opt => opt.Ignore());
         }
     }
 }
