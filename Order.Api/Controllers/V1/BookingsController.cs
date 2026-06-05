@@ -51,7 +51,7 @@ public class BookingsController : ApiControllerBase
     [AccessGroup("booking.create")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateAsync([FromForm] CreateBookingCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateAsync([FromBody] CreateBookingCommand command)
     {
         return await Mediator.Send(command);
     }
@@ -60,7 +60,7 @@ public class BookingsController : ApiControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateAsync(int id, [FromForm] UpdateBookingCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateAsync(int id, [FromBody] UpdateBookingCommand command)
     {
         if (id != command.Id)
         {
@@ -92,7 +92,7 @@ public class BookingsController : ApiControllerBase
     [HttpPut("update/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromForm] UpdateBookingMoileCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromBody] UpdateBookingMoileCommand command)
     {
         if (id != command.Id)
         {
@@ -103,8 +103,10 @@ public class BookingsController : ApiControllerBase
 
     [HttpPost("create")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromForm] CreateBookingMobileCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromBody] CreateBookingMobileCommand command)
     {
+        if (command == null)
+            return BadRequest("Invalid request body");
         return await Mediator.Send(command);
     }
 
@@ -174,6 +176,8 @@ public class BookingsController : ApiControllerBase
         }
         return await Mediator.Send(command);
     }
+    
+    [AllowAnonymous]
     [HttpPut("update-status/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

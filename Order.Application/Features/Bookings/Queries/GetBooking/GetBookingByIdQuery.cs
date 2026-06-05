@@ -33,8 +33,9 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
     public async Task<ApiResponse<BookingDto>> Handle(GetBookingByIdQuery request, CancellationToken cancellationToken)
     {
         var entity = await _context.Booking
-            .Include(x => x.BookingServices)
+            //.Include(x => x.BookingServices)
             .Include(x => x.BookingTechnicians)
+            .ThenInclude(x=> x.Services)
             .Include(x => x.BookingSnaps)
             .Include(x => x.BookingSnapGroups)
             .AsNoTracking()

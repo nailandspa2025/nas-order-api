@@ -6,12 +6,12 @@ namespace Order.Infrastructure.Persistence.Configurations;
 
 public class BookingConfiguration: IEntityTypeConfiguration<Booking>
 {
-	
+
     public void Configure(EntityTypeBuilder<Booking> builder)
     {
-       builder.Property(p => p.FullName)
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.Property(p => p.FullName)
+             .HasMaxLength(100)
+             .IsRequired();
 
         builder.Property(p => p.Phone)
             .HasMaxLength(20)
@@ -31,7 +31,11 @@ public class BookingConfiguration: IEntityTypeConfiguration<Booking>
 
         builder.Property(p => p.BookingDate)
             .HasColumnType("date");
-
+        
+        builder.HasMany(x => x.BookingTechnicians)
+            .WithOne(x => x.Booking)
+            .HasForeignKey(x => x.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

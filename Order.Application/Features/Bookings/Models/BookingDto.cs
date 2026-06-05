@@ -72,10 +72,12 @@ public class BookingDto: BaseAuditableDto
                 opt => opt.MapFrom(src => src.BookingTechnicians.Select(x => x.TechnicianId).ToList()))
                 .ForMember(dest => dest.ServiceIds,
                 opt => opt.MapFrom(src => src.BookingServices.Select(x => x.ServiceId).ToList()))
+                
                  .ForMember(dest => dest.SnapIds,
                 opt => opt.MapFrom(src => src.BookingSnaps.Select(x => x.SnapId).ToList()))
                  .ForMember(dest => dest.GroupdIds,
-                opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList()));
+                opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList())
+                );
         }
     }
 }

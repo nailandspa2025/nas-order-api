@@ -146,6 +146,8 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
             entity.SetBookingTechnicians(bookingTechnicians);
         }
+        Console.WriteLine($"canhlv {request.Technicians.Count()}");
+        
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)
@@ -156,14 +158,6 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                 var accountDevices = (await _identityClient.GetAccountDeviceAsync(_currentUser.UserId, cancellationToken))?.Data;
                 devices.AddRange(accountDevices ?? Enumerable.Empty<AccountDeviceDto>());
                 var title = $"Booking {entity.BookingDate.ToString("yyyy-MM-dd")} {entity.BookingTime.ToString(@"hh\:mm")}";
-                // if (request.TechnicianIds.Any())
-                // {
-                //     var accountDeviceResponse = await _identityClient
-                //    .GetAccountDeviceAsync(string.Join(",", request.TechnicianIds), cancellationToken);
-
-                //     if (accountDeviceResponse?.Data != null)
-                //         devices.AddRange(accountDeviceResponse.Data);
-                // }
                 if (request.Technicians.Any())
                 {
                     var technicianIds = request.Technicians.Select(t => t.TechnicianId).ToList();
