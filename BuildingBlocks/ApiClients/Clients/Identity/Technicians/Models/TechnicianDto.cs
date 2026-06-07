@@ -10,5 +10,7 @@ public class TechnicianDto
     public string? Phone { get; set; }
 
     public string? TechnicianAddress { get; set; }
+    public string? Avatar { get; set; }
+
 }
 
