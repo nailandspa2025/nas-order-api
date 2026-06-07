@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using BuildingBlocks.ApiClients.Clients.Catalog;
+using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
+using BuildingBlocks.ApiClients.Clients.Identity.Technicians.Models;
 using BuildingBlocks.Common.Exceptions;
 using BuildingBlocks.Core.Response;
 using MediatR;
@@ -35,7 +37,7 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
         var entity = await _context.Booking
             //.Include(x => x.BookingServices)
             .Include(x => x.BookingTechnicians)
-            .ThenInclude(x=> x.Services)
+            .ThenInclude(x =>x.Services)
             .Include(x => x.BookingSnaps)
             .Include(x => x.BookingSnapGroups)
             .AsNoTracking()
@@ -57,33 +59,52 @@ public class GetBookingByIdQueryHandler : IRequestHandler<GetBookingByIdQuery, A
             }
         }
         catch (Exception ex){}
+        var technicianLookup = new Dictionary<long, TechnicianDto>();
+        var serviceLookup = new Dictionary<int, ServiceDto>();
         try
         {
-            var technicianIds = entity.BookingTechnicians.Select(x => x.TechnicianId).ToList();
+            var technicianIds = entity.BookingTechnicians.Select(x => x.TechnicianId).Distinct().ToList();
             if (technicianIds.Any())
             {
-                var technicianResponse = await _identityClient.GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken);
+                var technicianResponse = await _identityClient
+                    .GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken);
+
                 if (technicianResponse?.Data != null)
                 {
-                    bookingDto.Technicians = technicianResponse.Data.ToList();
+                    technicianLookup = technicianResponse.Data
+                        .ToDictionary(x => x.Id);
                 }
             }
         }
-        catch (Exception ){}
+        catch (Exception ex){}
         try
         {
-            var serviceIds = entity.BookingServices.Select(bs => bs.ServiceId).ToList();
+            var serviceIds = entity.BookingTechnicians.SelectMany(x => x.Services).Select(x => x.ServiceId).Distinct().ToList();
             if (serviceIds.Any())
             {
-                var serviceResponse = await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken);
+                var serviceResponse = await _catalogClient
+                    .GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken);
+
                 if (serviceResponse?.Data != null)
                 {
-                    bookingDto.Services = serviceResponse.Data.ToList();
+                    serviceLookup = serviceResponse.Data
+                        .ToDictionary(x => x.Id);
                 }
             }
         }
-        catch (Exception){}
+        catch (Exception ex) { }
+        bookingDto.Technicians = entity.BookingTechnicians
+            .Select(bt => new BookingTechnicianDto
+            {
+                TechnicianId = bt.TechnicianId,
+                Technician = technicianLookup.GetValueOrDefault(bt.TechnicianId),
 
+                Services = bt.Services
+                    .Select(s => serviceLookup.GetValueOrDefault(s.ServiceId))
+                    .Where(s => s != null)
+                    .ToList()!
+            })
+            .ToList();
         return ApiResponse<BookingDto>.Success(bookingDto);
     }
 }

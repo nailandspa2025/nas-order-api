@@ -61,7 +61,7 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public string? SnapId { get; set; }
     public string? GroupdId { get; set; }
     public ICollection<BookingService> BookingServices { get; set; } = new List<BookingService>();
-    public ICollection<BookingTechnician> BookingTechnicians { get; set; } = new HashSet<BookingTechnician>();
+    public ICollection<BookingTechnician> BookingTechnicians { get; set; } = new List<BookingTechnician>();
     public ICollection<BookingSnap> BookingSnaps { get; set; } = new List<BookingSnap>();
     public ICollection<BookingSnapGroup> BookingSnapGroups { get; set; } = new List<BookingSnapGroup>();
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();

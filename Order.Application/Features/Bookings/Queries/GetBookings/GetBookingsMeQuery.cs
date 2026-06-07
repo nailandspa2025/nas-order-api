@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.ApiClients.Clients.Catalog;
-using BuildingBlocks.ApiClients.Clients.Catalog.ServicePackages.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Services.Models;
 using BuildingBlocks.ApiClients.Clients.Catalog.Stores.Models;
 using BuildingBlocks.ApiClients.Clients.Identity;
@@ -14,7 +13,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Bookings.Models;
-using Order.Domain.Entities;
 using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Queries.GetBookings;
@@ -95,42 +93,59 @@ public class GetBookingsMeQueryHandler : IRequestHandler<GetBookingsMeQuery, Api
             }
         }
         catch (Exception) { }
+        Dictionary<long, TechnicianDto> technicianDictionary = new();
+        Dictionary<int, ServiceDto> serviceDictionary = new();
         try
         {
-            var technicianIds = paginationResult.Items.SelectMany(b => b.TechnicianIds).Distinct().ToList();
+            var technicianIds = paginationResult.Items.SelectMany(b => b.TechnicianIds).Distinct().ToList(); 
             if (technicianIds.Any())
             {
-                var technicians = (await _identityClient.GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken))?.Data;
-                var technicianDictionary = technicians?.ToDictionary(t => t.Id, t => t) ?? new Dictionary<long, TechnicianDto>();
+                var technicians = (await _identityClient
+                    .GetTechnicianByIdsAsync(string.Join(",", technicianIds), cancellationToken))
+                    ?.Data;
 
-                foreach (var booking in paginationResult.Items)
-                {
-                    booking.Technicians = booking.TechnicianIds
-                        .Where(technicianDictionary.ContainsKey)
-                        .Select(id => technicianDictionary[id])
-                        .ToList();
-                }
+                technicianDictionary = technicians?
+                    .ToDictionary(t => t.Id, t => t)
+                    ?? new Dictionary<long, TechnicianDto>();
             }
         }
-        catch (Exception) { }
+        catch (Exception ex) { }
         try
         {
-            var serviceIds = paginationResult.Items.SelectMany(b => b.ServiceIds).Distinct().ToList();
+            var serviceIds = paginationResult.Items
+                .SelectMany(b => b.ServiceIds)
+                .Distinct()
+                .ToList();
+
             if (serviceIds.Any())
             {
-                var services = (await _catalogClient.GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))?.Data;
-                var serviceDictionary = services?.ToDictionary(p => p.Id, p => p) ?? new Dictionary<int, ServiceDto>();
+                var services = (await _catalogClient
+                    .GetServiceIdsAsync(string.Join(",", serviceIds), cancellationToken))
+                    ?.Data;
 
-                foreach (var booking in paginationResult.Items)
-                {
-                    booking.Services = booking.ServiceIds
-                        .Where(serviceDictionary.ContainsKey)
-                        .Select(id => serviceDictionary[id])
-                        .ToList();
-                }
+                serviceDictionary = services?
+                    .ToDictionary(s => s.Id, s => s)
+                    ?? new Dictionary<int, ServiceDto>();
             }
         }
-        catch (Exception){}
+        catch (Exception)
+        {
+        }
+
+        foreach (var booking in paginationResult.Items)
+        {
+            booking.Technicians = booking.TechnicianIds
+                .Select(id => new BookingTechnicianDto
+                {
+                    TechnicianId = id,
+                    Technician = technicianDictionary.GetValueOrDefault(id),
+                    Services = booking.ServiceIds
+                        .Where(serviceDictionary.ContainsKey)
+                        .Select(serviceId => serviceDictionary[serviceId])
+                        .ToList()
+                })
+                .ToList();
+        }
         return ApiResponse<PaginatedList<BookingDto>>.Success(paginationResult);
     }
 }
