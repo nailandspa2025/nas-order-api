@@ -87,10 +87,11 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
         var bookingGroups = new List<BookingSnapGroup>();
 
         var entity = await _context.Booking
-            .Include(x => x.BookingServices)
+            //.Include(x => x.BookingServices)
             .Include(x => x.BookingSnapGroups)
             .Include(x => x.BookingSnaps)
             .Include(x => x.BookingTechnicians)
+            .ThenInclude(x=>x.Services)
             .Where(x => x.Id == request.Id).FirstOrDefaultAsync();
 
         if (entity == null)
