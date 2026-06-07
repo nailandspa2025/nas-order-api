@@ -93,24 +93,6 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
             Number = request.Number,
             Email = request.Email,
         };
-        // if (request.ServiceIds != null && request.ServiceIds.Any())
-        // {
-        //     var bookingServices = request.ServiceIds.Select(id => new BookingService
-        //     {
-        //         ServiceId = id
-        //     }).ToList();
-            
-        //     entity.SetBookingServices(bookingServices);
-        // }
-        // if (request.TechnicianIds != null && request.TechnicianIds.Any())
-        // {
-        //     var bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
-        //     {
-        //         TechnicianId = id
-        //     }).ToList();
-
-        //     entity.SetBookingTechnicians(bookingTechnicians);
-        // }
         if (request.SnapIds != null && request.SnapIds.Any())
         {
             var snaps = request.SnapIds.Select(s => new BookingSnap
@@ -146,8 +128,7 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
 
             entity.SetBookingTechnicians(bookingTechnicians);
         }
-        Console.WriteLine($"canhlv {request.Technicians.Count()}");
-        
+        // Console.WriteLine($"canhlv {request.Technicians.Count()}");
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);
         if (result > 0)

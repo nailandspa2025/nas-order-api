@@ -92,7 +92,7 @@ public class BookingsController : ApiControllerBase
     [HttpPut("update/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromBody] UpdateBookingMoileCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateForMobileAsync(int id, [FromForm] UpdateBookingMoileCommand command)
     {
         if (id != command.Id)
         {
@@ -103,7 +103,7 @@ public class BookingsController : ApiControllerBase
 
     [HttpPost("create")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromBody] CreateBookingMobileCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> CreateMobleAsync([FromForm] CreateBookingMobileCommand command)
     {
         if (command == null)
             return BadRequest("Invalid request body");
