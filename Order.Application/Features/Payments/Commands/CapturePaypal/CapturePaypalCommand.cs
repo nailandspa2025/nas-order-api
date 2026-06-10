@@ -65,13 +65,23 @@ public class CapturePaypalCommandHandler : IRequestHandler<CapturePaypalCommand,
         {
             return ApiResponse<PaymentDto>.Error("StoreId is required for PayPal payment.");
         }
-        var response = await _catalogClient.GetPaypalConfigAsync(entity.StoreId.Value);
-        var config = response?.Data;
-        if (config == null)
+        var response = await _catalogClient.GetPaymentProviderAsync(entity.StoreId.Value, (int)PaymentMethod.Paypal);
+        var provider = response?.Data;
+        if (provider == null)
         {
             return ApiResponse<PaymentDto>.Error($"PaypalConfig not found for StoreId={entity.StoreId}");
         }
-
+        var config = new PaypalConfigDto
+        {
+            ClientId = provider.GetValue("ClientId") ?? string.Empty,
+            ClientSecret = provider.GetValue("ClientSecret") ?? string.Empty,
+            Currency = provider.GetValue("Currency") ?? "USD",
+            IsSandbox = bool.TryParse(
+                provider.GetValue("IsSandbox"),
+                out var sandbox)
+                    ? sandbox
+                    : true
+        };
         var paypalService = new PaypalService(config);
         var order = await paypalService.CaptureOrderAsync(request.Token);
 

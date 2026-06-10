@@ -16,12 +16,14 @@ using Order.Application.Features.Payments.Models;
 using Order.Application.Features.Payments.Services.Paypal;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
+using Stripe;
+using Stripe.Checkout;
 
 namespace Order.Application.Features.Payments.Commands.CretePayment;
 
-public record CreatePaymentCommand: IRequest<ApiResponse<PaymentDto>>
+public record CreatePaymentCommand : IRequest<ApiResponse<PaymentDto>>
 {
-    public int BookingId { get; set; } 
+    public int BookingId { get; set; }
 
     public decimal Amount { get; set; }
 
@@ -36,6 +38,15 @@ public record CreatePaymentCommand: IRequest<ApiResponse<PaymentDto>>
     public string ReturnUrl { get; init; }
 
     public string CancelUrl { get; init; }
+    public decimal ServiceAmount { get; init; }
+    // Giảm giá
+    public decimal DiscountAmount { get; init; }
+    // Phụ thu
+    public decimal SurchargeAmount { get; init; }
+    // Tiền khách đưa (tiền mặt)
+    public decimal? CustomerPaid { get; init; }
+    // Tiền thối lại
+    public decimal? ChangeAmount { get; init; }
 
 }
 
@@ -88,7 +99,12 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             Status = PaymentStatus.Pending,
             FullName = request.FullName,
             Email = request.Email,
-            Phone = request.Phone
+            Phone = request.Phone,
+            ServiceAmount = request.ServiceAmount,
+            DiscountAmount = request.DiscountAmount,
+            SurchargeAmount = request.SurchargeAmount,
+            CustomerPaid = request.CustomerPaid,
+            ChangeAmount = request.ChangeAmount
         };
         var transaction = new Transaction
         {
@@ -102,12 +118,23 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             case PaymentMethod.Paypal:
                 var returnUrl = $"{request.ReturnUrl}?bookingId={booking.Id}";
                 var cancelUrl = $"{request.CancelUrl}?bookingId={booking.Id}";
-                var response = await _catalogClient.GetPaypalConfigAsync(booking.StoreId.Value);
-                var config = response?.Data;
-                if (config == null)
+                var paypalResponse = await _catalogClient.GetPaymentProviderAsync(booking.StoreId!.Value,  (int)PaymentMethod.Paypal);
+                var providerPaypal = paypalResponse?.Data;
+                if (providerPaypal == null)
                 {
                     ApiResponse<PaymentDto>.Error($"PaypalConfig not found for StoreId={booking.StoreId}");
                 }
+                var config = new PaypalConfigDto
+                {
+                    ClientId = providerPaypal.GetValue("ClientId") ?? string.Empty,
+                    ClientSecret = providerPaypal.GetValue("ClientSecret") ?? string.Empty,
+                    Currency = providerPaypal.GetValue("Currency") ?? "USD",
+                    IsSandbox = bool.TryParse(
+                        providerPaypal.GetValue("IsSandbox"),
+                        out var sandbox)
+                            ? sandbox
+                            : true
+                };
                 var paypalService = new PaypalService(config);
                 var order = await paypalService.CreateOrderAsync(request.Amount, returnUrl, cancelUrl);
                 var approveUrl = order.Links.FirstOrDefault(l => l.Rel == "approve")?.Href ?? "";
@@ -118,13 +145,69 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
                 transaction.Provider = "PayPal";
                 transaction.TransactionId = order.Id;
                 break;
+            case PaymentMethod.Stripe:
+                var stripeResponse = await _catalogClient.GetPaymentProviderAsync(booking.StoreId!.Value, (int)PaymentMethod.Stripe);
+                var providerStripe = stripeResponse?.Data;
+                if (providerStripe == null)
+                {
+                    return ApiResponse<PaymentDto>.Error( $"Stripe config not found for StoreId={booking.StoreId}");
+                }
+                var publishableKey = providerStripe.GetValue("PublishableKey");
+                var secretKey = providerStripe.GetValue("SecretKey");
+                var webhookSecret = providerStripe.GetValue("WebhookSecret");
+                if (string.IsNullOrWhiteSpace(secretKey))
+                {
+                    return ApiResponse<PaymentDto>.Error("Stripe SecretKey not configured.");
+                }
+                 StripeConfiguration.ApiKey = secretKey;
+                var sessionOptions = new SessionCreateOptions
+                {
+                    Mode = "payment",
+                    SuccessUrl = $"{request.ReturnUrl}?bookingId={booking.Id}",
+                    CancelUrl = $"{request.CancelUrl}?bookingId={booking.Id}",
+                    PaymentMethodTypes = new List<string>
+                    {
+                        "card"
+                    },
+                    LineItems = new List<SessionLineItemOptions>
+                    {
+                        new(){
+                            Quantity = 1,
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                Currency = "usd",
+
+                                UnitAmount = (long)(request.Amount * 100),
+                                ProductData =
+                                    new SessionLineItemPriceDataProductDataOptions
+                                    {
+                                        Name = $"Booking #{booking.Id}"
+                                    }
+                            }
+                        }
+                    },
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "BookingId", booking.Id.ToString() },
+                        { "PaymentId", payment.Id.ToString() }
+                    }
+                };
+                var sessionService = new SessionService();
+                var session = await sessionService.CreateAsync(sessionOptions);
+                payment.ApproveUrl = session.Url;
+                payment.Status = PaymentStatus.Pending;
+                transaction.Status = TransactionStatus.Pending;
+                transaction.Provider = "Stripe";
+                transaction.TransactionId = session.Id;
+
+                break;
             case PaymentMethod.Cash:
                 payment.Status = PaymentStatus.Success;
                 transaction.Status = TransactionStatus.Success;
                 transaction.Provider = "Cash";
                 transaction.TransactionId = $"CASH-{Guid.NewGuid()}";
                 booking.Status = BookingStatus.Completed;
-                break;
+            break;
 
             case PaymentMethod.BankTransfer:
                 payment.Status = PaymentStatus.Success;
@@ -132,8 +215,8 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
                 transaction.Provider = "BankTransfer";
                 transaction.TransactionId = $"BANK-{Guid.NewGuid()}";
                 booking.Status = BookingStatus.Completed;
-                break;
-
+            break;
+            
             default:
                 return ApiResponse<PaymentDto>.Error("Invalid payment method.");
         }

@@ -29,8 +29,9 @@ public interface ICatalogClient
     [Refit.Get("/api/v1/stores/paypal-config/{storeId}")]
     Task<ApiResponse<PaypalConfigDto>> GetPaypalConfigAsync(long storeId, CancellationToken cancellationToken = default);
 
-    [Refit.Get("/api/v1/DropdownList/store/{id}")]    
+    [Refit.Get("/api/v1/DropdownList/store/{id}")]
     Task<ApiResponse<StoreDto>> GetStoreByIdAllowAsync(long id, CancellationToken cancellationToken = default);
-
+    
+    [Refit.Get("/api/v1/stores/payment-provider")]
+    Task<ApiResponse<PaymentProviderDto>> GetPaymentProviderAsync(long storeId, int paymentMethod, CancellationToken cancellationToken = default);
 }
-

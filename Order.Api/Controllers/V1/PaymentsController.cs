@@ -3,12 +3,15 @@ using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Payments.Commands.CapturePaypal;
+using Order.Application.Features.Payments.Commands.CaptureStripe;
 using Order.Application.Features.Payments.Commands.CretePayment;
 using Order.Application.Features.Payments.Commands.UpdatePayment;
 using Order.Application.Features.Payments.Models;
 using Order.Application.Features.Payments.Queries.GetPayment;
 using Order.Application.Features.Payments.Queries.GetPaymentForMerchantsWithPagination;
 using Order.Application.Features.Payments.Queries.GetPaymentsWithPagination;
+using Stripe;
+using Stripe.Checkout;
 
 namespace Order.Api.Controllers.V1;
 
@@ -68,4 +71,36 @@ public class PaymentsController : ApiControllerBase
         return await Mediator.Send(command);
     }
    
+    [AllowAnonymous]
+    [HttpPost("stripe-webhook")]
+    public async Task<IActionResult> StripeWebhook()
+    {
+        var json = await new StreamReader(Request.Body).ReadToEndAsync();
+
+        Event stripeEvent;
+
+        try
+        {
+            stripeEvent = EventUtility.ParseEvent(json);
+        }
+        catch
+        {
+            return BadRequest();
+        }
+
+        if (stripeEvent.Type == "checkout.session.completed")
+        {
+            var session = stripeEvent.Data.Object as Session;
+
+            if (session != null)
+            {
+                await Mediator.Send(new CaptureStripeCommand
+                {
+                    BookingId = int.Parse(session.Metadata["BookingId"]),
+                    SessionId = session.Id
+                });
+            }
+        }       
+        return Ok();
+    }
 }

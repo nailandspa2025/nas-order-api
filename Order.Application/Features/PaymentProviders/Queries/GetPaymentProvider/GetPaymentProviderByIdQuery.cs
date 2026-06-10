@@ -11,7 +11,7 @@ namespace Order.Application.Features.PaymentProviders.Queries.GetPaymentProvider
 
 public record GetPaymentProviderByIdQuery: IRequest<ApiResponse<PaymentProviderDto>>
 {
-    public long Id { get; init; }
+    public int Id { get; init; }
 }
 
 public class GetPaymentProviderByIdQueryHandler : IRequestHandler<GetPaymentProviderByIdQuery, ApiResponse<PaymentProviderDto>>
