@@ -15,7 +15,7 @@ using Order.Domain.Enums;
 
 namespace Order.Application.Features.Bookings.Commands.UpdateBooking;
 
-public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
+public record UpdateBookingCommand : IRequest<ApiResponse<BookingDto>>
 {
     public int Id { get; init; }
 
@@ -48,9 +48,14 @@ public record UpdateBookingCommand: IRequest<ApiResponse<BookingDto>>
     public List<string> SnapIds { get; init; } = new List<string>();
     public List<string> GroupdIds { get; init; } = new List<string>();
 
-    public string ? UserId { get; init; }
+    public string? UserId { get; init; }
+    public List<BookingTechnicianRequest> Technicians { get; init; } = [];
 }
-
+public class BookingTechnicianRequest
+{
+    public int TechnicianId { get; set; }
+    public List<int> ServiceIds { get; set; } = [];
+}
 public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand, ApiResponse<BookingDto>>
 {
     private readonly IOrderDbContext _context;
@@ -111,22 +116,37 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         entity.Address = request.Address;
         entity.Number = request.Number;
         entity.Email = request.Email;
-        
 
-        if (request.ServiceIds != null && request.ServiceIds.Any())
+
+        // if (request.ServiceIds != null && request.ServiceIds.Any())
+        // {
+        //     bookingServices = request.ServiceIds.Select(id => new BookingService
+        //     {
+        //         ServiceId = id
+        //     }).ToList();
+        // }
+        // if (request.TechnicianIds != null && request.TechnicianIds.Any())
+        // {
+        //      bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
+        //     {
+        //         TechnicianId = id
+        //     }).ToList();
+
+        // }
+        if (request.Technicians.Any())
         {
-            bookingServices = request.ServiceIds.Select(id => new BookingService
+            bookingTechnicians = request.Technicians
+            .Select(t => new BookingTechnician
             {
-                ServiceId = id
-            }).ToList();
-        }
-        if (request.TechnicianIds != null && request.TechnicianIds.Any())
-        {
-             bookingTechnicians = request.TechnicianIds.Select(id => new BookingTechnician
-            {
-                TechnicianId = id
-            }).ToList();
-            
+                TechnicianId = t.TechnicianId,
+                Services = t.ServiceIds
+                    .Select(serviceId => new BookingTechnicianService
+                    {
+                        ServiceId = serviceId
+                    })
+                    .ToList()
+            })
+            .ToList();
         }
         if (request.SnapIds != null && request.SnapIds.Any())
         {

@@ -60,7 +60,7 @@ public class BookingsController : ApiControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateAsync(int id, [FromBody] UpdateBookingCommand command)
+    public async Task<ActionResult<ApiResponse<BookingDto>>> UpdateAsync(int id, [FromForm] UpdateBookingCommand command)
     {
         if (id != command.Id)
         {
