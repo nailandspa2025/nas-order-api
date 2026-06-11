@@ -98,7 +98,12 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
         {
             throw new NotFoundException(nameof(Booking), request.Id);
         }
-        if (entity.Status != BookingStatus.Pending)
+        var allowedStatuses = new[]
+        {
+            BookingStatus.Pending,
+            BookingStatus.InProgress
+        };
+        if (!allowedStatuses.Contains(entity.Status))
         {
             return ApiResponse<BookingDto>.Error("Only update bookings with status pending.");
         }
