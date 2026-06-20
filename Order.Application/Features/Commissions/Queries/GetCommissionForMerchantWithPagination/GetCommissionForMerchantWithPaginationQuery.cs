@@ -197,6 +197,7 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                 if (serviceDictionary.TryGetValue(item.ServiceId, out var service))
                 {
                     item.ServiceName = service.Name ?? "Unknown Service";
+                    item.CommissionAmount = service.Commission;
                 }
 
                 if (technicianDictionary.TryGetValue(item.TechnicianId, out var tech))
