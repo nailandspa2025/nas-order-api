@@ -19,6 +19,9 @@ public record GetCommissionForMerchantWithPaginationQuery : IRequest<ApiResponse
     public int PageSize { get; init; } = 10;
     public DateTime? FromDate { get; init; }
     public DateTime? EndDate { get; init; }
+    public long? TechnicianId { get; init; }  // Nullable
+    public int? ServiceId { get; init; } 
+
 }
 
 public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandler<GetCommissionForMerchantWithPaginationQuery, ApiResponse<PaginatedList<CommissionDetailDto>>>
@@ -102,7 +105,14 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
             // ✅ Filter by technician BEFORE SelectMany
             bookingQuery = bookingQuery.Where(x => x.BookingTechnicians.Any(bt => bt.TechnicianId == technicianId));
         }
-
+        if (request.TechnicianId.HasValue)
+        {
+            bookingQuery = bookingQuery.Where(b => b.BookingTechnicians.Any(bt => bt.TechnicianId == request.TechnicianId.Value));
+        }
+        if (request.ServiceId.HasValue)
+        {
+            bookingQuery = bookingQuery.Where(b => b.BookingTechnicians.Any(bt => bt.Services.Any(s => s.ServiceId == request.ServiceId.Value)));
+        }
         // 2. Now do SelectMany to flatten
         var query = bookingQuery
             .SelectMany(booking => booking.BookingTechnicians
