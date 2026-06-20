@@ -19,9 +19,8 @@ public record GetCommissionForMerchantWithPaginationQuery : IRequest<ApiResponse
     public int PageSize { get; init; } = 10;
     public DateTime? FromDate { get; init; }
     public DateTime? EndDate { get; init; }
-    public long? TechnicianId { get; init; }  // Nullable
-    public int? ServiceId { get; init; } 
-
+    public long? TechnicianId { get; init; }
+    public int? ServiceId { get; init; }
 }
 
 public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandler<GetCommissionForMerchantWithPaginationQuery, ApiResponse<PaginatedList<CommissionDetailDto>>>
@@ -31,7 +30,13 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
     private readonly IIdentityClient _identityClient;
     private readonly ICatalogClient _catalogClient;
     private readonly ICurrentUser _currentUser;
-    public GetCommissionForMerchantWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient, ICurrentUser currentUser)
+
+    public GetCommissionForMerchantWithPaginationQueryHandler(
+        IOrderDbContext context,
+        IMapper mapper,
+        IIdentityClient identityClient,
+        ICatalogClient catalogClient,
+        ICurrentUser currentUser)
     {
         _context = context;
         _mapper = mapper;
@@ -39,30 +44,32 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
         _catalogClient = catalogClient;
         _currentUser = currentUser;
     }
-    public async Task<ApiResponse<PaginatedList<CommissionDetailDto>>> Handle(GetCommissionForMerchantWithPaginationQuery request, CancellationToken cancellationToken)
+
+    public async Task<ApiResponse<PaginatedList<CommissionDetailDto>>> Handle(
+        GetCommissionForMerchantWithPaginationQuery request,
+        CancellationToken cancellationToken)
     {
-        // 1. Build query với filter trước
+        // 1. Query cơ sở: lấy các booking đã hoàn thành, chưa xóa
         var bookingQuery = _context.Booking
             .Where(x => !x.IsDeleted && x.Status == BookingStatus.Completed)
             .AsNoTracking();
 
-        // Apply date filters
+        // 2. Lọc theo ngày (nếu có)
         if (request.FromDate.HasValue)
         {
             var from = request.FromDate.Value.Date;
             bookingQuery = bookingQuery.Where(x => x.BookingDate >= from);
         }
-
         if (request.EndDate.HasValue)
         {
             var end = request.EndDate.Value.Date.AddDays(1);
             bookingQuery = bookingQuery.Where(x => x.BookingDate < end);
         }
 
-        // Get user permissions
-        List<long> storeIds = new List<long>();
+        // 3. Lấy quyền của user
+        List<long> storeIds = new();
         bool isOwner = false;
-        long? technicianId = null;
+        long? currentTechnicianId = null;
 
         try
         {
@@ -76,7 +83,7 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                 }
                 else if (!isOwner)
                 {
-                    technicianId = response.TechnicianId;
+                    currentTechnicianId = response.TechnicianId;
                 }
             }
         }
@@ -85,26 +92,26 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
             Console.WriteLine($"=== Error getting user info: {ex.Message}");
         }
 
-        // ✅ Apply permission filters BEFORE SelectMany
+        // 4. Áp dụng filter quyền
         if (isOwner)
         {
             if (!storeIds.Any())
-            {
                 return ApiResponse<PaginatedList<CommissionDetailDto>>.Success(
                     new PaginatedList<CommissionDetailDto>(new List<CommissionDetailDto>(), 0, request.PageNumber, request.PageSize));
-            }
+
             bookingQuery = bookingQuery.Where(x => storeIds.Contains(x.StoreId ?? 0));
         }
         else
         {
-            if (!technicianId.HasValue)
-            {
+            if (!currentTechnicianId.HasValue)
                 return ApiResponse<PaginatedList<CommissionDetailDto>>.Success(
                     new PaginatedList<CommissionDetailDto>(new List<CommissionDetailDto>(), 0, request.PageNumber, request.PageSize));
-            }
-            // ✅ Filter by technician BEFORE SelectMany
-            bookingQuery = bookingQuery.Where(x => x.BookingTechnicians.Any(bt => bt.TechnicianId == technicianId));
+
+            // Nếu là technician, chỉ lấy booking có chứa technician đó
+            bookingQuery = bookingQuery.Where(x => x.BookingTechnicians.Any(bt => bt.TechnicianId == currentTechnicianId.Value));
         }
+
+        // 5. Áp dụng filter TechnicianId và ServiceId từ request (lọc trên booking)
         if (request.TechnicianId.HasValue)
         {
             bookingQuery = bookingQuery.Where(b => b.BookingTechnicians.Any(bt => bt.TechnicianId == request.TechnicianId.Value));
@@ -113,43 +120,48 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
         {
             bookingQuery = bookingQuery.Where(b => b.BookingTechnicians.Any(bt => bt.Services.Any(s => s.ServiceId == request.ServiceId.Value)));
         }
-        // 2. Now do SelectMany to flatten
+
+        // 6. SelectMany để làm phẳng dữ liệu, nhưng chỉ lấy đúng technician/service theo request
         var query = bookingQuery
             .SelectMany(booking => booking.BookingTechnicians
+                // Lọc technician: nếu có request.TechnicianId thì dùng, còn không thì lấy tất cả, nhưng vẫn bảo toàn quyền
+                .Where(bt => (!request.TechnicianId.HasValue || bt.TechnicianId == request.TechnicianId.Value)
+                             && (!currentTechnicianId.HasValue || bt.TechnicianId == currentTechnicianId.Value))
                 .SelectMany(technician => technician.Services
+                    // Lọc service theo request.ServiceId (nếu có)
+                    .Where(s => !request.ServiceId.HasValue || s.ServiceId == request.ServiceId.Value)
                     .Select(service => new CommissionDetailDto
                     {
                         BookingId = booking.Id,
-                        StoreId = booking.StoreId ?? 0,  // ✅ Add StoreId
+                        StoreId = booking.StoreId ?? 0,
                         BookingDate = booking.BookingDate,
                         BookingTime = booking.BookingTime,
                         Status = booking.Status,
                         ServiceId = service.ServiceId,
                         TechnicianId = technician.TechnicianId,
-                        ServiceName = string.Empty,
-                        TechnicianName = string.Empty
+                        CommissionAmount = 0,        // sẽ được gán sau
+                        ServiceName = string.Empty,   // sẽ được gán sau
+                        TechnicianName = string.Empty // sẽ được gán sau
                     })
                 )
             );
 
-        // Get total count
+        // 7. Đếm tổng số và phân trang
         var totalCount = await query.CountAsync(cancellationToken);
-
-        // Get paginated results
         var items = await query
             .OrderByDescending(x => x.BookingDate)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        // Enrich with service and technician names
+        // 8. Enrich thông tin (tên service, tên technician, commission)
         if (items.Any())
         {
             var allServiceIds = items.Select(x => x.ServiceId).Distinct().ToList();
             var allTechnicianIds = items.Select(x => x.TechnicianId).Distinct().ToList();
 
-            // Fetch service details
-            Dictionary<int, ServiceDto> serviceDictionary = new();
+            // 8a. Lấy service từ Catalog API
+            Dictionary<int, ServiceDto> serviceDict = new();
             if (allServiceIds.Any())
             {
                 try
@@ -157,10 +169,8 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                     var services = (await _catalogClient
                         .GetServiceIdsAsync(string.Join(",", allServiceIds), cancellationToken))
                         ?.Data;
-
-                    serviceDictionary = services?
-                        .ToDictionary(s => s.Id, s => s)
-                        ?? new Dictionary<int, ServiceDto>();
+                    if (services != null && services.Any())
+                        serviceDict = services.ToDictionary(s => s.Id, s => s);
                 }
                 catch (Exception ex)
                 {
@@ -168,55 +178,49 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                 }
             }
 
-            // Fetch technician details
-            Dictionary<long, TechnicianDto> technicianDictionary = new();
+            // 8b. Lấy technician từ Identity API
+            Dictionary<long, TechnicianDto> technicianDict = new();
             if (allTechnicianIds.Any())
             {
                 try
                 {
                     var idsString = string.Join(",", allTechnicianIds);
-                    Console.WriteLine($"=== Calling API with IDs: {idsString}");
-
                     var response = await _identityClient
                         .GetTechnicianByIdsAsync(idsString, cancellationToken);
-
-                    var technicians = response?.Data;
-                    if (technicians != null && technicians.Any())
-                    {
-                        foreach (var tech in technicians)
-                        {
-                            Console.WriteLine($"=== Technician: Id={tech.Id}, Name={tech.TechnicianName}");
-                        }
-                        technicianDictionary = technicians.ToDictionary(t => t.Id, t => t);
-                    }
-                    else
-                    {
-                        Console.WriteLine("=== No technicians returned from API");
-                    }
+                    var techs = response?.Data;
+                    if (techs != null && techs.Any())
+                        technicianDict = techs.ToDictionary(t => t.Id, t => t);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"=== Error fetching technicians: {ex.Message}");
-                    Console.WriteLine($"=== StackTrace: {ex.StackTrace}");
                 }
             }
 
-            // Enrich data
+            // 8c. Gán dữ liệu
             foreach (var item in items)
             {
-                if (serviceDictionary.TryGetValue(item.ServiceId, out var service))
+                // Tên service và commission
+                if (serviceDict.TryGetValue(item.ServiceId, out var svc))
                 {
-                    item.ServiceName = service.Name ?? "Unknown Service";
-                    item.CommissionAmount = service.Commission;
+                    item.ServiceName = svc.Name ?? "Unknown Service";
+                    item.CommissionAmount = svc.Commission; // Giả định ServiceDto có property Commission
+                }
+                else
+                {
+                    item.ServiceName = "Unknown Service";
+                    item.CommissionAmount = 0;
                 }
 
-                if (technicianDictionary.TryGetValue(item.TechnicianId, out var tech))
-                {
+                // Tên technician
+                if (technicianDict.TryGetValue(item.TechnicianId, out var tech))
                     item.TechnicianName = tech.TechnicianName ?? "Unknown";
-                }
+                else
+                    item.TechnicianName = "Unknown";
             }
         }
 
+        // 9. Trả về kết quả phân trang
         var paginationResult = new PaginatedList<CommissionDetailDto>(
             items,
             totalCount,
