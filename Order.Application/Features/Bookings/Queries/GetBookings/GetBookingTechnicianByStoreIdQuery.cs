@@ -33,6 +33,7 @@ public class GetBookingTechnicianByStoreIdQueryHandler : IRequestHandler<GetBook
 
         var bookings = await _context.Booking
             .Include(x => x.BookingTechnicians)
+            .ThenInclude(x => x.Services)
             .Where(x => x.StoreId == request.StoreId 
             && x.BookingDate.Date == utcDate.Date
             && !x.IsDeleted
