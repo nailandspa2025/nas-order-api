@@ -145,7 +145,18 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
                 if (serviceDictionary.TryGetValue(item.ServiceId, out var service))
                 {
                     item.ServiceName = service.Name ?? "Unknown Service";
-                    item.CommissionAmount = service.Commission; // ← Gán commission
+                    if (service.CommissionType == 1)
+                    {
+                        item.CommissionAmount = service.Commission;
+                    }
+                    else if (service.CommissionType == 2)
+                    {
+                        item.CommissionAmount = service.PriceFrom * service.Commission / 100;
+                    }
+                    else
+                    {
+                         item.CommissionAmount = 0;
+                    }
                 }
 
                 if (technicianDictionary.TryGetValue(item.TechnicianId, out var tech))

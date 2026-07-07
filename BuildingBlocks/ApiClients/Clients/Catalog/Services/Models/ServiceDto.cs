@@ -10,4 +10,6 @@ public class ServiceDto
     public decimal PriceTo { get; set; }
     public decimal PriceFrom { get; set; }
     public int Commission { get; set; }
+    public int CommissionType { get; set; }
+    
 }

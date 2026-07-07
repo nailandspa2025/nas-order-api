@@ -204,7 +204,18 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                 if (serviceDict.TryGetValue(item.ServiceId, out var svc))
                 {
                     item.ServiceName = svc.Name ?? "Unknown Service";
-                    item.CommissionAmount = svc.Commission; // Giả định ServiceDto có property Commission
+                    if (svc.CommissionType == 1)
+                    {
+                        item.CommissionAmount = svc.Commission;
+                    }
+                    else if (svc.CommissionType == 2)
+                    {
+                        item.CommissionAmount = svc.PriceFrom * svc.Commission / 100;
+                    }
+                    else
+                    {
+                        item.CommissionAmount = 0;
+                    }
                 }
                 else
                 {
