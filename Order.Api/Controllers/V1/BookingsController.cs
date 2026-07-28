@@ -3,6 +3,7 @@ using BuildingBlocks.Core.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Bookings.Commands.CancelBooking;
+using Order.Application.Features.Bookings.Commands.CheckinBooking;
 using Order.Application.Features.Bookings.Commands.CreateBooking;
 using Order.Application.Features.Bookings.Commands.CreateBookingMobile;
 using Order.Application.Features.Bookings.Commands.DeleteBooking;
@@ -10,6 +11,7 @@ using Order.Application.Features.Bookings.Commands.UpdateBooking;
 using Order.Application.Features.Bookings.Commands.UpdateBookingMobile;
 using Order.Application.Features.Bookings.Commands.UpdateRateBooking;
 using Order.Application.Features.Bookings.Commands.UpdateStatusBooking;
+using Order.Application.Features.Bookings.Commands.WalkinBooking;
 using Order.Application.Features.Bookings.Models;
 using Order.Application.Features.Bookings.Queries.GetBooking;
 using Order.Application.Features.Bookings.Queries.GetBookingForMerchantsWithPagination;
@@ -176,7 +178,7 @@ public class BookingsController : ApiControllerBase
         }
         return await Mediator.Send(command);
     }
-    
+
     [AllowAnonymous]
     [HttpPut("update-status/{id}")]
     [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
@@ -187,6 +189,24 @@ public class BookingsController : ApiControllerBase
         {
             return BadRequest();
         }
+        return await Mediator.Send(command);
+    }
+
+    [HttpPost("walk-in")]
+    [ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<BookingDto>>> WalkInAsync([FromForm] WalkinBookingCommand command)
+    {
+        if (command == null)
+            return BadRequest("Invalid request body");
+        return await Mediator.Send(command);
+    }
+
+    [HttpPost("check-in")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse>> CheckInAsync([FromForm] CheckinBookingCommand command)
+    {
+        if (command == null)
+            return BadRequest("Invalid request body");
         return await Mediator.Send(command);
     }
 }

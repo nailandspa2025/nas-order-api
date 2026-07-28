@@ -9,4 +9,5 @@ public interface ICurrentUser
     string? UserName { get; }
     IEnumerable<string> Roles { get; }
     string? FullName { get; }
+    string ? StoreId { get; }
 }

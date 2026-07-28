@@ -46,7 +46,7 @@ public class UpdatePaymentProviderCommandHandler : IRequestHandler<UpdatePayment
         entity.PaymentMethod = request.PaymentMethod;
         entity.IsActive = request.IsActive;
         entity.Description = request.Description;
-         var settings = new List<PaymentProviderSetting>();
+        var settings = new List<PaymentProviderSetting>();
         if (request.Settings.Any())
         {
             settings = request.Settings.Select(x => new PaymentProviderSetting

@@ -46,5 +46,12 @@ public class CurrentUser : ICurrentUser
             return _httpContextAccessor.HttpContext?.User?.FindFirstValue("fullname") ?? null;
         }
     }
+    public string? StoreId
+    {
+        get
+        {
+            return _httpContextAccessor.HttpContext?.User?.FindFirstValue("storeId") ?? null;
+        }
+    }
 }
 
