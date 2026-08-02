@@ -17,6 +17,7 @@ using Order.Application.Features.Bookings.Queries.GetBooking;
 using Order.Application.Features.Bookings.Queries.GetBookingForMerchantsWithPagination;
 using Order.Application.Features.Bookings.Queries.GetBookings;
 using Order.Application.Features.Bookings.Queries.GetBookingsWithPagination;
+using Order.Application.Features.Bookings.Queries.GetWalkinBookings;
 using Order.Application.Features.Payments.Commands.CretePayment;
 using Order.Application.Features.Payments.Models;
 
@@ -207,6 +208,12 @@ public class BookingsController : ApiControllerBase
     {
         if (command == null)
             return BadRequest("Invalid request body");
+        return await Mediator.Send(command);
+    }
+    [HttpGet("walk-in/bookings")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetPendingWalkInBookingsAsync([FromQuery] GetPendingWalkInBookingsByPhoneQuery command)
+    {
         return await Mediator.Send(command);
     }
 }
