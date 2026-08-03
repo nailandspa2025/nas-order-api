@@ -14,7 +14,8 @@ namespace Order.Application.Features.Bookings.Commands.CheckinBooking;
 
 public record CheckinBookingCommand : IRequest<ApiResponse>
 {
-    public string Phone { get; init; } = default!;
+    //public string Phone { get; init; } = default!;
+    public int Id { get; init; }
 }
 
 public class CheckinBookingCommandHandler : IRequestHandler<CheckinBookingCommand, ApiResponse>
@@ -53,11 +54,9 @@ public class CheckinBookingCommandHandler : IRequestHandler<CheckinBookingComman
 
         var booking = await _context.Booking
             .Where(x =>
-                x.Phone == request.Phone &&
+                x.Id == request.Id &&
                 x.StoreId == storeId &&
                 x.Status == BookingStatus.Pending)
-            .OrderByDescending(x => x.BookingDate)
-            .ThenByDescending(x => x.BookingTime)
             .FirstOrDefaultAsync(cancellationToken);
 
 

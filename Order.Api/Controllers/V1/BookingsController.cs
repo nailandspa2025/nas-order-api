@@ -202,12 +202,14 @@ public class BookingsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
-    [HttpPost("check-in")]
+    [HttpPut("check-in/{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse>> CheckInAsync([FromForm] CheckinBookingCommand command)
+    public async Task<ActionResult<ApiResponse>> CheckInAsync(int id,[FromForm] CheckinBookingCommand command)
     {
-        if (command == null)
-            return BadRequest("Invalid request body");
+        if (id != command.Id)
+        {
+            return BadRequest();
+        }
         return await Mediator.Send(command);
     }
     [HttpGet("walk-in/bookings")]
