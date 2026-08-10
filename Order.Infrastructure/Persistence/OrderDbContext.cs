@@ -39,6 +39,7 @@ public class OrderDbContext: EfCoreDbContext<OrderDbContext>, IOrderDbContext
     public DbSet<BookingTechnicianService> BookingTechnicianService => Set<BookingTechnicianService>();
     public DbSet<PaymentProviderSetting> PaymentProviderSetting => Set<PaymentProviderSetting>();
     public DbSet<PaymentProvider> PaymentProvider => Set<PaymentProvider>();
+    public DbSet<TipAllocation> TipAllocation => Set<TipAllocation>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

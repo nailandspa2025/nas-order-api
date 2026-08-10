@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Persistence.Abstractions.Entities;
 using BuildingBlocks.Persistence.Entities.Common;
+using Order.Domain.Enums;
 namespace Order.Domain.Entities;
 
 public class Payment : BaseAuditableEntity<int>, ISoftDelete
@@ -37,7 +38,7 @@ public class Payment : BaseAuditableEntity<int>, ISoftDelete
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
     public string? ApproveUrl { get; set; }
-    
+
     // Tổng tiền dịch vụ
     public decimal ServiceAmount { get; set; }
 
@@ -49,8 +50,11 @@ public class Payment : BaseAuditableEntity<int>, ISoftDelete
 
     // Tiền khách đưa (tiền mặt)
     public decimal? CustomerPaid { get; set; }
-
     // Tiền thối lại
     public decimal? ChangeAmount { get; set; }
-
+    public decimal? TipAmount { get; set; }
+    public decimal? Percentage { get; set; } // optional
+    public TipType TipType { get; set; }
+    public virtual ICollection<TipAllocation> TipAllocations { get; set; } = new List<TipAllocation>();
+    
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Order.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Order.Infrastructure.Persistence;
 namespace Order.Infrastructure.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    partial class OrderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806084346_TipAllocations")]
+    partial class TipAllocations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -489,9 +492,6 @@ namespace Order.Infrastructure.Migrations
                     b.Property<string>("PaymentUrl")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("Percentage")
-                        .HasColumnType("numeric");
-
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
@@ -503,12 +503,6 @@ namespace Order.Infrastructure.Migrations
 
                     b.Property<decimal>("SurchargeAmount")
                         .HasColumnType("numeric");
-
-                    b.Property<decimal?>("TipAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("TipType")
-                        .HasColumnType("integer");
 
                     b.Property<string>("TransactionId")
                         .HasColumnType("text");
@@ -663,8 +657,8 @@ namespace Order.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AllocationType")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -678,14 +672,21 @@ namespace Order.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("PaymentId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("Ratio")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("ServiceAmount")
+                        .HasColumnType("numeric");
+
                     b.Property<long>("TechnicianId")
                         .HasColumnType("bigint");
-
-                    b.Property<decimal>("TechnicianRevenue")
-                        .HasColumnType("numeric");
 
                     b.Property<decimal>("TipAmount")
                         .HasColumnType("numeric");

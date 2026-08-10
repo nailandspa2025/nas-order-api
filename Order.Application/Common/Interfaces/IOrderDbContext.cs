@@ -33,5 +33,6 @@ public interface IOrderDbContext : IEfCoreDbContext
     DbSet<BookingTechnicianService> BookingTechnicianService { get; }
     DbSet<PaymentProviderSetting> PaymentProviderSetting { get; }
     DbSet<PaymentProvider> PaymentProvider { get; }
+    DbSet<TipAllocation> TipAllocation { get; }
 }
 

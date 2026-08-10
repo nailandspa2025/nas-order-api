@@ -47,9 +47,20 @@ public record CreatePaymentCommand : IRequest<ApiResponse<PaymentDto>>
     public decimal? CustomerPaid { get; init; }
     // Tiền thối lại
     public decimal? ChangeAmount { get; init; }
+    
+    public decimal? TipAmount { get; set; }
+    public decimal? Percentage { get; set; } // optional
+    public TipType TipType { get; set; }
+    public List<TipAllocationRequest> TipAllocations { get; init; } = new List<TipAllocationRequest>();
 
 }
-
+public class TipAllocationRequest
+{
+    public decimal TechnicianRevenue { get; init; }
+    public decimal TipAmount { get; init; }
+    public long TechnicianId { get; init; }
+    public TipAllocationType AllocationType { get; init; }
+}
 public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, ApiResponse<PaymentDto>>
 {
     private readonly IOrderDbContext _context;
@@ -104,7 +115,10 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             DiscountAmount = request.DiscountAmount,
             SurchargeAmount = request.SurchargeAmount,
             CustomerPaid = request.CustomerPaid,
-            ChangeAmount = request.ChangeAmount
+            ChangeAmount = request.ChangeAmount,
+            TipAmount = request.TipAmount,
+            Percentage = request.Percentage,
+            TipType = request.TipType
         };
         var transaction = new Transaction
         {
@@ -224,7 +238,35 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         await _context.Payment.AddAsync(payment, cancellationToken);
         await _context.Transaction.AddAsync(transaction, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
+        if (request.TipAmount > 0 && request.TipAllocations.Any())
+        {
+            var tipAllocations =
+                request.TipAllocations
+                    .Select(x => new TipAllocation
+                    {
+                        PaymentId = payment.Id,
 
+                        TechnicianRevenue =
+                            x.TechnicianRevenue,
+
+                        TipAmount =
+                            x.TipAmount,
+
+                        TechnicianId =
+                            x.TechnicianId,
+
+                        AllocationType =
+                            x.AllocationType
+                    })
+                    .ToList();
+
+            await _context.TipAllocation.AddRangeAsync(
+                tipAllocations,
+                cancellationToken);
+
+            await _context.SaveChangesAsync(
+                cancellationToken);
+        }
         if (payment.Status == PaymentStatus.Success)
         {
             try

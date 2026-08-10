@@ -6,12 +6,17 @@ namespace Order.Infrastructure.Persistence.Configurations;
 
 public class PaymentConfiguration: IEntityTypeConfiguration<Payment>
 {
-	
+
     public void Configure(EntityTypeBuilder<Payment> builder)
     {
-        builder.HasOne(x=>x.Booking)
-            .WithMany(x=>x.Payments)
-            .HasForeignKey(p => p.BookingId)        
+        builder.HasOne(x => x.Booking)
+            .WithMany(x => x.Payments)
+            .HasForeignKey(p => p.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+            
+        builder.HasMany(x => x.TipAllocations)
+            .WithOne(x => x.Payment)
+            .HasForeignKey(x => x.PaymentId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
