@@ -7,7 +7,8 @@ public enum BookingStatus
     Completed = 2,
     Cancelled = 3,
     InProgress = 4,
-    CheckIn = 5
+    CheckIn = 5,
+    Close = 6,
 }
 
 public enum PaymentStatus

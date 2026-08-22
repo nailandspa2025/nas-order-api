@@ -67,7 +67,15 @@ app.UseEndpoints(endpoints =>
 
 
 //RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job", job => job.ExecuteAsync(), "0 0 * * *");
-RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job",job => job.ExecuteAsync(),Cron.Minutely);
+RecurringJob.AddOrUpdate<BookingReminderJob>("booking-reminder-job", job => job.ExecuteAsync(), Cron.Minutely);
+RecurringJob.AddOrUpdate<CloseBookingJob>(
+    "booking-close-end-of-day",
+    x => x.ExecuteAsync(),
+    "* * * * *",
+    new RecurringJobOptions
+    {
+        TimeZone = TimeZoneInfo.Utc
+    });
 app.Run();
 
 // Make the implicit Program class public so test projects can access it
