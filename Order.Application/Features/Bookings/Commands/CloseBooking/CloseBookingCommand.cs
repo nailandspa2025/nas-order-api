@@ -35,10 +35,7 @@ public class CloseBookingCommandHandler
     {
         var utcNow = DateTimeOffset.UtcNow;
 
-        // ============================================================
-        // 1. Lấy các Booking chưa ở trạng thái cuối
-        // ============================================================
-
+        // 1. Lấy các booking chưa ở trạng thái cuối
         var bookings = await _context.Booking
             .AsNoTracking()
             .Where(x =>
@@ -55,63 +52,43 @@ public class CloseBookingCommandHandler
 
         if (bookings.Count == 0)
         {
-            _logger.LogDebug(
-                "Close booking job: no open bookings found.");
-
             return Unit.Value;
         }
 
-        // ============================================================
         // 2. Lấy danh sách StoreId
-        // ============================================================
-
         var storeIds = bookings
-            .Where(x => x.StoreId.HasValue)
-            .Select(x => x.StoreId!.Value)
+            .Select(x => x.StoreId)
             .Distinct()
             .ToList();
 
-        if (storeIds.Count == 0)
-        {
-            _logger.LogDebug(
-                "Close booking job: no valid StoreId found.");
-
-            return Unit.Value;
-        }
-
-        // ============================================================
-        // 3. Lấy timezone của các Store
-        // ============================================================
-
-        var response = await _catalogClient.GetStoreByIdsAsync(
+        // 3. Gọi Catalog API để lấy timezone của các Store
+        var stores = (await _catalogClient.GetStoreByIdsAsync(
             string.Join(",", storeIds),
-            cancellationToken);
-
-        var stores = response?.Data;
+            cancellationToken
+        ))?.Data;
 
         if (stores == null)
         {
             _logger.LogWarning(
-                "Close booking job: no store information found.");
+                "No store information found for booking close job.");
 
             return Unit.Value;
         }
 
         var storeMap = stores
-            .Where(x => x.Id != null && !string.IsNullOrWhiteSpace(x.TimeZone))
-            .GroupBy(x => x.Id)
             .ToDictionary(
-                x => x.Key,
-                x => x.First().TimeZone);
+                x => x.Id,
+                x => x.TimeZone);
 
-        // ============================================================
-        // 4. Xác định các Store đang ở thời điểm chuyển sang ngày mới
-        // ============================================================
+        // 4. Những Booking cần Close
+        var bookingIdsToClose = new List<int>();
 
-        var storeIdsToClose = new HashSet<long>();
-
-        foreach (var storeId in storeIds)
+        // 5. Group Booking theo Store
+        foreach (var storeGroup in bookings.GroupBy(x => x.StoreId))
         {
+            var storeId = storeGroup.Key!.Value;
+
+            // Không tìm thấy Store
             if (!storeMap.TryGetValue(storeId, out var timeZoneId))
             {
                 _logger.LogWarning(
@@ -147,70 +124,35 @@ public class CloseBookingCommandHandler
                 continue;
             }
 
-            // UTC -> giờ local của Store
+            // 6. Convert UTC → giờ của Store
             var storeNow = TimeZoneInfo.ConvertTime(
                 utcNow,
                 timeZone);
 
             _logger.LogDebug(
-                "Store {StoreId}, TimeZone {TimeZoneId}, LocalTime {LocalTime}",
+                "Store {StoreId}, TimeZone {TimeZoneId}, LocalTime {StoreNow}",
                 storeId,
                 timeZoneId,
                 storeNow);
 
-            // ========================================================
-            // Chỉ xử lý trong phút đầu tiên của ngày mới.
-            //
-            // Ví dụ:
-            // Store VN:
-            // 2026-08-23 00:00
-            //
-            // Store Japan:
-            // 2026-08-23 00:00
-            // ========================================================
-
-            if (storeNow.Hour == 0 &&
-                storeNow.Minute == 0)
+            // 7. Chỉ xử lý lúc 23:59 theo giờ Store
+            if (storeNow.Hour != 23 ||
+                storeNow.Minute != 59)
             {
-                storeIdsToClose.Add(storeId);
+                continue;
             }
+
+            // 8. Add booking của Store này vào danh sách cần Close
+            bookingIdsToClose.AddRange(
+                storeGroup.Select(x => x.Id));
         }
-
-        if (storeIdsToClose.Count == 0)
-        {
-            return Unit.Value;
-        }
-
-        // ============================================================
-        // 5. Lấy Booking thuộc các Store cần Close
-        // ============================================================
-
-        var bookingIdsToClose = bookings
-            .Where(x =>
-                x.StoreId.HasValue &&
-                storeIdsToClose.Contains(x.StoreId.Value))
-            .Select(x => x.Id)
-            .ToList();
 
         if (bookingIdsToClose.Count == 0)
         {
             return Unit.Value;
         }
 
-        // ============================================================
-        // 6. Update trực tiếp Database
-        //
-        // Có thêm điều kiện Status để tránh:
-        //
-        // Job đọc Pending
-        //        ↓
-        // Booking được Completed
-        //        ↓
-        // Job update
-        //
-        // Booking Completed sẽ không bị đổi thành Close.
-        // ============================================================
-
+        // 9. Update trực tiếp database
         var affectedRows = await _context.Booking
             .Where(x =>
                 bookingIdsToClose.Contains(x.Id) &&
@@ -227,15 +169,10 @@ public class CloseBookingCommandHandler
                         DateTime.UtcNow),
                 cancellationToken);
 
-        // ============================================================
-        // 7. Log
-        // ============================================================
-
         _logger.LogInformation(
             "Close booking job completed. " +
-            "StoresToClose: {StoreCount}, " +
-            "BookingsClosed: {BookingCount}",
-            storeIdsToClose.Count,
+            "Stores: {StoreCount}, Bookings: {BookingCount}",
+            storeMap.Count,
             affectedRows);
 
         return Unit.Value;
