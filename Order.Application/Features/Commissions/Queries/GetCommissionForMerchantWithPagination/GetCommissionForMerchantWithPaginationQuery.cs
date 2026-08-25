@@ -154,19 +154,17 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                 commissionStoreIds.Clear();
             }
         }
-        if (!commissionStoreIds.Any())
-        {
-            return ApiResponse<
-                PaginatedList<CommissionDetailDto>>
-                .Success(
-                    new PaginatedList<CommissionDetailDto>(
-                        new List<CommissionDetailDto>(),
-                        0,
-                        request.PageNumber,
-                        request.PageSize));
-        }
         bookingQuery = bookingQuery.Where(x =>
-        commissionStoreIds.Contains(x.StoreId!.Value));
+            x.Status == BookingStatus.Completed
+            ||
+            (
+                x.Status == BookingStatus.Close
+                &&
+                x.StoreId.HasValue
+                &&
+                commissionStoreIds.Contains(x.StoreId.Value)
+            )
+        );
         // 6. SelectMany để làm phẳng dữ liệu, nhưng chỉ lấy đúng technician/service theo request
         var query = bookingQuery
             .SelectMany(booking => booking.BookingTechnicians

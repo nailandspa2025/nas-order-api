@@ -88,24 +88,25 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
         {
             query = query.Where(x => x.StoreId == request.StoreId.Value);
         }
-        var storeIds = await query
+         var storeIds = await query
             .Select(x => x.StoreId)
             .Distinct()
             .ToListAsync(cancellationToken);
-        var commissionStoreIds = new List<long>();
 
+        var commissionStoreIds = new List<long>();
         if (storeIds.Any())
         {
             try
             {
                 var storesResponse = await _catalogClient
-                .GetStoreByIdsAsync(
-                    string.Join(",", storeIds),
-                    cancellationToken);
+                    .GetStoreByIdsAsync(
+                        string.Join(",", storeIds),
+                        cancellationToken);
 
                 commissionStoreIds = storesResponse?.Data?
                     .Where(x => x.IsCommission)
                     .Select(x => x.Id)
+                    .Distinct()
                     .ToList()
                     ?? new List<long>();
             }
@@ -113,19 +114,19 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
             {
                  _logger.LogError(
                     ex,
-                    "Failed to get Store information for StoreIds: {StoreIds}",
+                    "Failed to get Store information. StoreIds: {StoreIds}",
                     string.Join(",", storeIds));
             }
         }
-        if (!commissionStoreIds.Any())
-        {
-            query = query.Where(x => false);
-        }
-        else
-        {
-            query = query.Where(x =>
-                commissionStoreIds.Contains(x.StoreId));
-        }
+        query = query.Where(x =>
+            x.Status == BookingStatus.Completed
+            ||
+            (
+                x.Status == BookingStatus.Close
+                &&
+                commissionStoreIds.Contains(x.StoreId)
+            )
+        );
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
@@ -213,4 +214,6 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
             request.PageSize);
         return ApiResponse<PaginatedList<CommissionDetailDto>>.Success(paginationResult);
     }
+
+    
 }
