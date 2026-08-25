@@ -7,6 +7,7 @@ using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Core.Response;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Commissions.Models;
 using Order.Domain.Enums;
@@ -32,18 +33,20 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
     private readonly IIdentityClient _identityClient;
     private readonly ICatalogClient _catalogClient;
     private readonly ICurrentUser _currentUser;
-    public GetCommissionsWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient, ICurrentUser currentUser)
+    private readonly ILogger<GetCommissionsWithPaginationQueryHandler> _logger;
+    public GetCommissionsWithPaginationQueryHandler(IOrderDbContext context, IMapper mapper, IIdentityClient identityClient, ICatalogClient catalogClient, ICurrentUser currentUser, ILogger<GetCommissionsWithPaginationQueryHandler> logger)
     {
         _context = context;
         _mapper = mapper;
         _identityClient = identityClient;
         _catalogClient = catalogClient;
         _currentUser = currentUser;
+        _logger = logger;
     }
     public async Task<ApiResponse<PaginatedList<CommissionDetailDto>>> Handle(GetCommissionsWithPaginationQuery request, CancellationToken cancellationToken)
     {
         var query = _context.Booking
-        .Where(x => !x.IsDeleted && x.Status == BookingStatus.Completed)
+        .Where(x => !x.IsDeleted && (x.Status == BookingStatus.Completed || x.Status == BookingStatus.Close))
         .SelectMany(booking => booking.BookingTechnicians
             .SelectMany(technician => technician.Services
                 .Select(service => new CommissionDetailDto
@@ -84,6 +87,44 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
         if (request.StoreId.HasValue)
         {
             query = query.Where(x => x.StoreId == request.StoreId.Value);
+        }
+        var storeIds = await query
+            .Select(x => x.StoreId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var commissionStoreIds = new List<long>();
+
+        if (storeIds.Any())
+        {
+            try
+            {
+                var storesResponse = await _catalogClient
+                .GetStoreByIdsAsync(
+                    string.Join(",", storeIds),
+                    cancellationToken);
+
+                commissionStoreIds = storesResponse?.Data?
+                    .Where(x => x.IsCommission)
+                    .Select(x => x.Id)
+                    .ToList()
+                    ?? new List<long>();
+            }
+            catch (Exception ex)
+            {
+                 _logger.LogError(
+                    ex,
+                    "Failed to get Store information for StoreIds: {StoreIds}",
+                    string.Join(",", storeIds));
+            }
+        }
+        if (!commissionStoreIds.Any())
+        {
+            query = query.Where(x => false);
+        }
+        else
+        {
+            query = query.Where(x =>
+                commissionStoreIds.Contains(x.StoreId));
         }
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -172,6 +213,4 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
             request.PageSize);
         return ApiResponse<PaginatedList<CommissionDetailDto>>.Success(paginationResult);
     }
-
-    
 }

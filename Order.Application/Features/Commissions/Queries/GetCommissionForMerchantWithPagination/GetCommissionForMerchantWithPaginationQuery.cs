@@ -7,6 +7,7 @@ using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Core.Response;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Order.Application.Common.Interfaces;
 using Order.Application.Features.Commissions.Models;
 using Order.Domain.Enums;
@@ -30,28 +31,29 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
     private readonly IIdentityClient _identityClient;
     private readonly ICatalogClient _catalogClient;
     private readonly ICurrentUser _currentUser;
+    private readonly ILogger<GetCommissionForMerchantWithPaginationQueryHandler> _logger;
 
     public GetCommissionForMerchantWithPaginationQueryHandler(
         IOrderDbContext context,
         IMapper mapper,
         IIdentityClient identityClient,
         ICatalogClient catalogClient,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        ILogger<GetCommissionForMerchantWithPaginationQueryHandler> logger)
     {
         _context = context;
         _mapper = mapper;
         _identityClient = identityClient;
         _catalogClient = catalogClient;
         _currentUser = currentUser;
+        _logger = logger;
     }
 
-    public async Task<ApiResponse<PaginatedList<CommissionDetailDto>>> Handle(
-        GetCommissionForMerchantWithPaginationQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedList<CommissionDetailDto>>> Handle(GetCommissionForMerchantWithPaginationQuery request, CancellationToken cancellationToken)
     {
         // 1. Query cơ sở: lấy các booking đã hoàn thành, chưa xóa
         var bookingQuery = _context.Booking
-            .Where(x => !x.IsDeleted && x.Status == BookingStatus.Completed)
+            .Where(x => !x.IsDeleted && (x.Status == BookingStatus.Completed || x.Status == BookingStatus.Close))
             .AsNoTracking();
 
         // 2. Lọc theo ngày (nếu có)
@@ -120,7 +122,51 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
         {
             bookingQuery = bookingQuery.Where(b => b.BookingTechnicians.Any(bt => bt.Services.Any(s => s.ServiceId == request.ServiceId.Value)));
         }
+        var bookingStoreIds = await bookingQuery
+                .Select(x => x.StoreId!.Value)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+        var commissionStoreIds = new List<long>();
+        if (bookingStoreIds.Any())
+        {
+            try
+            {
+                var storesResponse =
+                    await _catalogClient.GetStoreByIdsAsync(
+                        string.Join(",", bookingStoreIds),
+                        cancellationToken);
 
+                commissionStoreIds =
+                    storesResponse?.Data?
+                        .Where(x => x.IsCommission)
+                        .Select(x => x.Id)
+                        .Distinct()
+                        .ToList()
+                    ?? new List<long>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to get Store information. StoreIds: {StoreIds}",
+                    string.Join(",", bookingStoreIds));
+
+                commissionStoreIds.Clear();
+            }
+        }
+        if (!commissionStoreIds.Any())
+        {
+            return ApiResponse<
+                PaginatedList<CommissionDetailDto>>
+                .Success(
+                    new PaginatedList<CommissionDetailDto>(
+                        new List<CommissionDetailDto>(),
+                        0,
+                        request.PageNumber,
+                        request.PageSize));
+        }
+        bookingQuery = bookingQuery.Where(x =>
+        commissionStoreIds.Contains(x.StoreId!.Value));
         // 6. SelectMany để làm phẳng dữ liệu, nhưng chỉ lấy đúng technician/service theo request
         var query = bookingQuery
             .SelectMany(booking => booking.BookingTechnicians
@@ -145,6 +191,8 @@ public class GetCommissionForMerchantWithPaginationQueryHandler : IRequestHandle
                     })
                 )
             );
+
+        
 
         // 7. Đếm tổng số và phân trang
         var totalCount = await query.CountAsync(cancellationToken);
