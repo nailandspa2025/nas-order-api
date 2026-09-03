@@ -88,7 +88,7 @@ public class GetCommissionsWithPaginationQueryHandler : IRequestHandler<GetCommi
         {
             query = query.Where(x => x.StoreId == request.StoreId.Value);
         }
-         var storeIds = await query
+        var storeIds = await query
             .Select(x => x.StoreId)
             .Distinct()
             .ToListAsync(cancellationToken);

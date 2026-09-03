@@ -31,8 +31,19 @@ public class BookingConfiguration: IEntityTypeConfiguration<Booking>
 
         builder.Property(p => p.BookingDate)
             .HasColumnType("date");
-        
+
         builder.HasMany(x => x.BookingTechnicians)
+            .WithOne(x => x.Booking)
+            .HasForeignKey(x => x.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.BookingProducts)
+            .WithOne(x => x.Booking)
+            .HasForeignKey(x => x.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        
+        builder.HasMany(x => x.BookingColors)
             .WithOne(x => x.Booking)
             .HasForeignKey(x => x.BookingId)
             .OnDelete(DeleteBehavior.Cascade);

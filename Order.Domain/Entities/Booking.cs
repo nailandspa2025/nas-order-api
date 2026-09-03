@@ -6,13 +6,13 @@ namespace Order.Domain.Entities;
 
 public class Booking : BaseAuditableEntity<int>, ISoftDelete
 {
-    public long ? StoreId { get; set; }
+    public long? StoreId { get; set; }
 
-    public long ? ProductId { get; set; }
+    public long? ProductId { get; set; }
 
     //public long ? TechnicianId { get; set; }
 
-    public string ? UserId { get; set; } = null!;
+    public string? UserId { get; set; } = null!;
 
     public DateTime BookingDate { get; set; }
 
@@ -20,28 +20,28 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
 
     public BookingStatus Status { get; set; }
 
-    public PaymentStatus ? PaymentStatus { get; set; }
+    public PaymentStatus? PaymentStatus { get; set; }
 
-    public PaymentMethod ? PaymentMethod { get; set; }
+    public PaymentMethod? PaymentMethod { get; set; }
 
-    public string ? Note { get; set; }
+    public string? Note { get; set; }
 
-    public string ? FullName { get; set; }
+    public string? FullName { get; set; }
 
-    public string ? Address { get; set; }
+    public string? Address { get; set; }
 
-    public Gender ? Gender { get; set; }
+    public Gender? Gender { get; set; }
 
-    public string ? Phone { get; set; }
+    public string? Phone { get; set; }
 
-    public string ? Email { get; set; }
+    public string? Email { get; set; }
 
-    public int ? Number { get; set; }
+    public int? Number { get; set; }
 
     //public int TransactionId { get; set; }
 
     //public virtual Payment? Payment { get; set; }
-    
+
     public string? Reason { get; set; }
 
     public string? DeletedBy { get; set; }
@@ -65,7 +65,8 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
     public ICollection<BookingSnap> BookingSnaps { get; set; } = new List<BookingSnap>();
     public ICollection<BookingSnapGroup> BookingSnapGroups { get; set; } = new List<BookingSnapGroup>();
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
-    // public ICollection<BookingTechnicianService> BookingTechnicianServices { get; set; } = new List<BookingTechnicianService>();
+    public ICollection<BookingProduct> BookingProducts { get; set; } = new List<BookingProduct>();
+    public ICollection<BookingColor> BookingColors { get; set; } = new List<BookingColor>();
     public void SetBookingServices(List<BookingService> bookingServices)
     {
         this.BookingServices.Clear();
@@ -88,9 +89,14 @@ public class Booking : BaseAuditableEntity<int>, ISoftDelete
         this.BookingSnapGroups.Clear();
         this.BookingSnapGroups = groups;
     }
-    // public void SetBookingTechnicianServices(List<BookingTechnicianService> bookingTechnicianServices)
-    // {
-    //     this.BookingTechnicianServices.Clear();
-    //     this.BookingTechnicianServices = bookingTechnicianServices;
-    // }
+    public void SetBookingProducts(List<BookingProduct> products)
+    {
+        this.BookingProducts.Clear();
+        this.BookingProducts = products;
+    }
+    public void SetBookingColors(List<BookingColor> colors)
+    {
+        this.BookingColors.Clear();
+        this.BookingColors = colors;
+    }
 }

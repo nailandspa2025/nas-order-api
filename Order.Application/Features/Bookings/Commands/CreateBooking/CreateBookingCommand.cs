@@ -40,9 +40,11 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
 
     public int? Number { get; init; }
 
-    public string ? UserId { get; init; }
+    public string? UserId { get; init; }
 
     public List<int> ServiceIds { get; init; } = new List<int>();
+    public List<int> ProductIds { get; init; } = new List<int>();
+    public List<string> HexColors { get; init; } = new List<string>();
 }
 
 public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, ApiResponse<BookingDto>>
@@ -105,6 +107,22 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             }).ToList();
 
             entity.SetBookingTechnicians(bookingTechnicians);
+        }
+        if (request.ProductIds != null && request.ProductIds.Any())
+        {
+            var bookingProducts = request.ProductIds.Select(id => new BookingProduct
+            {
+                ProductId = id
+            }).ToList();
+            entity.SetBookingProducts(bookingProducts);
+        }
+        if (request.HexColors != null && request.HexColors.Any())
+        {
+            var bookingColors = request.HexColors.Select(id => new BookingColor
+            {
+                HexColor = id
+            }).ToList();
+            entity.SetBookingColors(bookingColors);
         }
         _context.Booking.Add(entity);
         var result = await _context.SaveChangesAsync(cancellationToken);

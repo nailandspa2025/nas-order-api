@@ -44,6 +44,8 @@ public record CreateBookingMobileCommand : IRequest<ApiResponse<BookingDto>>
     public List<string> SnapIds { get; init; } = new List<string>();
     public List<string> GroupIds { get; init; } = new List<string>();
     public List<BookingTechnicianRequest> Technicians { get; init; } = [];
+    public List<int> ProductIds { get; init; } = new List<int>();
+    public List<string> HexColors { get; init; } = new List<string>();
 
 
 }
@@ -127,6 +129,22 @@ public class CreateBookingMobileCommandHandler : IRequestHandler<CreateBookingMo
                 .ToList();
 
             entity.SetBookingTechnicians(bookingTechnicians);
+        }
+        if (request.ProductIds != null && request.ProductIds.Any())
+        {
+            var bookingProducts = request.ProductIds.Select(id => new BookingProduct
+            {
+                ProductId = id
+            }).ToList();
+            entity.SetBookingProducts(bookingProducts);
+        }
+        if (request.HexColors != null && request.HexColors.Any())
+        {
+            var bookingColors = request.HexColors.Select(id => new BookingColor
+            {
+                HexColor = id
+            }).ToList();
+            entity.SetBookingColors(bookingColors);
         }
         // Console.WriteLine($"canhlv {request.Technicians.Count()}");
         _context.Booking.Add(entity);

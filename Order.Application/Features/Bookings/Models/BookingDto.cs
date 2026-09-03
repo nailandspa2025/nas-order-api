@@ -63,8 +63,9 @@ public class BookingDto: BaseAuditableDto
 
     public TimeSpan ? WorkingTime { get; set; }
     public List<BookingTechnicianDto> Technicians { get; set; } = new();
-
-    private class Mapping : Profile
+    public List<string> HexColors { get; set; } = new List<string>();
+    public List<int> ProductIds { get; set; } = new List<int>();
+    private class Mapping : Profile 
     {
         public Mapping()
         {
@@ -72,11 +73,15 @@ public class BookingDto: BaseAuditableDto
                 .ForMember(dest => dest.TechnicianIds,
                 opt => opt.MapFrom(src => src.BookingTechnicians.Select(x => x.TechnicianId).ToList()))
                 .ForMember(dest => dest.ServiceIds,
-                opt => opt.MapFrom(src => src.BookingTechnicians.SelectMany(x=> x.Services).Select(x => x.ServiceId).ToList()))
+                opt => opt.MapFrom(src => src.BookingTechnicians.SelectMany(x => x.Services).Select(x => x.ServiceId).ToList()))
                  .ForMember(dest => dest.SnapIds,
                 opt => opt.MapFrom(src => src.BookingSnaps.Select(x => x.SnapId).ToList()))
                  .ForMember(dest => dest.GroupdIds,
-                opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList()));
+                opt => opt.MapFrom(src => src.BookingSnapGroups.Select(x => x.GroupdId).ToList()))
+                .ForMember(dest => dest.HexColors,
+                opt => opt.MapFrom(src => src.BookingColors.Select(x => x.HexColor).ToList()))
+                .ForMember(dest => dest.ProductIds,
+                opt => opt.MapFrom(src => src.BookingProducts.Select(x => x.ProductId).ToList()));
         }
     }
 }

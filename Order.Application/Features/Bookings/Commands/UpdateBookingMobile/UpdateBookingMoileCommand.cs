@@ -49,7 +49,8 @@ public record UpdateBookingMoileCommand : IRequest<ApiResponse<BookingDto>>
 
     public List<string> GroupIds { get; init; } = new List<string>();
     public List<BookingTechnicianRequest> Technicians { get; init; } = [];
-
+    public List<int> ProductIds { get; init; } = new List<int>();
+    public List<string> HexColors { get; init; } = new List<string>();
 }
 public class BookingTechnicianRequest
 {
@@ -85,7 +86,9 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
 
         var bookingSnaps = new List<BookingSnap>();
         var bookingGroups = new List<BookingSnapGroup>();
-
+        var bookingProducts = new List<BookingProduct>();
+        var bookingColors = new List<BookingColor>();
+        
         var entity = await _context.Booking
             //.Include(x => x.BookingServices)
             .Include(x => x.BookingSnapGroups)
@@ -166,6 +169,22 @@ public class UpdateBookingMoileCommandHandler : IRequestHandler<UpdateBookingMoi
             })
             .ToList();
         }
+        if (request.ProductIds != null && request.ProductIds.Any())
+        {
+            bookingProducts = request.ProductIds.Select(id => new BookingProduct
+            {
+                ProductId = id
+            }).ToList();
+        }
+        if (request.HexColors != null && request.HexColors.Any())
+        {
+            bookingColors = request.HexColors.Select(id => new BookingColor
+            {
+                HexColor = id
+            }).ToList();
+        }
+        entity.SetBookingProducts(bookingProducts);
+        entity.SetBookingColors(bookingColors);
         entity.SetBookingServices(bookingServices);
         entity.SetBookingTechnicians(bookingTechnicians);
         entity.SetBookingSnaps(bookingSnaps);
