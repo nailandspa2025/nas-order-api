@@ -64,7 +64,7 @@ public class BookingDto: BaseAuditableDto
     public TimeSpan ? WorkingTime { get; set; }
     public List<BookingTechnicianDto> Technicians { get; set; } = new();
     public List<string> HexColors { get; set; } = new List<string>();
-    public List<int> ProductIds { get; set; } = new List<int>();
+    public List<long> ProductIds { get; set; } = new List<long>();
     private class Mapping : Profile 
     {
         public Mapping()
