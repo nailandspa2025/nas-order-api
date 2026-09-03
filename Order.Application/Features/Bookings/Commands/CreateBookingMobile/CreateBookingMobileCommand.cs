@@ -44,7 +44,7 @@ public record CreateBookingMobileCommand : IRequest<ApiResponse<BookingDto>>
     public List<string> SnapIds { get; init; } = new List<string>();
     public List<string> GroupIds { get; init; } = new List<string>();
     public List<BookingTechnicianRequest> Technicians { get; init; } = [];
-    public List<int> ProductIds { get; init; } = new List<int>();
+    public List<long> ProductIds { get; init; } = new List<long>();
     public List<string> HexColors { get; init; } = new List<string>();
 
 

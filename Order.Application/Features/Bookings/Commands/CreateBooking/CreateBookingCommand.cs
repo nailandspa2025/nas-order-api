@@ -43,7 +43,7 @@ public record CreateBookingCommand : IRequest<ApiResponse<BookingDto>>
     public string? UserId { get; init; }
 
     public List<int> ServiceIds { get; init; } = new List<int>();
-    public List<int> ProductIds { get; init; } = new List<int>();
+    public List<long> ProductIds { get; init; } = new List<long>();
     public List<string> HexColors { get; init; } = new List<string>();
 }
 
